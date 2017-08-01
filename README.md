@@ -7,7 +7,7 @@ This is a simple [golang](https://golang.org/) based project which is designed t
 * Viewing the last few runs of a given system.
 * etc.
 
-**TODO**: A couple of screenshots here.
+There are [screenshots included within this repository](screenshots/).
 
 In short:
 
