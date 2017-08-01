@@ -75,7 +75,7 @@ Now update the compiled code, and rebuild to see your changes:
 
 ## End-Points
 
-There are four three-end points:
+There are four main end-points:
 
 * `GET /`
   * Show all known-nodes and their current status.
