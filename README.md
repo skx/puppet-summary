@@ -43,15 +43,17 @@ If you wish to change the host/port you can do so like this:
 
 Once you've got an instance of `puppet-summary` installed and running
 the next step is to populate it with report data.  The general way to
-do that is to update your puppet server to send the reports to it.
+do that is to update your puppet server to send the reports to it as
+they are received.
 
-Edit `puppet.conf` on your server:
+Edit `puppet.conf` on your puppet-master:
 
     [master]
     reports = store, http
     reporturl = http://localhost:3001/upload
 
-**NOTE**: Once configured don't forget to restart your puppet service!
+* If you're running the dashboard on a different host you'll need to use the external IP/hostname here.
+* Once configured don't forget to restart your puppet service!
 
 That should be sufficient to make puppet send your reports to this
 software, where the results can be visualized.
