@@ -22,17 +22,29 @@ only contains a summary of the available data it will not grow excessively.
 > The current software has been tested with over 50,000 reports and performs well at that scale.
 
 
-## Installation
+## Installation & Execution
 
-To install this software it should be sufficient to run:
+To install this software it should be sufficient to run the following:
 
     go get github.com/skx/puppet-summary
 
-Once installed you need to launch it like so:
+Once installed you can launch it like so:
 
-    puppet-summary
+    $ puppet-summary serve
+    Launching the server on http://127.0.0.1:3001
 
-Then configure your puppet-server to send its reports to the host.
+If you wish to change the host/port you can do so like this:
+
+    $ puppet-summary -port 4321 -host 10.10.10.10 serve
+    Launching the server on http://127.0.0.1:4321
+
+
+## Configuring Your Puppet Server
+
+Once you've got an instance of `puppet-summary` installed and running
+the next step is to populate it with report data.  The general way to
+do that is to update your puppet server to send the reports to it.
+
 Edit `puppet.conf` on your server:
 
     [master]
@@ -41,60 +53,42 @@ Edit `puppet.conf` on your server:
 
 **NOTE**: Once configured don't forget to restart your puppet service!
 
+That should be sufficient to make puppet send your reports to this
+software, where the results can be visualized.
+
+If you just wish to test you can look at the existing YAML reports
+that are almost certainly present upon your puppet server - and add
+them in "by hand".
+
+Something like this should do the job:
+
+    # cd /var/lib/puppet/reports
+    # find . -name '*.yaml' -exec \
+       curl --data-binary @\{\} http://localhost:3001/upload \;
+
+That assumes that your reports are located beneath `/var/lib/puppet/reports`,
+but that is a reasonable default.
 
 
-## Testing
+## Maintenance
 
-If you don't wish to install it for real, updating your puppet-server,
-and running in production, you can instead instead just pretend you're
-running it!  Assuming you have a bunch of YAML files stored upon your
-puppet-server, probably beneath `/var/lib/puppet/reports`, you can copy
-them to your local system, then submit them to the server running locally:
+Over time your reports will grow excessively large.  We only display
+the most recent 50 upon the per-node page so you might not notice.
 
-    find . -name '*.yaml' -exec curl --data-binary @\{\} http://localhost:3001/upload \;
+To prune (read: delete) old reports run:
 
+    puppet-summary -days 15 prune
 
-
-## Editing the HTML Templates
-
-The generated HTML views are stored inside the compiled binary to ease
-deployment.  If you wish to tweak the look & feel by editing them then
-you're more then welcome.
-
-The raw HTML-templates are located beneath `data/`, and you can edit them
-then rebuild the compiled versions via `go-bindata`.
-
-Install `go-bindata` like this, if you don't already have it present:
-
-     go get -u github.com/jteeuwen/go-bindata/...
-
-Now regenerate the compiled version(s) of the templates and rebuild the
-binary to make your changes:
-
-    go-bindata -nomemcopy data/
-    go build .
-
-
-## End-Points
-
-There are four main end-points:
-
-* `GET /`
-  * Show all known-nodes and their current status.
-* `GET /node/${fqdn}`
-   * Shows the last N (max 50) runs of puppet against the given node.
-   * This includes a graph of run-time.
-* `GET /report/${n}`
-   * This shows useful output of a given run.
-* `POST /upload`
-   * Store a report, this is expected to be invoked from the puppet-master.
+That will remove the reports from disk which are > 15 days old, and
+also remove the associated SQLite entries that refer to them.
 
 
 ## Notes On Deployment
 
 * Received YAML files are stored beneath `./reports`
-* The SQLite database is `./foo.db`.
-  * These will become more flexible in the future.
+* The default SQLite database is `./ps.db`.
+    * This can be changed via the command-line, for example:
+    * `puppet-summary -db-file local.sqlite3 -port 4323 serve`
 
 Obviously don't run this as root.
 
