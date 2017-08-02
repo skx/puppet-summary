@@ -9,6 +9,8 @@ import (
 	"errors"
 	_ "github.com/mattn/go-sqlite3"
 	"io/ioutil"
+	"fmt"
+	"os"
 	"strconv"
 	"time"
 )
@@ -59,6 +61,16 @@ func SetupDB(path string) {
 	// Create the table.
 	//
 	sqlStmt := `
+
+        PRAGMA automatic_index = ON;
+        PRAGMA cache_size = 32768;
+        PRAGMA journal_size_limit = 67110000;
+        PRAGMA locking_mode = NORMAL;
+        PRAGMA synchronous = NORMAL;
+        PRAGMA temp_store = MEMORY;
+        PRAGMA journal_mode = WAL;
+        PRAGMA wal_autocheckpoint = 16384;
+
         CREATE TABLE IF NOT EXISTS reports (
           id          INTEGER PRIMARY KEY AUTOINCREMENT,
           fqdn        text,
@@ -267,4 +279,104 @@ func getReports(fqdn string) ([]PuppetReportSummary, error) {
 
 	}
 	return NodeList, nil
+}
+
+//
+// Prune old reports
+//
+func pruneReports( days int ) {
+
+	//
+	// Convert our query into something useful.
+	//
+	time := days * ( 24 * 60 * 60 )
+
+
+	//
+	// Find things that are old.
+	//
+	find, err := db.Prepare("SELECT id,yaml_file FROM reports WHERE ( ( strftime('%s','now') - executed_at ) > ? )")
+	if err != nil {
+		panic(err)
+	}
+
+	//
+	// Remove old reports, by ID.
+	//
+	clean, err := db.Prepare("DELETE FROM reports WHERE id=?")
+	if err != nil {
+		panic(err)
+	}
+
+	rows, err := find.Query(time)
+	if err != nil {
+		panic(err)
+	}
+	defer find.Close()
+	defer clean.Close()
+	defer rows.Close()
+
+	//
+	//  This is a list of IDs we'll delete
+	//
+	var ids []string
+
+	//
+	// For each row in the result-set
+	//
+	// Parse into "id" + "path".
+	//
+	for rows.Next() {
+		var id string
+		var path string
+
+		err := rows.Scan(&id, &path)
+		if err == nil {
+
+			fmt.Printf("Removing ID:%s - %s\n", id, path)
+
+			//
+			//  Remove the file from-disk
+			//
+			//  We won't care if this fails, it might have
+			// been removed behind our back or failed to
+			// be uploaded in the first place.
+			//
+			os.Remove( path )
+
+			//
+			// Remove the ID
+			//
+			ids = append(ids, id)
+		}
+	}
+	err = rows.Err()
+	if err != nil {
+		panic(err)
+	}
+
+
+	//
+	// Begin a transaction.
+	//
+	tx, err := db.Begin()
+	if err != nil {
+		panic(err)
+	}
+	//
+	//  Now cleanup
+	//
+	for _,v := range ids {
+		fmt.Printf("Removing ID: %s\n", v)
+		_, err = clean.Exec(v)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	//
+	// Commit our transaction
+	//
+	tx.Commit()
+
 }
