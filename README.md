@@ -36,7 +36,7 @@ Once installed you can launch it like so:
 If you wish to change the host/port you can do so like this:
 
     $ puppet-summary -port 4321 -host 10.10.10.10 serve
-    Launching the server on http://127.0.0.1:4321
+    Launching the server on http://10.10.10.10:4321
 
 
 ## Configuring Your Puppet Server
