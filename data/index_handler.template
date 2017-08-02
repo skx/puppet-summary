@@ -49,7 +49,10 @@
               <th>Seen</th>
             </tr>
             {{range .}}
-            <tr>
+        <tr
+           {{if eq .State "failed" }} class="danger" {{ end }}
+            {{if eq .State "changed" }} class="info"  {{ end }}
+            >
               <td><a href="/node/{{.Fqdn}}">{{.Fqdn}}</a></td>
               <td>{{.State}}</td>
               <td>{{.At}}</td>
@@ -68,7 +71,7 @@
             </tr>
             {{range .}}
             {{if eq .State "failed" }}
-            <tr>
+            <tr class="danger">
               <td><a href="/node/{{.Fqdn}}">{{.Fqdn}}</a></td>
               <td>{{.State}}</td>
               <td>{{.At}}</td>
@@ -88,7 +91,7 @@
             </tr>
             {{range .}}
             {{if eq .State "changed" }}
-            <tr>
+            <tr class="info">
               <td><a href="/node/{{.Fqdn}}">{{.Fqdn}}</a></td>
               <td>{{.State}}</td>
               <td>{{.At}}</td>
