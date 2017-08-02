@@ -55,12 +55,13 @@ Edit `puppet.conf` on your puppet-master:
 * If you're running the dashboard on a different host you'll need to use the external IP/hostname here.
 * Once configured don't forget to restart your puppet service!
 
-That should be sufficient to make puppet send your reports to this
-software, where the results can be visualized.
+That should be sufficient to make puppet submit reports, where they
+can be stored and displayed.
 
-If you just wish to test you can look at the existing YAML reports
-that are almost certainly present upon your puppet server - and add
-them in "by hand".
+If you don't wish to change your puppet-server initially you can test
+what it would look like by importing the existing YAML reports
+that are almost certainly present upon your puppet server, adding them
+by-hand.
 
 Something like this should do the job:
 
@@ -68,7 +69,7 @@ Something like this should do the job:
     # find . -name '*.yaml' -exec \
        curl --data-binary @\{\} http://localhost:3001/upload \;
 
-That assumes that your reports are located beneath `/var/lib/puppet/reports`,
+* That assumes that your reports are located beneath `/var/lib/puppet/reports`,
 but that is a reasonable default.
 
 
