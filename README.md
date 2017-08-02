@@ -88,12 +88,13 @@ also remove the associated SQLite entries that refer to them.
 
 ## Notes On Deployment
 
+* Please don't run this application as root.
 * Received YAML files are stored beneath `./reports`
 * The default SQLite database is `./ps.db`.
     * This can be changed via the command-line, for example:
     * `puppet-summary -db-file local.sqlite3 -port 4323 serve`
 
-Obviously don't run this as root.
+
 
  Steve
  --
