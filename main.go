@@ -19,7 +19,7 @@ func main() {
 	host := flag.String("host", "127.0.0.1", "The IP to listen upon")
 	port := flag.Int("port", 3001, "The port to bind upon")
 	days := flag.Int("days", 7, "The default number of days history to keep")
-	db := flag.String("db-file", "foo.db", "The SQLite database to use")
+	db := flag.String("db-file", "ps.db", "The SQLite database to use")
 	flag.Parse()
 
 	//
