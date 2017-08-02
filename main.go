@@ -2,7 +2,6 @@
 // Entry-point to the puppet-summary service.
 //
 
-
 package main
 
 import (

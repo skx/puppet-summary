@@ -7,9 +7,9 @@ package main
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	_ "github.com/mattn/go-sqlite3"
 	"io/ioutil"
-	"fmt"
 	"os"
 	"strconv"
 	"time"
@@ -284,13 +284,12 @@ func getReports(fqdn string) ([]PuppetReportSummary, error) {
 //
 // Prune old reports
 //
-func pruneReports( days int ) {
+func pruneReports(days int) {
 
 	//
 	// Convert our query into something useful.
 	//
-	time := days * ( 24 * 60 * 60 )
-
+	time := days * (24 * 60 * 60)
 
 	//
 	// Find things that are old.
@@ -342,7 +341,7 @@ func pruneReports( days int ) {
 			// been removed behind our back or failed to
 			// be uploaded in the first place.
 			//
-			os.Remove( path )
+			os.Remove(path)
 
 			//
 			// Remove the ID
@@ -355,7 +354,6 @@ func pruneReports( days int ) {
 		panic(err)
 	}
 
-
 	//
 	// Begin a transaction.
 	//
@@ -366,7 +364,7 @@ func pruneReports( days int ) {
 	//
 	//  Now cleanup
 	//
-	for _,v := range ids {
+	for _, v := range ids {
 		fmt.Printf("Removing ID: %s\n", v)
 		_, err = clean.Exec(v)
 		if err != nil {

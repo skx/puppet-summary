@@ -252,16 +252,16 @@ func ParsePuppetReport(content []byte) (PuppetReport, error) {
 	return x, nil
 }
 
-func YamlDump(file string){
- 	content, _ := ioutil.ReadFile(file)
- 	node,err := ParsePuppetReport(content)
+func YamlDump(file string) {
+	content, _ := ioutil.ReadFile(file)
+	node, err := ParsePuppetReport(content)
 	if err != nil {
 		fmt.Printf("Failed to read %s, %v\n", file, err)
 		return
 	}
 
- 	fmt.Printf("Hostname: %s\n", node.Fqdn)
- 	fmt.Printf("Reported: %s\n", node.At)
+	fmt.Printf("Hostname: %s\n", node.Fqdn)
+	fmt.Printf("Reported: %s\n", node.At)
 	fmt.Printf("State   : %s\n", node.State)
 	fmt.Printf("Runtime : %s\n", node.Runtime)
 
@@ -271,19 +271,19 @@ func YamlDump(file string){
 	fmt.Printf("\tSkipped: %s\n", node.Skipped)
 	fmt.Printf("\tTotal  : %s\n", node.Total)
 
- 	fmt.Printf("\nFailed:\n")
- 	for i,_ := range node.Resources_Failed {
- 		fmt.Printf("\t%s\n", node.Resources_Failed[i] )
- 	}
+	fmt.Printf("\nFailed:\n")
+	for i, _ := range node.Resources_Failed {
+		fmt.Printf("\t%s\n", node.Resources_Failed[i])
+	}
 
- 	fmt.Printf("\nChanged:\n")
- 	for i,_ := range node.Resources_Changed{
- 		fmt.Printf("\t%s\n", node.Resources_Changed[i] )
- 	}
+	fmt.Printf("\nChanged:\n")
+	for i, _ := range node.Resources_Changed {
+		fmt.Printf("\t%s\n", node.Resources_Changed[i])
+	}
 
- 	fmt.Printf("\nSkipped:\n")
- 	for i,_ := range node.Resources_Skipped {
- 		fmt.Printf("\t%s\n", node.Resources_Skipped[i] )
- 	}
+	fmt.Printf("\nSkipped:\n")
+	for i, _ := range node.Resources_Skipped {
+		fmt.Printf("\t%s\n", node.Resources_Skipped[i])
+	}
 
- }
+}
