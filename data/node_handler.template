@@ -70,7 +70,10 @@
           <th>Total</th>
         </tr>
         {{range .Nodes}}
-        <tr data-href="/report/{{.Id }}">
+        <tr
+           {{if eq .State "failed" }} class="danger" {{ end }}
+           {{if eq .State "changed" }} class="info"  {{ end }}
+           data-href="/report/{{.Id }}">
           <td>{{$.Fqdn}}</td>
           <td>{{.State}}</td>
           <td>{{.At}}</td>
