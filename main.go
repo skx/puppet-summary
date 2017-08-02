@@ -1,17 +1,4 @@
 //
-//  To start the server run:
-//
-//     go run main.go
-//
-//  To post a report do:
-//
-//     curl  --data-binary @./201707292317.yaml http://localhost:3001/upload
-//
-//  To import __ALL__ your reports:
-//
-//      find . -name '*.yaml' -exec curl --data-binary @\{\} http://localhost:3001/upload \;
-//
-//
 //  TODO:
 //
 //    * Add sub-commands for different modes.  We want at least two:
@@ -31,106 +18,15 @@
 package main
 
 import (
-	"database/sql"
 	"flag"
 	"fmt"
 	"github.com/gorilla/mux"
-	_ "github.com/mattn/go-sqlite3"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
-	"strconv"
 	"text/template"
-	"time"
 )
-
-//
-// Create the SQLite database.
-//
-// If this already exists then we'll do nothing.
-//
-func SetupDB() {
-
-	//
-	// Return if the database already exists.
-	//
-	_, err := os.Stat("foo.db")
-	if err == nil {
-		//
-		// It does.  Return.
-		//
-		return
-	}
-	db, err := sql.Open("sqlite3", "./foo.db")
-	if err != nil {
-		panic(err)
-	}
-	defer db.Close()
-
-	//
-	// Create the table.
-	//
-	sqlStmt := `
-        CREATE TABLE reports (
-          id          INTEGER PRIMARY KEY AUTOINCREMENT,
-          fqdn        text,
-          state       text,
-          yaml_file   text,
-          runtime     integer,
-          executed_at integer(4),
-          total       integer,
-          skipped     integer,
-          failed      integer,
-          changed     integer
-        )
-	`
-
-	//
-	// TODO: Changed, Failed, RunTime
-	//
-	_, err = db.Exec(sqlStmt)
-	if err != nil {
-		panic(err)
-	}
-}
-
-//
-// Add an entry to the database.
-//
-// The entry contains most of the interesting data from the parsed YAML.
-//
-// But note that it odesn't contain changed resources, etc.
-//
-//
-func addDB(data PuppetReport, path string) {
-	db, err := sql.Open("sqlite3", "./foo.db")
-	if err != nil {
-		panic(err)
-	}
-	defer db.Close()
-
-	tx, err := db.Begin()
-	if err != nil {
-		panic(err)
-	}
-	stmt, err := tx.Prepare("INSERT INTO reports(fqdn,state,yaml_file,executed_at,runtime, failed, changed, total, skipped) values(?,?,?,?,?,?,?,?,?)")
-	if err != nil {
-		panic(err)
-	}
-	defer stmt.Close()
-
-	stmt.Exec(data.Fqdn,
-		data.State,
-		path,
-		data.At_Unix,
-		data.Runtime,
-		data.Failed,
-		data.Changed,
-		data.Total,
-		data.Skipped)
-	tx.Commit()
-}
 
 /*
  * Handle the submission of Puppet report.
@@ -193,7 +89,7 @@ func ReportSubmissionHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	//
-	// Record the new entry.
+	// Record the new entry in our SQLite database
 	//
 	addDB(report, path)
 
@@ -226,51 +122,11 @@ func ReportHandler(res http.ResponseWriter, req *http.Request) {
 	id := vars["id"]
 
 	//
-	// Open the database
+	// Get the content.
 	//
-	db, err := sql.Open("sqlite3", "./foo.db")
+	content, err := getYAML(id)
 	if err != nil {
-		panic(err)
-	}
-	defer db.Close()
-
-	//
-	// Get the path to the file for this file.
-	//
-	stmt, err := db.Prepare("SELECT yaml_file FROM reports WHERE id=?")
-	rows, err := stmt.Query(id)
-	if err != nil {
-		panic(err)
-	}
-	defer stmt.Close()
-	defer rows.Close()
-
-	//
-	// The path to the file we expect to receive.
-	//
-	var path string
-
-	//
-	// For each row in the result-set
-	//
-	for rows.Next() {
-		err := rows.Scan(&path)
-		if err != nil {
-			status = http.StatusInternalServerError
-			return
-		}
-	}
-	err = rows.Err()
-	if err != nil {
-		panic(err)
-	}
-
-	//
-	// Read the file content
-	//
-	content, err := ioutil.ReadFile(path)
-	if err != nil {
-		status = http.StatusNotFound
+		status = http.StatusInternalServerError
 		return
 	}
 
@@ -320,84 +176,30 @@ func NodeHandler(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	fqdn := vars["fqdn"]
 
-	db, err := sql.Open("sqlite3", "./foo.db")
-	if err != nil {
-		panic(err)
-	}
-	defer db.Close()
+	//
+	// Get the reports
+	//
+	reports, err := getReports(fqdn)
 
-	//
-	// Select the status.
-	//
-	stmt, err := db.Prepare("SELECT id, state, executed_at, runtime, failed, changed, total FROM reports WHERE fqdn=? ORDER by executed_at DESC LIMIT 50")
-	rows, err := stmt.Query(fqdn)
-	if err != nil {
-		panic(err)
-	}
-	defer stmt.Close()
-	defer rows.Close()
-
-	//
-	// Define a structure for our results.
-	//
-	type PuppetNode struct {
-		Id      string
-		State   string
-		At      string
-		Runtime string
-		Failed  int
-		Changed int
-		Total   int
-	}
-
-	//
-	// We'll have a list of them.
-	//
-	var NodeList []PuppetNode
-
-	//
-	// For each row in the result-set
-	//
-	// Parse into a structure and add to the list.
-	//
-	for rows.Next() {
-		var tmp PuppetNode
-		err := rows.Scan(&tmp.Id, &tmp.State, &tmp.At, &tmp.Runtime, &tmp.Failed, &tmp.Changed, &tmp.Total)
-		if err == nil {
-			//
-			// At this point tmp.At is a string containing
-			// seconds-past-the-epoch.
-			//
-			// We want that to contain a human-readable
-			// string so we first convert to an integer, then
-			// parse as a Unix-timestamp
-			//
-			i, _ := strconv.ParseInt(tmp.At, 10, 64)
-			tmp.At = time.Unix(i, 0).Format("2006-01-02 15:04:05")
-
-			// Add the result of this fetch to our list.
-			NodeList = append(NodeList, tmp)
-		}
-	}
-	err = rows.Err()
-	if err != nil {
-		panic(err)
-	}
-
-	if len(NodeList) < 1 {
+	if (reports == nil) || (len(reports) < 1) {
 		status = http.StatusNotFound
 		return
 	}
 
 	//
-	// Annoying.
+	// Annoying struct to allow us to populate our template
+	// with both the reports and the fqdn of the host.
 	//
 	type Pagedata struct {
 		Fqdn  string
-		Nodes []PuppetNode
+		Nodes []PuppetReportSummary
 	}
+
+	//
+	// Populate this structure.
+	//
 	var x Pagedata
-	x.Nodes = NodeList
+	x.Nodes = reports
 	x.Fqdn = fqdn
 
 	//
@@ -422,64 +224,6 @@ func NodeHandler(res http.ResponseWriter, req *http.Request) {
 //
 func IndexHandler(res http.ResponseWriter, req *http.Request) {
 
-	db, err := sql.Open("sqlite3", "./foo.db")
-	if err != nil {
-		panic(err)
-	}
-	defer db.Close()
-
-	//
-	// Select the status.
-	//
-	rows, err := db.Query("SELECT fqdn, state, max(executed_at) FROM reports GROUP by fqdn;")
-	if err != nil {
-		panic(err)
-	}
-	defer rows.Close()
-
-	//
-	// Define a structure for our results.
-	//
-	type PuppetNode struct {
-		Fqdn  string
-		State string
-		At    string
-	}
-
-	//
-	// We'll have a list of them.
-	//
-	var NodeList []PuppetNode
-
-	//
-	// For each row in the result-set
-	//
-	// Parse into a structure and add to the list.
-	//
-	for rows.Next() {
-		var tmp PuppetNode
-		err := rows.Scan(&tmp.Fqdn, &tmp.State, &tmp.At)
-		if err == nil {
-
-			//
-			// At this point tmp.At is a string containing
-			// seconds-past-the-epoch.
-			//
-			// We want that to contain a human-readable
-			// string so we first convert to an integer, then
-			// parse as a Unix-timestamp
-			//
-			i, _ := strconv.ParseInt(tmp.At, 10, 64)
-			tmp.At = time.Unix(i, 0).Format("2006-01-02 15:04:05")
-
-			NodeList = append(NodeList, tmp)
-		}
-	}
-	err = rows.Err()
-	if err != nil {
-		panic(err)
-	}
-
 	//
 	// Define a template for the result we'll send to the browser.
 	//
@@ -487,6 +231,14 @@ func IndexHandler(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		fmt.Printf("Failed to find asset data/index_handler.template")
 		os.Exit(2)
+	}
+
+	//
+	// Get the nodes to show on our front-page
+	//
+	NodeList, err := getIndexNodes()
+	if err != nil {
+		panic(err)
 	}
 
 	//
@@ -507,9 +259,10 @@ func main() {
 	//
 	host := flag.String("host", "127.0.0.1", "The IP to listen upon")
 	port := flag.Int("port", 3001, "The port to bind upon")
+	db   := flag.String("db-file", "foo.db", "The SQLite database to use")
 	flag.Parse()
 
-	SetupDB()
+	SetupDB( *db )
 
 	//
 	// Create a new router and our route-mappings.
@@ -545,6 +298,7 @@ func main() {
 	// Launch the server
 	//
 	fmt.Printf("Launching the server on http://%s:%d\n", *host, *port)
+	fmt.Printf("SQLIte file is %s\n", *db)
 	err := http.ListenAndServe(fmt.Sprintf("%s:%d", *host, *port), nil)
 	if err != nil {
 		panic(err)

@@ -1,0 +1,271 @@
+//
+// This package contains our SQLite DB interface.  It is a little ropy.
+//
+
+package main
+
+import (
+	"database/sql"
+	"errors"
+	_ "github.com/mattn/go-sqlite3"
+	"io/ioutil"
+	"strconv"
+	"time"
+)
+
+//
+// The global DB handle.
+//
+var db *sql.DB
+
+//
+// Define a structure for the nodes that are shown in the index.
+//
+type PuppetRuns struct {
+	Fqdn  string
+	State string
+	At    string
+}
+
+//
+// Define a structure for our list of reports
+//
+type PuppetReportSummary struct {
+	Id      string
+	State   string
+	At      string
+	Runtime string
+	Failed  int
+	Changed int
+	Total   int
+}
+
+//
+// Open our SQLite database, creating it if necessary.
+//
+func SetupDB(path string) {
+
+	var err error
+
+	//
+	// Return if the database already exists.
+	//
+	db, err = sql.Open("sqlite3", path)
+	if err != nil {
+		panic(err)
+	}
+
+	//
+	// Create the table.
+	//
+	sqlStmt := `
+        CREATE TABLE IF NOT EXISTS reports (
+          id          INTEGER PRIMARY KEY AUTOINCREMENT,
+          fqdn        text,
+          state       text,
+          yaml_file   text,
+          runtime     integer,
+          executed_at integer(4),
+          total       integer,
+          skipped     integer,
+          failed      integer,
+          changed     integer
+        )
+	`
+
+	//
+	// Create the table, if missing.
+	//
+	_, err = db.Exec(sqlStmt)
+	if err != nil {
+		panic(err)
+	}
+}
+
+//
+// Add an entry to the database.
+//
+// The entry contains most of the interesting data from the parsed YAML.
+//
+// But note that it odesn't contain changed resources, etc.
+//
+//
+func addDB(data PuppetReport, path string) {
+
+	tx, err := db.Begin()
+	if err != nil {
+		panic(err)
+	}
+	stmt, err := tx.Prepare("INSERT INTO reports(fqdn,state,yaml_file,executed_at,runtime, failed, changed, total, skipped) values(?,?,?,?,?,?,?,?,?)")
+	if err != nil {
+		panic(err)
+	}
+	defer stmt.Close()
+
+	stmt.Exec(data.Fqdn,
+		data.State,
+		path,
+		data.At_Unix,
+		data.Runtime,
+		data.Failed,
+		data.Changed,
+		data.Total,
+		data.Skipped)
+	tx.Commit()
+}
+
+//
+// Return the contents of the YAML file which was associated
+// with the given report-ID.
+//
+func getYAML(id string) ([]byte, error) {
+
+	//
+	// Get the path to the file for this file.
+	//
+	stmt, err := db.Prepare("SELECT yaml_file FROM reports WHERE id=?")
+	rows, err := stmt.Query(id)
+	if err != nil {
+		panic(err)
+	}
+	defer stmt.Close()
+	defer rows.Close()
+
+	//
+	// The path to the file we expect to receive.
+	//
+	var path string
+
+	//
+	// For each row in the result-set
+	//
+	for rows.Next() {
+		err := rows.Scan(&path)
+		if err != nil {
+			return nil, errors.New("Failed to scan SQL")
+		}
+	}
+	err = rows.Err()
+	if err != nil {
+		panic(err)
+	}
+
+	//
+	// Read the file content
+	//
+	content, err := ioutil.ReadFile(path)
+	return content, err
+}
+
+
+//
+// Get the data which is shown on our index page
+//
+//  * The node-name.
+//  * The status.
+//  * The last-seen time.
+//
+func getIndexNodes() ([]PuppetRuns, error) {
+
+	//
+	// Select the status.
+	//
+	rows, err := db.Query("SELECT fqdn, state, max(executed_at) FROM reports GROUP by fqdn;")
+	if err != nil {
+		panic(err)
+	}
+	defer rows.Close()
+
+	//
+	// We'll have a list of them.
+	//
+	var NodeList []PuppetRuns
+
+	//
+	// For each row in the result-set
+	//
+	// Parse into a structure and add to the list.
+	//
+	for rows.Next() {
+		var tmp PuppetRuns
+		err := rows.Scan(&tmp.Fqdn, &tmp.State, &tmp.At)
+		if err == nil {
+
+			//
+			// At this point tmp.At is a string containing
+			// seconds-past-the-epoch.
+			//
+			// We want that to contain a human-readable
+			// string so we first convert to an integer, then
+			// parse as a Unix-timestamp
+			//
+			i, _ := strconv.ParseInt(tmp.At, 10, 64)
+			tmp.At = time.Unix(i, 0).Format("2006-01-02 15:04:05")
+
+			NodeList = append(NodeList, tmp)
+		}
+	}
+	err = rows.Err()
+	if err != nil {
+		panic(err)
+	}
+
+	return NodeList, nil
+}
+
+//
+// Get the summary-details of the runs against a given host
+//
+func getReports(fqdn string) ([]PuppetReportSummary, error) {
+
+	//
+	// Select the status.
+	//
+	stmt, err := db.Prepare("SELECT id, state, executed_at, runtime, failed, changed, total FROM reports WHERE fqdn=? ORDER by executed_at DESC LIMIT 50")
+	rows, err := stmt.Query(fqdn)
+	if err != nil {
+		panic(err)
+	}
+	defer stmt.Close()
+	defer rows.Close()
+
+	//
+	// We'll return a list of these hosts.
+	//
+	var NodeList []PuppetReportSummary
+
+	//
+	// For each row in the result-set
+	//
+	// Parse into a structure and add to the list.
+	//
+	for rows.Next() {
+		var tmp PuppetReportSummary
+		err := rows.Scan(&tmp.Id, &tmp.State, &tmp.At, &tmp.Runtime, &tmp.Failed, &tmp.Changed, &tmp.Total)
+		if err == nil {
+			//
+			// At this point tmp.At is a string containing
+			// seconds-past-the-epoch.
+			//
+			// We want that to contain a human-readable
+			// string so we first convert to an integer, then
+			// parse as a Unix-timestamp
+			//
+			i, _ := strconv.ParseInt(tmp.At, 10, 64)
+			tmp.At = time.Unix(i, 0).Format("2006-01-02 15:04:05")
+
+			// Add the result of this fetch to our list.
+			NodeList = append(NodeList, tmp)
+		}
+	}
+	err = rows.Err()
+	if err != nil {
+		panic(err)
+	}
+
+	if len(NodeList) < 1 {
+		return nil, errors.New("Failed to find reports for " + fqdn)
+
+	}
+	return NodeList, nil
+}
