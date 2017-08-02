@@ -157,7 +157,6 @@ func getYAML(id string) ([]byte, error) {
 	return content, err
 }
 
-
 //
 // Get the data which is shown on our index page
 //
