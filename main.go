@@ -53,6 +53,14 @@ func main() {
 			cmd_prune(*days)
 			os.Exit(0)
 		}
+
+		//
+		// YAML-dumper
+		//
+		if sc == "yaml" {
+			cmd_yaml(flag.Args()[1:])
+			os.Exit(0)
+		}
 	}
 
 	fmt.Printf("Usage %s [options] subcommand\n\n", os.Args[0])
