@@ -14,4 +14,5 @@ import (
 //
 func cmd_prune(days int) {
 	fmt.Printf("Pruning reports older than %d days\n", days)
+	pruneReports( days )
 }
