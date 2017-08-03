@@ -26,7 +26,7 @@ only contains a summary of the available data it will not grow excessively.
 
 To install this software it should be sufficient to run the following:
 
-    go get github.com/skx/puppet-summary
+    go get -u github.com/skx/puppet-summary
 
 Once installed you can launch it like so:
 
