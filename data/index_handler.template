@@ -21,6 +21,12 @@
        unchanged = $('#unchanged_table tr').length - 1;
        failed    = $('#failed_table tr').length - 1;
 
+       //
+       // Update the tab-headers for `changed` & `failed`.
+       //
+       if ( changed > 0 ) { $('#changed_count').html( changed ) }
+       if ( failed > 0 ) { $('#failed_count').html( failed )  }
+
        var chart = new CanvasJS.Chart("chartContainer",
 	                              {
                                         animationEnabled: false,
@@ -71,8 +77,8 @@
 
       <ul class="nav nav-tabs">
         <li class="active"><a data-toggle="tab" href="#all">All</a></li>
-        <li><a data-toggle="tab" href="#failed">Failed</a></li>
-        <li><a data-toggle="tab" href="#changed">Changed</a></li>
+        <li><a data-toggle="tab" href="#failed">Failed <span class="badge" id="failed_count"></span></a></li>
+        <li><a data-toggle="tab" href="#changed">Changed <span class="badge" id="changed_count"></span></a></li>
         <li><a data-toggle="tab" href="#unchanged">Unchanged</a></li></a></li>
       </ul>
 
