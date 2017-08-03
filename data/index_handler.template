@@ -22,6 +22,25 @@
        failed    = $('#failed_table tr').length - 1;
 
        //
+       // Data we'll include in our donut-chart.
+       //
+       // We store this here because we wish to exclude the display
+       // of `failed` or `changed` if empty.
+       //
+       data = []
+
+       if ( unchanged > 0 ) {
+         data.push( {y: unchanged, indexLabel: "#percent%", legendText: "Unchanged", color: '#e8e8e8' } )
+       }
+       if ( failed > 0 ) {
+	 data.push( {y: failed, indexLabel: "#percent%", legendText: "Failed", color: 'red', } )
+       }
+       if ( changed > 0 ) {
+	 data.push({y: changed,  indexLabel: "#percent%", legendText: "Changed", color: '#c4e3f3'})
+       }
+
+
+       //
        // Update the tab-headers for `changed` & `failed`.
        //
        if ( changed > 0 ) { $('#changed_count').html( changed ) }
@@ -36,11 +55,7 @@
 			                    startAngle: 60,
 			                    toolTipContent: "{legendText}: {y} - <strong>#percent% </strong>",
 			                    showInLegend: true,
-			                    dataPoints: [
-				              {y: unchanged, indexLabel: "#percent%", legendText: "Unchanged", color: '#e8e8e8' },
-				              {y: failed, indexLabel: "#percent%", legendText: "Failed", color: 'red', },
-				              {y: changed,  indexLabel: "#percent%", legendText: "Changed", color: '#c4e3f3' }
-			                    ]
+			                    dataPoints: data
 		                          }
 		                        ]
 	                              });
