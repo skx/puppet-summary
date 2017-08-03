@@ -10,15 +10,23 @@ import (
 	"os"
 )
 
+var ReportPrefix = ""
+
+
 func main() {
 
 	//
 	// Parse the command-line arguments.
 	//
-	host := flag.String("host", "127.0.0.1", "The IP to listen upon")
-	port := flag.Int("port", 3001, "The port to bind upon")
-	days := flag.Int("days", 7, "The default number of days history to keep")
-	db := flag.String("db-file", "ps.db", "The SQLite database to use")
+	// Due to the way we're written these flags must come BEFORE
+	// the "sub-command" to execute.
+	//
+	//
+	host := flag.String("host", "127.0.0.1", "The IP to listen upon.")
+	port := flag.Int("port", 3001, "The port to bind upon.")
+	days := flag.Int("days", 7, "When pruning remove reports older than this many days.")
+	db := flag.String("db-file", "ps.db", "The SQLite database to use.")
+	reports := flag.String("report-path", "./reports", "The location to write the reports to.")
 	flag.Parse()
 
 	//
@@ -26,6 +34,11 @@ func main() {
 	// missing.
 	//
 	SetupDB(*db)
+
+	//
+	// Make our report-prefix globally available.
+	//
+	ReportPrefix = *reports
 
 	//
 	// Handle non-flag arguments
@@ -70,6 +83,6 @@ func main() {
 
 	fmt.Printf("\n\nExample usage:\n")
 	fmt.Printf("\tpuppet-server -port 3321 -host 127.0.0.1 serve\n")
-	fmt.Printf("\tpuppet-server -db-file ./data.sql -days 3 prune:\n")
+	fmt.Printf("\tpuppet-server -db-file ./data.sql -days 5 prune\n")
 
 }

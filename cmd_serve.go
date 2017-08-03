@@ -54,7 +54,7 @@ func ReportSubmissionHandler(res http.ResponseWriter, req *http.Request) {
 	//
 	// Create a report directory, unless it already exists.
 	//
-	dir := filepath.Join("./reports", report.Fqdn)
+	dir := filepath.Join( ReportPrefix, report.Fqdn)
 	_, err = os.Stat(dir)
 	if err != nil {
 		err := os.MkdirAll(dir, 0755)
