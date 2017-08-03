@@ -9,38 +9,39 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
     <script type="text/javascript">
-      window.onload = function () {
+     window.onload = function () {
 
-      changed = 0 , unchanged = 0, failed=0
+       //
+       // We populate the tables in our template-generation
+       // rather than having to keep a separate count here
+       // we can see how many rows there are in the tables
+       // and that gives us our count indirectly.
+       //
+       changed   = $('#changed_table tr').length - 1;
+       unchanged = $('#unchanged_table tr').length - 1;
+       failed    = $('#failed_table tr').length - 1;
 
-      {{range .}}
-      {{if eq .State "failed" }} failed = failed + 1 {{ end }}
-      {{if eq .State "changed" }} changed = changed + 1  {{ end }}
-      {{if eq .State "unchanged" }} unchanged = unchanged + 1  {{ end }}
-      {{end}}
+       var chart = new CanvasJS.Chart("chartContainer",
+	                              {
+                                        animationEnabled: false,
+		                        data: [
+                                          {
+			                    type: "doughnut",
+			                    startAngle: 60,
+			                    toolTipContent: "{legendText}: {y} - <strong>#percent% </strong>",
+			                    showInLegend: true,
+			                    dataPoints: [
+				              {y: unchanged, indexLabel: "#percent%", legendText: "Unchanged", color: '#e8e8e8' },
+				              {y: failed, indexLabel: "#percent%", legendText: "Failed", color: 'red', },
+				              {y: changed,  indexLabel: "#percent%", legendText: "Changed", color: '#c4e3f3' }
+			                    ]
+		                          }
+		                        ]
+	                              });
+       chart.render();
+     }
 
-
-	var chart = new CanvasJS.Chart("chartContainer",
-	{
-                animationEnabled: false,
-		data: [
-		{
-			type: "doughnut",
-			startAngle: 60,
-			toolTipContent: "{legendText}: {y} - <strong>#percent% </strong>",
-			showInLegend: true,
-			dataPoints: [
-				{y: unchanged, indexLabel: "#percent%", legendText: "Unchanged" },
-				{y: failed, indexLabel: "#percent%", legendText: "Failed" },
-				{y: changed,  indexLabel: "#percent%", legendText: "Changed" }
-			]
-		}
-		]
-	});
-	chart.render();
-	}
-
-     </script>
+    </script>
   </head>
   <body>
     <nav class="navbar navbar-default" role="navigation">
@@ -86,10 +87,10 @@
               <th>Seen</th>
             </tr>
             {{range .}}
-        <tr
-           {{if eq .State "failed" }} class="danger" {{ end }}
-            {{if eq .State "changed" }} class="info"  {{ end }}
-            data-href="/node/{{.Fqdn}}">
+            <tr
+                {{if eq .State "failed" }} class="danger" {{ end }}
+                {{if eq .State "changed" }} class="info"  {{ end }}
+                data-href="/node/{{.Fqdn}}">
               <td>{{.Fqdn}}</td>
               <td>{{.State}}</td>
               <td>{{.At}}</td>
@@ -174,7 +175,7 @@
         </div>
       </footer>
       <script type="text/javascript">
-      $(function(){
+       $(function(){
          $('.table tr[data-href]').each(function(){
            $(this).css('cursor','pointer').hover(
              function(){
