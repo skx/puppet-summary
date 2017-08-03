@@ -32,7 +32,7 @@
         <li class="breadcrumb-item active">Report</li>
       </ol>
       <h1>Overview</h1>
-      <p>Report of {{ .Fqdn }}  from {{ .At }}:</p>
+      <p>Report of {{ .Fqdn }} which ran at {{ .At }}:</p>
       <table class="table table-bordered table-striped table-condensed table-hover">
         <tr><td>Changed </td><td>{{ .Changed }}</td></tr>
         <tr><td>Skipped </td><td>{{ .Skipped }}</td></tr>
@@ -54,6 +54,7 @@
         </div>
       </div>
 
+      {{if .Resources_Failed }}
       <h3>Failed</h3>
       <div class="container-fluid">
         <div class="row">
@@ -62,13 +63,13 @@
           <div class="col-sm-11 col-md-11">
             {{range .Resources_Failed}}
             <p>{{.}}</p>
-            {{else}}
-            <p>Nothing reported.</p>
             {{end}}
           </div>
         </div>
       </div>
+      {{end}}
 
+      {{if .Resources_Changed }}
       <h3>Changed</h3>
       <div class="container-fluid">
         <div class="row">
@@ -77,13 +78,13 @@
           <div class="col-sm-11 col-md-11">
             {{range .Resources_Changed}}
             <p>{{.}}</p>
-            {{else}}
-            <p>Nothing reported.</p>
             {{end}}
           </div>
         </div>
       </div>
+      {{end}}
 
+      {{if .Resources_Skipped}}
       <h3>Skipped</h3>
       <div class="container-fluid">
         <div class="row">
@@ -92,12 +93,11 @@
           <div class="col-sm-11 col-md-11">
             {{range .Resources_Skipped}}
             <p>{{.}}</p>
-            {{else}}
-            <p>Nothing reported.</p>
             {{end}}
           </div>
         </div>
       </div>
+      {{end}}
     </div>
     <p>&nbsp;</p>
     <p>&nbsp;</p>
