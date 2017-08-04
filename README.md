@@ -17,8 +17,9 @@ This project is directly inspired by the [puppet-dashboard](https://github.com/s
    * Unlike [puppet-dashboard](https://github.com/sodabrew/puppet-dashboard/issues/341).
 * Deployment is significantly simpler.
    * This project only involves deploying a single binary.
-* It will allow you to raise alerts when puppet fails upon a host.
-   * This feature is [still being implemented](https://github.com/skx/puppet-summary/issues/8).
+* It allows you to submit metrics to a carbon-receiver.
+   * The metrics include a distinct count of each state, allowing you to raise alerts when nodes in the failed state are present.
+   * The metrics include the puppet-runtime of each node too.
 
 There are [screenshots included within this repository](screenshots/).
 
