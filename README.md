@@ -15,7 +15,8 @@ This project is directly inspired by the [puppet-dashboard](https://github.com/s
 
 * It is actively maintained.
    * Unlike [puppet-dashboard](https://github.com/sodabrew/puppet-dashboard/issues/341).
-* Deployment is significantly simpler, as this project only involves a single binary.
+* Deployment is significantly simpler.
+   * This project only involves deploying a single binary.
 * It will allow you to raise alerts when puppet fails upon a host.
    * This feature is [still being implemented](https://github.com/skx/puppet-summary/issues/8).
 
@@ -32,6 +33,7 @@ a target for such submission:
     * The reports are saved locally, as YAML files, beneath `./reports`
     * They are parsed and a simple SQLite database keeps track of data.
 * The SQLite database is used to present a visualisation layer.
+    * Which you can see [in the screenshots](screenshots/).
 
 The reports are expected to be pruned over time, but as the SQLite database
 only contains a summary of the available data it will not grow excessively.
