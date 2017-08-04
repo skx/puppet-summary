@@ -11,4 +11,4 @@ matrix:
     - go: tip
 
 script:
-- go get -t -v $(go list ./...)
+  - go get -t -v $(go list ./...)
