@@ -32,7 +32,7 @@ a target for such submission:
 
 * Your puppet-master submits reports to this software.
     * The reports are saved locally, as YAML files, beneath `./reports`
-    * They are parsed and a simple SQLite database keeps track of data.
+    * They are parsed and a simple SQLite database keeps track of them.
 * The SQLite database is used to present a visualisation layer.
     * Which you can see [in the screenshots](screenshots/).
 
@@ -62,11 +62,9 @@ If you wish to change the host/port you can do so like this:
 ## Configuring Your Puppet Server
 
 Once you've got an instance of `puppet-summary` installed and running
-the next step is to populate it with report data.  The general way to
-do that is to update your puppet server to send the reports to it as
-they are received.
-
-Edit `puppet.conf` on your puppet-master:
+the next step is to populate it with report data.  The expectation is
+that you'll  update your puppet server to send the reports to it directly,
+by editting `puppet.conf` on your puppet-master:
 
     [master]
     reports = store, http
@@ -75,15 +73,9 @@ Edit `puppet.conf` on your puppet-master:
 * If you're running the dashboard on a different host you'll need to use the external IP/hostname here.
 * Once configured don't forget to restart your puppet service!
 
-That should be sufficient to make puppet submit reports, where they
-can be stored and displayed.
-
-If you don't wish to change your puppet-server initially you can test
-what it would look like by importing the existing YAML reports
-that are almost certainly present upon your puppet server, adding them
-by-hand.
-
-Something like this should do the job:
+If you __don't__ wish to change your puppet-server initially you can test
+what it would look like by importing the existing YAML reports from your
+puppet-master.  Something like this should do the job:
 
     # cd /var/lib/puppet/reports
     # find . -name '*.yaml' -exec \
@@ -91,9 +83,10 @@ Something like this should do the job:
 
 * That assumes that your reports are located beneath `/var/lib/puppet/reports`,
 but that is a reasonable default.
+* It also assumes you're running the `puppet-summary` instance upon the puppet-master, if you're on a different host remember to change the URI.
 
 
-## Maintenance
+## Maintenance & Metrics
 
 Over time your reports will grow excessively large.  We only display
 the most recent 50 upon the per-node page so you might not notice.
@@ -104,6 +97,27 @@ To prune (read: delete) old reports run:
 
 That will remove the reports from disk which are > 15 days old, and
 also remove the associated SQLite entries that refer to them.
+
+If you have a carbon-server running locally you can also submit metrics
+to it :
+
+    puppet-summary  \
+      -metrics-host carbon.example.com  \
+      -metrics-port 2003
+      -metrics-prefix puppet.example_com \
+        metrics
+
+The metrics will include:
+
+* A count nodes in each state, for example:
+  * `puppet.example_com.state.failed 3`
+  * `puppet.example_com.state.changed 1`
+  * `puppet.example_com.state.unchanged 297`
+  * `..`
+* The runtime of each node, for example:
+  * `puppet.example_com.www1_example_com.runtime 23.21`
+  * `puppet.example_com.www2_example_com.runtime 23.21`
+  * `..`
 
 
 ## Notes On Deployment
