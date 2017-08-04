@@ -11,6 +11,10 @@ import (
 )
 
 var ReportPrefix = ""
+var MetricsHost = "localhost"
+var MetricsPort = 2003
+var MetricsPrefix = "puppet"
+
 
 func main() {
 
@@ -26,6 +30,14 @@ func main() {
 	days := flag.Int("days", 7, "When pruning remove reports older than this many days.")
 	db := flag.String("db-file", "ps.db", "The SQLite database to use.")
 	reports := flag.String("report-path", "./reports", "The location to write the reports to.")
+
+	//
+	// Metric-Submission settings.
+	//
+	MetricsHost := flag.String("metrics-host", "localhost", "The carbon host to send metrics to.")
+	MetricsPort := flag.Int("metrics-port", 2003, "The carbon port to use, when submitting metrics.")
+	MetricsPrefix := flag.String("metrics-prefix", "puppet", "The prefix to use when submitting metrics.")
+
 	flag.Parse()
 
 	//
@@ -58,6 +70,14 @@ func main() {
 		}
 
 		//
+		// Metrics submission
+		//
+		if sc == "metrics" {
+			cmd_metrics(*MetricsHost, *MetricsPort, *MetricsPrefix)
+			os.Exit(0)
+		}
+
+		//
 		// History-pruner
 		//
 		if sc == "prune" {
@@ -76,12 +96,14 @@ func main() {
 
 	fmt.Printf("Usage %s [options] subcommand\n\n", os.Args[0])
 	fmt.Printf("Subcommands include:\n")
-	fmt.Printf("\tserve - Launch the HTTP-server\n")
-	fmt.Printf("\tprune - Prune old reports\n")
-	fmt.Printf("\tyaml  - Parse the given YAML report-file\n")
+	fmt.Printf("\tmetrics - Submit metrics to a carbon receiver.\n")
+	fmt.Printf("\tprune   - Prune old reports.\n")
+	fmt.Printf("\tserve   - Launch the HTTP-server.\n")
+	fmt.Printf("\tyaml    - Parse the given YAML report-file.\n")
 
 	fmt.Printf("\n\nExample usage:\n")
 	fmt.Printf("\tpuppet-server -port 3321 -host 127.0.0.1 serve\n")
 	fmt.Printf("\tpuppet-server -db-file ./data.sql -days 5 prune\n")
+	fmt.Printf("\tpuppet-server -metrics-host carbon.example.com -metrics-prefix='puppet.master' metrics\n")
 
 }

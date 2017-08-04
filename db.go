@@ -24,9 +24,10 @@ var db *sql.DB
 // Define a structure for the nodes that are shown in the index.
 //
 type PuppetRuns struct {
-	Fqdn  string
-	State string
-	At    string
+	Fqdn    string
+	State   string
+	At      string
+	Runtime string
 }
 
 //
@@ -34,6 +35,7 @@ type PuppetRuns struct {
 //
 type PuppetReportSummary struct {
 	Id      string
+	Fqdn    string
 	State   string
 	At      string
 	Runtime string
@@ -181,7 +183,7 @@ func getIndexNodes() ([]PuppetRuns, error) {
 	//
 	// Select the status.
 	//
-	rows, err := db.Query("SELECT fqdn, state, max(executed_at) FROM reports GROUP by fqdn;")
+	rows, err := db.Query("SELECT fqdn, state, runtime, max(executed_at) FROM reports GROUP by fqdn;")
 	if err != nil {
 		panic(err)
 	}
@@ -199,7 +201,7 @@ func getIndexNodes() ([]PuppetRuns, error) {
 	//
 	for rows.Next() {
 		var tmp PuppetRuns
-		err := rows.Scan(&tmp.Fqdn, &tmp.State, &tmp.At)
+		err := rows.Scan(&tmp.Fqdn, &tmp.State, &tmp.Runtime, &tmp.At)
 		if err == nil {
 
 			//
@@ -232,7 +234,7 @@ func getReports(fqdn string) ([]PuppetReportSummary, error) {
 	//
 	// Select the status.
 	//
-	stmt, err := db.Prepare("SELECT id, state, executed_at, runtime, failed, changed, total FROM reports WHERE fqdn=? ORDER by executed_at DESC LIMIT 50")
+	stmt, err := db.Prepare("SELECT id, fqdn, state, executed_at, runtime, failed, changed, total FROM reports WHERE fqdn=? ORDER by executed_at DESC LIMIT 50")
 	rows, err := stmt.Query(fqdn)
 	if err != nil {
 		panic(err)
@@ -252,7 +254,7 @@ func getReports(fqdn string) ([]PuppetReportSummary, error) {
 	//
 	for rows.Next() {
 		var tmp PuppetReportSummary
-		err := rows.Scan(&tmp.Id, &tmp.State, &tmp.At, &tmp.Runtime, &tmp.Failed, &tmp.Changed, &tmp.Total)
+		err := rows.Scan(&tmp.Id, &tmp.Fqdn, &tmp.State, &tmp.At, &tmp.Runtime, &tmp.Failed, &tmp.Changed, &tmp.Total)
 		if err == nil {
 			//
 			// At this point tmp.At is a string containing
