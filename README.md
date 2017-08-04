@@ -109,7 +109,7 @@ to it :
 
 The metrics will include:
 
-* A count nodes in each state, for example:
+* A count of nodes in each state, for example:
   * `puppet.example_com.state.failed 3`
   * `puppet.example_com.state.changed 1`
   * `puppet.example_com.state.unchanged 297`
