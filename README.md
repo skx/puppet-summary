@@ -11,11 +11,24 @@ This is a simple [golang](https://golang.org/) based project which is designed t
 * Viewing the last few runs of a given system.
 * etc.
 
+This project is directly inspired by the [puppet-dashboard](https://github.com/sodabrew/puppet-dashboard) project, reasons why you might prefer _this_ project:
+
+* It is actively maintained.
+   * Unlike [puppet-dashboard](https://github.com/sodabrew/puppet-dashboard/issues/341).
+* Deployment is significantly simpler, as this project only involves a single binary.
+* It will allow you to raise alerts when puppet fails upon a host.
+   * This feature is [still being implemented](https://github.com/skx/puppet-summary/issues/8).
+
 There are [screenshots included within this repository](screenshots/).
 
-In short:
 
-* Your puppet-server submits reports to this software.
+## Puppet Reporting
+
+The puppet-server has integrated support for submitting reports to
+a central location, via HTTP POSTs.   This project is designed to be
+a target for such submission:
+
+* Your puppet-master submits reports to this software.
     * The reports are saved locally, as YAML files, beneath `./reports`
     * They are parsed and a simple SQLite database keeps track of data.
 * The SQLite database is used to present a visualisation layer.
