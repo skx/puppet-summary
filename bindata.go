@@ -85,7 +85,7 @@ func dataIndex_handlerTemplate() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "data/index_handler.template", size: 7597, mode: os.FileMode(420), modTime: time.Unix(1501786253, 0)}
+	info := bindataFileInfo{name: "data/index_handler.template", size: 7597, mode: os.FileMode(420), modTime: time.Unix(1501853807, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -105,7 +105,7 @@ func dataNode_handlerTemplate() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "data/node_handler.template", size: 3952, mode: os.FileMode(420), modTime: time.Unix(1501694402, 0)}
+	info := bindataFileInfo{name: "data/node_handler.template", size: 3952, mode: os.FileMode(420), modTime: time.Unix(1501907295, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -125,7 +125,7 @@ func dataReport_handlerTemplate() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "data/report_handler.template", size: 3671, mode: os.FileMode(420), modTime: time.Unix(1501784476, 0)}
+	info := bindataFileInfo{name: "data/report_handler.template", size: 3671, mode: os.FileMode(420), modTime: time.Unix(1501853807, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -182,8 +182,8 @@ func AssetNames() []string {
 
 // _bindata is a table, holding each asset generator, mapped to its name.
 var _bindata = map[string]func() (*asset, error){
-	"data/index_handler.template": dataIndex_handlerTemplate,
-	"data/node_handler.template": dataNode_handlerTemplate,
+	"data/index_handler.template":  dataIndex_handlerTemplate,
+	"data/node_handler.template":   dataNode_handlerTemplate,
 	"data/report_handler.template": dataReport_handlerTemplate,
 }
 
@@ -226,10 +226,11 @@ type bintree struct {
 	Func     func() (*asset, error)
 	Children map[string]*bintree
 }
+
 var _bintree = &bintree{nil, map[string]*bintree{
 	"data": &bintree{nil, map[string]*bintree{
-		"index_handler.template": &bintree{dataIndex_handlerTemplate, map[string]*bintree{}},
-		"node_handler.template": &bintree{dataNode_handlerTemplate, map[string]*bintree{}},
+		"index_handler.template":  &bintree{dataIndex_handlerTemplate, map[string]*bintree{}},
+		"node_handler.template":   &bintree{dataNode_handlerTemplate, map[string]*bintree{}},
 		"report_handler.template": &bintree{dataReport_handlerTemplate, map[string]*bintree{}},
 	}},
 }}
@@ -280,4 +281,3 @@ func _filePath(dir, name string) string {
 	cannonicalName := strings.Replace(name, "\\", "/", -1)
 	return filepath.Join(append([]string{dir}, strings.Split(cannonicalName, "/")...)...)
 }
-

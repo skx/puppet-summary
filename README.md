@@ -55,7 +55,7 @@ Once installed you can launch it like so:
 
 If you wish to change the host/port you can do so like this:
 
-    $ puppet-summary -port 4321 -host 10.10.10.10 serve
+    $ puppet-summary serve -host 10.10.10.10 -port 4321
     Launching the server on http://10.10.10.10:4321
 
 
@@ -93,7 +93,7 @@ the most recent 50 upon the per-node page so you might not notice.
 
 To prune (read: delete) old reports run:
 
-    puppet-summary -days 15 prune
+    puppet-summary prune -days 15
 
 That will remove the reports from disk which are > 15 days old, and
 also remove the associated SQLite entries that refer to them.
@@ -101,11 +101,10 @@ also remove the associated SQLite entries that refer to them.
 If you have a carbon-server running locally you can also submit metrics
 to it :
 
-    puppet-summary  \
-      -metrics-host carbon.example.com  \
-      -metrics-port 2003
-      -metrics-prefix puppet.example_com \
-        metrics
+    puppet-summary metrics \
+      -host carbon.example.com \
+      -port 2003 \
+      -prefix puppet.example_com  [-nop]
 
 The metrics will include:
 
@@ -119,16 +118,27 @@ The metrics will include:
   * `puppet.example_com.www2_example_com.runtime 23.21`
   * `..`
 
+When running with `-nop` the metrics will be dumped to the console instead
+of submitted.  For example:
+
+     $ puppet-summary metrics -nop
+     ..
+     puppet.rsync_io.runtime 2.1318351220327783
+     puppet.www_steve_fi.runtime 3.1109390222183892
+     ..
+     puppet.state.unchanged 1
+     puppet.state.changed 1
+     puppet.state.failed  0
+
 
 ## Notes On Deployment
 
 * Please don't run this application as root.
 * Received YAML files are stored beneath `./reports`
-* The default SQLite database is `./ps.db`.
-    * This can be changed via the command-line, for example:
-    * `puppet-summary -db-file local.sqlite3 -port 4323 serve`
-
-
+    * This can be changed with the `-prefix` argument to `puppet-summary serve`
+* The default SQLite database is located at `./ps.db`, but it can be changed via the command-line, for example:
+    * `puppet-summary serve -db-file local.sqlite3`
+    * **NOTE** If you change the default you'll need to specify this for all commands, e.g. `serve`, `prune`, and `metrics`.
 
  Steve
  --

@@ -5,7 +5,10 @@
 package main
 
 import (
+	"context"
+	"flag"
 	"fmt"
+	"github.com/google/subcommands"
 	"github.com/gorilla/mux"
 	"io/ioutil"
 	"net/http"
@@ -13,6 +16,8 @@ import (
 	"path/filepath"
 	"text/template"
 )
+
+var ReportPrefix = "reports"
 
 /*
  * Handle the submission of Puppet report.
@@ -238,7 +243,12 @@ func IndexHandler(res http.ResponseWriter, req *http.Request) {
 //
 //  Entry-point.
 //
-func cmd_serve(host string, port int) {
+func cmd_serve(settings serveCmd) {
+
+	//
+	// Preserve our prefix
+	//
+	ReportPrefix = settings.prefix
 
 	//
 	// Create a new router and our route-mappings.
@@ -273,9 +283,63 @@ func cmd_serve(host string, port int) {
 	//
 	// Launch the server
 	//
-	fmt.Printf("Launching the server on http://%s:%d\n", host, port)
-	err := http.ListenAndServe(fmt.Sprintf("%s:%d", host, port), nil)
+	fmt.Printf("Launching the server on http://%s:%d\n", settings.bind_host, settings.bind_port)
+	err := http.ListenAndServe(fmt.Sprintf("%s:%d", settings.bind_host, settings.bind_port), nil)
 	if err != nil {
 		panic(err)
 	}
+}
+
+//
+// The options set by our command-line flags.
+//
+type serveCmd struct {
+	bind_host string
+	bind_port int
+	db_file   string
+	prefix    string
+}
+
+//
+// Glue
+//
+func (*serveCmd) Name() string     { return "serve" }
+func (*serveCmd) Synopsis() string { return "Launch the HTTP server." }
+func (*serveCmd) Usage() string {
+	return `serve [options]:
+  Launch the HTTP server for receiving reports & viewing them
+`
+}
+
+//
+// Flag setup
+//
+func (p *serveCmd) SetFlags(f *flag.FlagSet) {
+	f.StringVar(&p.bind_host, "host", "127.0.0.1", "The IP to listen upon.")
+	f.IntVar(&p.bind_port, "port", 3001, "The port to bind upon.")
+
+	f.StringVar(&p.db_file, "db-file", "ps.db", "The SQLite database to use.")
+	f.StringVar(&p.prefix, "prefix", "./reports/", "The prefix to save the YAML files beneath.")
+}
+
+//
+// Entry-point.
+//
+func (p *serveCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
+
+	//
+	// Setup the database, by opening a handle, and creating it if
+	// missing.
+	//
+	SetupDB(p.db_file)
+
+	//
+	// Start the server
+	//
+	cmd_serve(*p)
+
+	//
+	// All done.
+	//
+	return subcommands.ExitSuccess
 }
