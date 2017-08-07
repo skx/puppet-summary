@@ -103,7 +103,9 @@ func ReportSubmissionHandler(res http.ResponseWriter, req *http.Request) {
 	//
 	// Record that report in our SQLite database
 	//
-	addDB(report, path)
+	relative_path := filepath.Join(report.Fqdn, fmt.Sprintf("%d", report.At_Unix))
+
+	addDB(report, relative_path)
 
 	//
 	// Show something to the caller.
@@ -136,7 +138,7 @@ func ReportHandler(res http.ResponseWriter, req *http.Request) {
 	//
 	// Get the content.
 	//
-	content, err := getYAML(id)
+	content, err := getYAML(ReportPrefix, id)
 	if err != nil {
 		status = http.StatusInternalServerError
 		return

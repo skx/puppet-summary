@@ -11,6 +11,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strconv"
 	"time"
 )
@@ -132,7 +133,7 @@ func addDB(data PuppetReport, path string) {
 // Return the contents of the YAML file which was associated
 // with the given report-ID.
 //
-func getYAML(id string) ([]byte, error) {
+func getYAML(prefix string, id string) ([]byte, error) {
 
 	//
 	// Get the path to the file for this file.
@@ -165,8 +166,14 @@ func getYAML(id string) ([]byte, error) {
 	}
 
 	//
-	// Read the file content
+	// Read the file content, first of all adding in the
+	// prefix.
 	//
+	// (Because our reports are stored as relative paths
+	// such as "$host/$time", rather than absolute paths
+	// such as "reports/$host/$time".)
+	//
+	path = filepath.Join(prefix, path)
 	content, err := ioutil.ReadFile(path)
 	return content, err
 }
