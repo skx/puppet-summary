@@ -19,6 +19,14 @@ import (
 
 var ReportPrefix = "reports"
 
+//
+// Utility method to determine whether a file/directory exists.
+//
+func Exists(name string) bool {
+	_, err := os.Stat(name)
+	return !os.IsNotExist(err)
+}
+
 /*
  * Handle the submission of Puppet report.
  *
@@ -57,11 +65,10 @@ func ReportSubmissionHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	//
-	// Create a report directory, unless it already exists.
+	// Create a report directory for this host, unless it already exists.
 	//
 	dir := filepath.Join(ReportPrefix, report.Fqdn)
-	_, err = os.Stat(dir)
-	if err != nil {
+	if !Exists(dir) {
 		err := os.MkdirAll(dir, 0755)
 		if err != nil {
 			status = http.StatusInternalServerError
@@ -70,9 +77,23 @@ func ReportSubmissionHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	//
-	// Now write out the file.
+	// Does this report already exist?  This shouldn't happen
+	// in a usual setup, but will happen if you're repeatedly
+	// importing reports manually from a puppet-server.
+	//
+	// (Which is something you might do when testing this
+	// dashboard.)
 	//
 	path := filepath.Join(dir, fmt.Sprintf("%d", report.At_Unix))
+
+	if Exists(path) {
+		fmt.Fprintf(res, "Ignoring duplicate submission")
+		return
+	}
+
+	//
+	// Create the new report-file, on-disk.
+	//
 	err = ioutil.WriteFile(path, content, 0644)
 	if err != nil {
 		status = http.StatusInternalServerError
@@ -80,7 +101,7 @@ func ReportSubmissionHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	//
-	// Record the new entry in our SQLite database
+	// Record that report in our SQLite database
 	//
 	addDB(report, path)
 
