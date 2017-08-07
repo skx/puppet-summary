@@ -8,6 +8,7 @@
     <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
     <script type="text/javascript">
      window.onload = function () {
        var chart = new CanvasJS.Chart("chartContainer", {
@@ -71,12 +72,12 @@
         </tr>
         {{range .Nodes}}
         <tr
-           {{if eq .State "failed" }} class="danger" {{ end }}
-           {{if eq .State "changed" }} class="info"  {{ end }}
-           data-href="/report/{{.Id }}">
+            {{if eq .State "failed" }} class="danger" {{ end }}
+            {{if eq .State "changed" }} class="info"  {{ end }}
+            data-href="/report/{{.Id }}">
           <td>{{$.Fqdn}}</td>
           <td>{{.State}}</td>
-          <td>{{.At}}</td>
+          <td class="time" datetime="{{.At}}">{{.At}}</td>
           <td>{{.Failed}}</td>
           <td>{{.Changed}}</td>
           <td>{{.Total}}</td>
@@ -98,7 +99,7 @@
         </div>
       </div>
       <script type="text/javascript">
-      $(function(){
+       $(function(){
          $('.table tr[data-href]').each(function(){
            $(this).css('cursor','pointer').hover(
              function(){
@@ -110,6 +111,14 @@
                document.location = $(this).attr('data-href');
              }
              );
+         });
+
+
+         var now = moment();
+
+         $('.time').each(function(i, e) {
+           var time = moment($(e).attr('datetime'));
+           $(e).html('<span>' + time.from(now) + '</span>');
          });
        });
       </script>
