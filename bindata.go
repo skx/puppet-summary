@@ -85,7 +85,7 @@ func dataIndex_handlerTemplate() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "data/index_handler.template", size: 7597, mode: os.FileMode(420), modTime: time.Unix(1501853807, 0)}
+	info := bindataFileInfo{name: "data/index_handler.template", size: 7597, mode: os.FileMode(420), modTime: time.Unix(1502008398, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -105,7 +105,7 @@ func dataNode_handlerTemplate() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "data/node_handler.template", size: 3952, mode: os.FileMode(420), modTime: time.Unix(1501907295, 0)}
+	info := bindataFileInfo{name: "data/node_handler.template", size: 3952, mode: os.FileMode(420), modTime: time.Unix(1501734389, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -125,7 +125,7 @@ func dataReport_handlerTemplate() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "data/report_handler.template", size: 3671, mode: os.FileMode(420), modTime: time.Unix(1501853807, 0)}
+	info := bindataFileInfo{name: "data/report_handler.template", size: 3671, mode: os.FileMode(420), modTime: time.Unix(1502008398, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
