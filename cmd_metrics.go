@@ -32,6 +32,13 @@ func SendMetrics(host string, port int, prefix string, nop bool) {
 	stats := make(map[string]int)
 
 	//
+	// Each known-state will default to being empty.
+	//
+	stats["changed"] = 0
+	stats["unchanged"] = 0
+	stats["failed"] = 0
+
+	//
 	// Create the helper
 	//
 	g, err := graphite.NewGraphite(host, port)
