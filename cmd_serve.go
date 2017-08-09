@@ -234,7 +234,8 @@ func NodeHandler(res http.ResponseWriter, req *http.Request) {
 }
 
 //
-// Show the hosts we know about - and their last known state.
+// Show all the hosts we know about - and their last known state -
+// along with a graph of recent states.
 //
 func IndexHandler(res http.ResponseWriter, req *http.Request) {
 
@@ -249,7 +250,7 @@ func IndexHandler(res http.ResponseWriter, req *http.Request) {
 
 	//
 	// Annoying struct to allow us to populate our template
-	// with both the reports and the fqdn of the host.
+	// with both the nodes in the list, and the graph-data
 	//
 	type Pagedata struct {
 		Graph []PuppetHistory
