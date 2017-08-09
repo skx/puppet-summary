@@ -7,10 +7,12 @@
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-    <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.bundle.min.js"></script>
     <script type="text/javascript">
      window.onload = function () {
+
 
        //
        // We populate the tables in our template-generation
@@ -23,45 +25,70 @@
        failed    = $('#failed_table tr').length - 1;
 
        //
-       // Data we'll include in our donut-chart.
-       //
-       // We store this here because we wish to exclude the display
-       // of `failed` or `changed` if empty.
-       //
-       data = []
-
-       if ( unchanged > 0 ) {
-         data.push( {y: unchanged, indexLabel: "#percent%", legendText: "Unchanged", color: '#e8e8e8' } )
-       }
-       if ( failed > 0 ) {
-	 data.push( {y: failed, indexLabel: "#percent%", legendText: "Failed", color: 'red', } )
-       }
-       if ( changed > 0 ) {
-	 data.push({y: changed,  indexLabel: "#percent%", legendText: "Changed", color: '#c4e3f3'})
-       }
-
-
-       //
        // Update the tab-headers for `changed` & `failed`.
        //
        if ( changed > 0 ) { $('#changed_count').html( changed ) }
        if ( failed > 0 ) { $('#failed_count').html( failed )  }
 
-       var chart = new CanvasJS.Chart("chartContainer",
-	                              {
-                                        animationEnabled: false,
-		                        data: [
-                                          {
-			                    type: "doughnut",
-			                    startAngle: 60,
-			                    toolTipContent: "{legendText}: {y} - <strong>#percent% </strong>",
-			                    showInLegend: true,
-			                    dataPoints: data
-		                          }
-		                        ]
-	                              });
-       chart.render();
-     }
+       var barChartData = {
+         labels: [
+           {{range .Graph }}
+           "{{.Date }}",
+           {{end}}
+         ],
+         datasets: [{
+           label: 'Changed',
+           backgroundColor: '#d9edf7',
+           data: [
+           {{range .Graph }}
+           "{{.Changed }}",
+           {{end}}
+           ]
+         }, {
+           label: 'Unchanged',
+           backgroundColor: '#e7e7e7',
+           data: [
+           {{range .Graph }}
+           "{{.Unchanged }}",
+           {{end}}
+           ]
+         }, {
+           label: 'failed',
+           backgroundColor: '#f2dede',
+           data: [
+           {{range .Graph }}
+           "{{.Failed }}",
+           {{end}}
+           ]
+         }]
+
+       };
+       var ctx = document.getElementById("canvas").getContext("2d");
+       window.myBar = new Chart(ctx, {
+         type: 'bar',
+         data: barChartData,
+         options: {
+           title:{
+             display:false,
+             text:"Chart.js Bar Chart - Stacked"
+           },
+           tooltips: {
+             mode: 'index',
+             intersect: false
+           },
+           responsive: true,
+           scales: {
+             xAxes: [{
+               stacked: true,
+             }],
+             yAxes: [{
+               stacked: true
+             }]
+           }
+         }
+       });
+
+     };
 
     </script>
   </head>
@@ -88,7 +115,8 @@
 
       <h1>Node Summary</h1>
 
-      <div id="chartContainer" style="height: 200px; width: 80%; margin-left:10%; margin-right:10%"></div>
+      <canvas id="canvas" style="height: 150px; width: 90%; margin-left:5%; margin-right:5%"></canvas>
+      <div id="fcanvas" ></div>
       <p>&nbsp;</p>
 
       <ul class="nav nav-tabs">
@@ -108,7 +136,7 @@
               <th>State</th>
               <th>Seen</th>
             </tr>
-            {{range .}}
+            {{range .Nodes }}
             <tr
                 {{if eq .State "failed" }} class="danger" {{ end }}
                 {{if eq .State "changed" }} class="info"  {{ end }}
@@ -129,7 +157,7 @@
               <th>State</th>
               <th>Seen</th>
             </tr>
-            {{range .}}
+            {{range .Nodes }}
             {{if eq .State "failed" }}
             <tr class="danger" data-href="/node/{{.Fqdn}}">
               <td>{{.Fqdn}}</td>
@@ -149,7 +177,7 @@
               <th>State</th>
               <th>Seen</th>
             </tr>
-            {{range .}}
+            {{range .Nodes }}
             {{if eq .State "changed" }}
             <tr class="info" data-href="/node/{{.Fqdn}}">
               <td>{{.Fqdn}}</td>
@@ -169,7 +197,7 @@
               <th>State</th>
               <th>Seen</th>
             </tr>
-            {{range .}}
+            {{range .Nodes }}
             {{if eq .State "unchanged" }}
             <tr data-href="/node/{{.Fqdn}}">
               <td>{{.Fqdn}}</td>

@@ -46,6 +46,17 @@ type PuppetReportSummary struct {
 }
 
 //
+// This structure is used solely for the stacked-graph on the
+// front-page.
+//
+type PuppetHistory struct {
+	Date      string
+	Failed    string
+	Changed   string
+	Unchanged string
+}
+
+//
 // Open our SQLite database, creating it if necessary.
 //
 func SetupDB(path string) {
@@ -288,6 +299,108 @@ func getReports(fqdn string) ([]PuppetReportSummary, error) {
 
 	}
 	return NodeList, nil
+}
+
+//
+// Get data for our stacked bar-graph
+//
+func getHistory() ([]PuppetHistory, error) {
+
+	//
+	// Our result.
+	//
+	var res []PuppetHistory
+
+	//
+	// An array to hold the unique dates we've seen.
+	//
+	var dates []string
+
+	//
+	// Get all the distinct dates we have data for.
+	//
+	stmt, err := db.Prepare("SELECT DISTINCT(strftime('%d/%m/%Y', DATE(executed_at, 'unixepoch'))) FROM reports")
+	rows, err := stmt.Query()
+	if err != nil {
+		panic(err)
+	}
+	defer stmt.Close()
+	defer rows.Close()
+
+	//
+	// For each row in the result-set
+	//
+	for rows.Next() {
+		var d string
+		err := rows.Scan(&d)
+		if err != nil {
+			return nil, errors.New("Failed to scan SQL")
+		}
+
+		dates = append(dates, d)
+	}
+	err = rows.Err()
+	if err != nil {
+		panic(err)
+	}
+
+	//
+	// Now we have all the unique dates in `dates`.
+	//
+	for _, known := range dates {
+
+		//
+		// The result for this date.
+		//
+		var x PuppetHistory
+		x.Changed = "0"
+		x.Unchanged = "0"
+		x.Failed = "0"
+		x.Date = known
+
+		stmt, err = db.Prepare("SELECT distinct state, COUNT(state) AS CountOf FROM reports WHERE strftime('%d/%m/%Y', DATE(executed_at, 'unixepoch'))=? GROUP by state")
+		rows, err = stmt.Query(known)
+		if err != nil {
+			panic(err)
+		}
+		defer stmt.Close()
+		defer rows.Close()
+
+		//
+		// For each row in the result-set
+		//
+		for rows.Next() {
+			var name string
+			var count string
+
+			err := rows.Scan(&name, &count)
+			if err != nil {
+				return nil, errors.New("Failed to scan SQL")
+			}
+			if name == "changed" {
+				x.Changed = count
+			}
+			if name == "unchanged" {
+				x.Unchanged = count
+			}
+			if name == "failed" {
+				x.Failed = count
+			}
+		}
+		err = rows.Err()
+		if err != nil {
+			panic(err)
+		}
+
+		//
+		// Add this days result.
+		//
+		res = append(res, x)
+
+	}
+
+	return res, err
+
 }
 
 //

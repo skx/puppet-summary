@@ -248,6 +248,15 @@ func IndexHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	//
+	// Annoying struct to allow us to populate our template
+	// with both the reports and the fqdn of the host.
+	//
+	type Pagedata struct {
+		Graph []PuppetHistory
+		Nodes []PuppetRuns
+	}
+
+	//
 	// Get the nodes to show on our front-page
 	//
 	NodeList, err := getIndexNodes()
@@ -256,11 +265,26 @@ func IndexHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	//
+	// Get the graph-data
+	//
+	graphs, err := getHistory()
+	if err != nil {
+		panic(err)
+	}
+
+	//
+	// Populate this structure.
+	//
+	var x Pagedata
+	x.Graph = graphs
+	x.Nodes = NodeList
+
+	//
 	//  Populate the template and return it.
 	//
 	src := string(tmpl)
 	t := template.Must(template.New("tmpl").Parse(src))
-	t.Execute(res, NodeList)
+	t.Execute(res, x)
 }
 
 //
