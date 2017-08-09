@@ -52,7 +52,7 @@
            {{end}}
            ]
          }, {
-           label: 'failed',
+           label: 'Failed',
            backgroundColor: '#f2dede',
            data: [
            {{range .Graph }}
