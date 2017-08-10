@@ -105,6 +105,12 @@ func ParsePuppetReport(content []byte) (PuppetReport, error) {
 		return x, errors.New("Failed to get 'time' from YAML")
 	}
 
+	// Strip any quotes that might surround the time.
+	at = strings.Replace(at, "'", "", -1)
+
+	// Convert "T" -> " "
+	at = strings.Replace(at, "T", " ", -1)
+
 	// strip the time at the first period.
 	parts := strings.Split(at, ".")
 	at = parts[0]
