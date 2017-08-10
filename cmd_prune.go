@@ -17,6 +17,7 @@ import (
 type pruneCmd struct {
 	db_file string
 	days    int
+	verbose bool
 }
 
 //
@@ -35,7 +36,8 @@ func (*pruneCmd) Usage() string {
 //
 func (p *pruneCmd) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&p.db_file, "db-file", "ps.db", "The SQLite database to use.")
-	f.IntVar(&p.days, "days", 7, "Remove reports older than this man ydays.")
+	f.IntVar(&p.days, "days", 7, "Remove reports older than this many days.")
+	f.BoolVar(&p.verbose, "verbose", false, "Be verbose in reporting output")
 }
 
 //
@@ -52,8 +54,10 @@ func (p *pruneCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{})
 	//
 	// Run the prune
 	//
-	fmt.Printf("Pruning reports older than %d days\n", p.days)
-	pruneReports(p.days)
+	if p.verbose {
+		fmt.Printf("Pruning reports older than %d days\n", p.days)
+	}
+	pruneReports(p.days, p.verbose)
 
 	//
 	// All done.

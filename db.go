@@ -406,7 +406,11 @@ func getHistory() ([]PuppetHistory, error) {
 //
 // Prune old reports
 //
-func pruneReports(days int) {
+// We have to find the old reports, individually, so we can unlink the
+// copy of the on-disk YAML, but once we've done that we can delete them
+// as a group.
+//
+func pruneReports(days int, verbose bool) {
 
 	//
 	// Convert our query into something useful.
@@ -422,13 +426,16 @@ func pruneReports(days int) {
 	}
 
 	//
-	// Remove old reports, by ID.
+	// Remove old reports, en mass.
 	//
-	clean, err := db.Prepare("DELETE FROM reports WHERE id=?")
+	clean, err := db.Prepare("DELETE FROM reports WHERE ( ( strftime('%s','now') - executed_at ) > ? )")
 	if err != nil {
 		panic(err)
 	}
 
+	//
+	// Find the old reports.
+	//
 	rows, err := find.Query(time)
 	if err != nil {
 		panic(err)
@@ -438,14 +445,9 @@ func pruneReports(days int) {
 	defer rows.Close()
 
 	//
-	//  This is a list of IDs we'll delete
-	//
-	var ids []string
-
-	//
 	// For each row in the result-set
 	//
-	// Parse into "id" + "path".
+	// Parse into "id" + "path", then remove the path from disk.
 	//
 	for rows.Next() {
 		var id string
@@ -454,7 +456,9 @@ func pruneReports(days int) {
 		err := rows.Scan(&id, &path)
 		if err == nil {
 
-			fmt.Printf("Removing ID:%s - %s\n", id, path)
+			if verbose {
+				fmt.Printf("Removing ID:%s - %s\n", id, path)
+			}
 
 			//
 			//  Remove the file from-disk
@@ -464,11 +468,6 @@ func pruneReports(days int) {
 			// be uploaded in the first place.
 			//
 			os.Remove(path)
-
-			//
-			// Remove the ID
-			//
-			ids = append(ids, id)
 		}
 	}
 	err = rows.Err()
@@ -477,26 +476,11 @@ func pruneReports(days int) {
 	}
 
 	//
-	// Begin a transaction.
+	//  Now cleanup the old records
 	//
-	tx, err := db.Begin()
+	_, err = clean.Exec(time)
 	if err != nil {
 		panic(err)
 	}
-	//
-	//  Now cleanup
-	//
-	for _, v := range ids {
-		fmt.Printf("Removing ID: %s\n", v)
-		_, err = clean.Exec(v)
-		if err != nil {
-			panic(err)
-		}
-	}
-
-	//
-	// Commit our transaction
-	//
-	tx.Commit()
 
 }
