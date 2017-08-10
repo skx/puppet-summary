@@ -33,7 +33,7 @@ a target for such submission:
 * Your puppet-master submits reports to this software.
     * The reports are saved locally, as YAML files, beneath `./reports`
     * They are parsed and a simple SQLite database keeps track of them.
-* The SQLite database is used to present a visualisation layer.
+* The SQLite database is used to present a visualization layer.
     * Which you can see [in the screenshots](screenshots/).
 
 The reports are expected to be pruned over time, but as the SQLite database
@@ -59,12 +59,12 @@ If you wish to change the host/port you can do so like this:
     Launching the server on http://10.10.10.10:4321
 
 
-## Configuring Your Puppet Server
+## Importing Puppet State
 
 Once you've got an instance of `puppet-summary` installed and running
 the next step is to populate it with report data.  The expectation is
-that you'll  update your puppet server to send the reports to it directly,
-by editting `puppet.conf` on your puppet-master:
+that you'll update your puppet server to send the reports to it directly,
+by editing `puppet.conf` on your puppet-master:
 
     [master]
     reports = store, http
@@ -88,10 +88,9 @@ but that is a reasonable default.
 
 ## Maintenance & Metrics
 
-Over time your reports will grow excessively large.  We only display
-the most recent 50 upon the per-node page so you might not notice.
-
-To prune (read: delete) old reports run:
+Over time your reports will start to consuming ever-increasing amounts
+of disk-space so they should be pruned.  To prune (read: delete) old reports
+run:
 
     puppet-summary prune -days 15
 
@@ -134,6 +133,7 @@ of submitted.  For example:
 ## Notes On Deployment
 
 * Please don't run this application as root.
+* Rather than exposing it publicly you should prefer to run behind an `nginx`/`apache2` reverse-proxy.
 * Received YAML files are stored beneath `./reports`
     * This can be changed with the `-prefix` argument to `puppet-summary serve`
 * The default SQLite database is located at `./ps.db`, but it can be changed via the command-line, for example:
