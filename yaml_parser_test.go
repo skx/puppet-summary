@@ -116,3 +116,72 @@ func TestHostName(t *testing.T) {
 		}
 	}
 }
+
+//
+// Test that we can detect unknown states.
+//
+func TestNodeStatus(t *testing.T) {
+
+	//
+	// Test-cases
+	//
+	type TestCase struct {
+		state string
+		valid bool
+	}
+
+	//
+	// Possible states, and whether they are valid
+	//
+	fail := []TestCase{
+		{"changed", true},
+		{"unchanged", true},
+		{"failed", true},
+		{"blah", false},
+		{"forced", false},
+		{"unknown", false}}
+
+	//
+	// For each test-case
+	//
+	for _, input := range fail {
+
+		//
+		// Build up YAML
+		//
+		var tmp string
+
+		tmp = "---\n" +
+			"host: foo.example.com\n" +
+			"time: '2017-08-07T16:37:42.659245699+00:00'\n" +
+			"status: " + input.state
+
+		//
+		// Parse it.
+		//
+		_, err := ParsePuppetReport([]byte(tmp))
+
+		//
+		// regexp for matching error-conditions
+		//
+		reg, _ := regexp.Compile("status")
+
+		//
+		// Do we expect this to pass/fail?
+		//
+		if input.valid {
+
+			if reg.MatchString(err.Error()) {
+				t.Errorf("Expected no error relating to 'status', but got one: %v", err)
+			}
+		} else {
+
+			//
+			// We expect this to fail.  Did it?
+			//
+			if !reg.MatchString(err.Error()) {
+				t.Errorf("Expected an error relating to 'status', but didn't: %v", err)
+			}
+		}
+	}
+}

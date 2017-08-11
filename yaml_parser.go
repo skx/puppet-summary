@@ -155,6 +155,14 @@ func ParsePuppetReport(content []byte) (PuppetReport, error) {
 		return x, errors.New("Failed to get 'status' from YAML")
 	}
 
+	switch x.State {
+	case "changed":
+	case "unchanged":
+	case "failed":
+	default:
+		return x, errors.New("Unexpected 'status' - " + x.State)
+	}
+
 	//
 	// Get the run-time this execution took.
 	//
