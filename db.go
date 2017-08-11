@@ -146,12 +146,11 @@ func addDB(data PuppetReport, path string) {
 //
 func getYAML(prefix string, id string) ([]byte, error) {
 
-
 	//
 	// Ensure we have a DB-handle
 	//
 	if db == nil {
-		return nil, errors.New( "SetupDB not called")
+		return nil, errors.New("SetupDB not called")
 	}
 
 	//
@@ -214,7 +213,7 @@ func getIndexNodes() ([]PuppetRuns, error) {
 	// Ensure we have a DB-handle
 	//
 	if db == nil {
-		return nil, errors.New( "SetupDB not called")
+		return nil, errors.New("SetupDB not called")
 	}
 
 	//
@@ -268,12 +267,11 @@ func getIndexNodes() ([]PuppetRuns, error) {
 //
 func getReports(fqdn string) ([]PuppetReportSummary, error) {
 
-
 	//
 	// Ensure we have a DB-handle
 	//
 	if db == nil {
-		return nil, errors.New( "SetupDB not called")
+		return nil, errors.New("SetupDB not called")
 	}
 
 	//
@@ -337,7 +335,7 @@ func getHistory() ([]PuppetHistory, error) {
 	// Ensure we have a DB-handle
 	//
 	if db == nil {
-		return nil, errors.New( "SetupDB not called")
+		return nil, errors.New("SetupDB not called")
 	}
 
 	//
@@ -444,14 +442,13 @@ func getHistory() ([]PuppetHistory, error) {
 // copy of the on-disk YAML, but once we've done that we can delete them
 // as a group.
 //
-func pruneReports(days int, verbose bool) (error) {
-
+func pruneReports(days int, verbose bool) error {
 
 	//
 	// Ensure we have a DB-handle
 	//
 	if db == nil {
-		return errors.New( "SetupDB not called")
+		return errors.New("SetupDB not called")
 	}
 
 	//

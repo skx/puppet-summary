@@ -10,12 +10,12 @@
 package main
 
 import (
+	"fmt"
+	"github.com/gorilla/mux"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
-	"github.com/gorilla/mux"
 	"testing"
-	"fmt"
 )
 
 //
@@ -49,10 +49,9 @@ func TestNonNumericReport(t *testing.T) {
 }
 
 //
-// API state must be known must be alphanumeric
+// Report IDs must be alphanumeric
 //
-func TestUnknownAPIState(t *testing.T) {
-
+func TestNumericReport(t *testing.T) {
 	r := mux.NewRouter()
 	r.HandleFunc("/api/state/{state}", APIState).Methods("GET")
 	r.HandleFunc("/api/state/{state}/", APIState).Methods("GET")
@@ -61,10 +60,49 @@ func TestUnknownAPIState(t *testing.T) {
 	defer ts.Close()
 
 	// Table driven test
-	names := []string{"kate", "matt", "emma"}
+	names := []string{"changed", "failed", "unchanged"}
 
 	for _, name := range names {
 		url := ts.URL + "/api/state/" + name
+
+		resp, err := http.Get(url)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		//
+		// Get the body
+		//
+		defer resp.Body.Close()
+		body, err := ioutil.ReadAll(resp.Body)
+
+		body_str := fmt.Sprintf("%s", body)
+		if status := resp.StatusCode; status != http.StatusInternalServerError {
+			t.Fatalf("wrong status code: got %d want %d", status, http.StatusOK)
+		}
+		if body_str != "SetupDB not called\n" {
+			t.Fatalf("Unexpected body: '%s'", body)
+		}
+	}
+
+}
+
+//
+// API state must be known must be alphanumeric
+//
+func TestUnknownAPIState(t *testing.T) {
+
+	r := mux.NewRouter()
+	r.HandleFunc("/report/{id}", ReportHandler).Methods("GET")
+
+	ts := httptest.NewServer(r)
+	defer ts.Close()
+
+	// Table driven test
+	names := []string{"1", "100", "303021"}
+
+	for _, name := range names {
+		url := ts.URL + "/report/" + name
 
 		resp, err := http.Get(url)
 		if err != nil {
@@ -76,7 +114,6 @@ func TestUnknownAPIState(t *testing.T) {
 		}
 	}
 }
-
 
 //
 // API state must be known.
@@ -113,8 +150,8 @@ func TestKnownAPIState(t *testing.T) {
 		if status := resp.StatusCode; status != http.StatusInternalServerError {
 			t.Fatalf("wrong status code: got %d want %d", status, http.StatusOK)
 		}
-		if ( body_str != "SetupDB not called\n" ) {
-			t.Fatalf("Unexpected body: '%s'",body)
+		if body_str != "SetupDB not called\n" {
+			t.Fatalf("Unexpected body: '%s'", body)
 		}
 	}
 
