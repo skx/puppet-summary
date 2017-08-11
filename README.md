@@ -42,13 +42,23 @@ only contains a summary of the available data it will not grow excessively.
 > The current software has been tested with over 50,000 reports and performs well at that scale.
 
 
-## Installation & Execution
+## Installation
 
-To install this software it should be sufficient to run the following:
+Providing you have a working go-installation you should be able to
+install this software by running:
 
     go get -u github.com/skx/puppet-summary
 
-Once installed you can launch it like so:
+> **NOTE**: If you've previously downloaded the code this will update your installation to the most recent available version.
+
+If you don't have a golang environment setup you should be able to download a binary for GNU/Linux from the github release page:
+
+* [Binary Release for GNU/Linux - 64-bit](https://github.com/skx/puppet-summary/releases)
+
+
+## Execution
+
+Once installed you can launch it directly like so:
 
     $ puppet-summary serve
     Launching the server on http://127.0.0.1:3001
@@ -57,6 +67,10 @@ If you wish to change the host/port you can do so like this:
 
     $ puppet-summary serve -host 10.10.10.10 -port 4321
     Launching the server on http://10.10.10.10:4321
+
+Other sub-commands are described later, or can be viewed via:
+
+    $ puppet-summary help
 
 
 ## Importing Puppet State
@@ -71,7 +85,7 @@ by editing `puppet.conf` on your puppet-master:
     reporturl = http://localhost:3001/upload
 
 * If you're running the dashboard on a different host you'll need to use the external IP/hostname here.
-* Once configured don't forget to restart your puppet service!
+* Once you've changed your master's configuration don't forget to restart the service!
 
 If you __don't__ wish to change your puppet-server initially you can test
 what it would look like by importing the existing YAML reports from your
