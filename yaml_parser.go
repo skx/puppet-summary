@@ -97,6 +97,14 @@ func ParsePuppetReport(content []byte) (PuppetReport, error) {
 	}
 
 	//
+	// Ensure the hostname passes a simple regexp
+	//
+	reg, _ := regexp.Compile("^([a-z0-9._-]+)$")
+	if !reg.MatchString(x.Fqdn) {
+		return x, errors.New("The submitted 'host' field failed our security check")
+	}
+
+	//
 	// Get the time puppet executed
 	//
 	at, err := yaml.Get("time").String()
