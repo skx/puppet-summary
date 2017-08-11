@@ -33,6 +33,13 @@ There are four main end-points:
 * `POST /upload`
    * Store a report, this is expected to be invoked from the puppet-master.
 
+In addition to that there is a simple end-point which is designed to
+return a list of all the nodes in the given state:
+
+* `GET /api/state/$state`
+
+Only valid states are permitted (`changed`, `failed`, & `unchanged`).
+
 
 
 ## Code Quality
