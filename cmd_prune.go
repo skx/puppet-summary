@@ -57,10 +57,12 @@ func (p *pruneCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{})
 	if p.verbose {
 		fmt.Printf("Pruning reports older than %d days\n", p.days)
 	}
-	pruneReports(p.days, p.verbose)
 
-	//
-	// All done.
-	//
-	return subcommands.ExitSuccess
+	err := pruneReports(p.days, p.verbose)
+	if ( err == nil ) {
+		return subcommands.ExitSuccess
+	} else {
+		fmt.Printf("Error pruning: %s\n", err.Error())
+		return subcommands.ExitFailure
+	}
 }

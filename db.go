@@ -146,6 +146,14 @@ func addDB(data PuppetReport, path string) {
 //
 func getYAML(prefix string, id string) ([]byte, error) {
 
+
+	//
+	// Ensure we have a DB-handle
+	//
+	if db == nil {
+		return nil, errors.New( "SetupDB not called")
+	}
+
 	//
 	// Get the path to the file for this file.
 	//
@@ -203,6 +211,13 @@ func getYAML(prefix string, id string) ([]byte, error) {
 func getIndexNodes() ([]PuppetRuns, error) {
 
 	//
+	// Ensure we have a DB-handle
+	//
+	if db == nil {
+		return nil, errors.New( "SetupDB not called")
+	}
+
+	//
 	// Select the status.
 	//
 	rows, err := db.Query("SELECT fqdn, state, runtime, max(executed_at) FROM reports GROUP by fqdn;")
@@ -252,6 +267,14 @@ func getIndexNodes() ([]PuppetRuns, error) {
 // Get the summary-details of the runs against a given host
 //
 func getReports(fqdn string) ([]PuppetReportSummary, error) {
+
+
+	//
+	// Ensure we have a DB-handle
+	//
+	if db == nil {
+		return nil, errors.New( "SetupDB not called")
+	}
 
 	//
 	// Select the status.
@@ -309,6 +332,13 @@ func getReports(fqdn string) ([]PuppetReportSummary, error) {
 // Get data for our stacked bar-graph
 //
 func getHistory() ([]PuppetHistory, error) {
+
+	//
+	// Ensure we have a DB-handle
+	//
+	if db == nil {
+		return nil, errors.New( "SetupDB not called")
+	}
 
 	//
 	// Our result.
@@ -414,7 +444,15 @@ func getHistory() ([]PuppetHistory, error) {
 // copy of the on-disk YAML, but once we've done that we can delete them
 // as a group.
 //
-func pruneReports(days int, verbose bool) {
+func pruneReports(days int, verbose bool) (error) {
+
+
+	//
+	// Ensure we have a DB-handle
+	//
+	if db == nil {
+		return errors.New( "SetupDB not called")
+	}
 
 	//
 	// Convert our query into something useful.
@@ -476,7 +514,7 @@ func pruneReports(days int, verbose bool) {
 	}
 	err = rows.Err()
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	//
@@ -484,7 +522,8 @@ func pruneReports(days int, verbose bool) {
 	//
 	_, err = clean.Exec(time)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
+	return nil
 }
