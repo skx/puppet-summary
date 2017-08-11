@@ -6,6 +6,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"fmt"
 	"github.com/google/subcommands"
@@ -14,6 +15,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
 	"text/template"
 )
 
@@ -46,6 +48,15 @@ func ReportSubmissionHandler(res http.ResponseWriter, req *http.Request) {
 			fmt.Printf("Error: %s\n", err.Error())
 		}
 	}()
+
+	//
+	// Ensure this was a POST-request
+	//
+	if req.Method != "POST" {
+		err = errors.New("Must be called via HTTP-POST")
+		status = http.StatusInternalServerError
+		return
+	}
 
 	//
 	// Read the body of the request.
@@ -137,6 +148,16 @@ func ReportHandler(res http.ResponseWriter, req *http.Request) {
 	//
 	vars := mux.Vars(req)
 	id := vars["id"]
+
+	//
+	// If the ID is non-numeric we're in trouble.
+	//
+	reg, _ := regexp.Compile("^(0-9]+)$")
+	if !reg.MatchString(id) {
+		status = http.StatusInternalServerError
+		err = errors.New("The report ID must be numeric")
+		return
+	}
 
 	//
 	// Get the content.
