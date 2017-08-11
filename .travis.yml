@@ -8,7 +8,7 @@ matrix:
     - go: tip
 
 script:
-  - go get -t -v $(go list ./...) "-X main.version=$(git describe --exact-match --abbrev=0)"
+    - go get -t -v $(go list ./...) "-X main.version=$(git describe --tags)"
 
 
 deploy:
