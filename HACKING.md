@@ -32,3 +32,16 @@ There are four main end-points:
    * This shows useful output of a given run.
 * `POST /upload`
    * Store a report, this is expected to be invoked from the puppet-master.
+
+
+
+## Code Quality
+
+Test our the test-suite coverage :
+
+     go get golang.org/x/tools/cmd/cover
+     go test -coverprofile fmt
+
+Look for advice on code:
+
+     go vet .
