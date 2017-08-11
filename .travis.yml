@@ -8,7 +8,7 @@ matrix:
     - go: tip
 
 script:
-    - go get -t -v $(go list ./...) -X "main.version=$(git describe --tags)"
+    - go get -t -v $(go list ./...) -ldflags "-X main.version=$(git describe --tags)"
 
 
 deploy:
