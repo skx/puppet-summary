@@ -52,11 +52,25 @@ func APIState(res http.ResponseWriter, req *http.Request) {
 	state := vars["state"]
 
 	//
+	// Test the state is valid
+	//
+	switch state {
+	case "changed":
+	case "unchanged":
+	case "failed":
+	default:
+		err = errors.New("Invalid state")
+		status = http.StatusInternalServerError
+		return
+	}
+
+	//
 	// Get the nodes.
 	//
 	NodeList, err := getIndexNodes()
 	if err != nil {
-		panic(err)
+		status = http.StatusInternalServerError
+		return
 	}
 
 	//

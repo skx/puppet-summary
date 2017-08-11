@@ -10,9 +10,12 @@
 package main
 
 import (
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"github.com/gorilla/mux"
 	"testing"
+	"fmt"
 )
 
 //
@@ -43,6 +46,78 @@ func TestNonNumericReport(t *testing.T) {
 		t.Errorf("handler returned unexpected body: got '%v' want '%v'",
 			rr.Body.String(), expected)
 	}
+}
+
+//
+// API state must be known must be alphanumeric
+//
+func TestUnknownAPIState(t *testing.T) {
+
+	r := mux.NewRouter()
+	r.HandleFunc("/api/state/{state}", APIState).Methods("GET")
+	r.HandleFunc("/api/state/{state}/", APIState).Methods("GET")
+
+	ts := httptest.NewServer(r)
+	defer ts.Close()
+
+	// Table driven test
+	names := []string{"kate", "matt", "emma"}
+
+	for _, name := range names {
+		url := ts.URL + "/api/state/" + name
+
+		resp, err := http.Get(url)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if status := resp.StatusCode; status != http.StatusInternalServerError {
+			t.Fatalf("wrong status code: got %d want %d", status, http.StatusOK)
+		}
+	}
+}
+
+
+//
+// API state must be known.
+//
+// Call each one and assume we'll get a DB-Setup error.
+//
+func TestKnownAPIState(t *testing.T) {
+
+	r := mux.NewRouter()
+	r.HandleFunc("/api/state/{state}", APIState).Methods("GET")
+	r.HandleFunc("/api/state/{state}/", APIState).Methods("GET")
+
+	ts := httptest.NewServer(r)
+	defer ts.Close()
+
+	// Table driven test
+	names := []string{"changed", "failed", "unchanged"}
+
+	for _, name := range names {
+		url := ts.URL + "/api/state/" + name
+
+		resp, err := http.Get(url)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		//
+		// Get the body
+		//
+		defer resp.Body.Close()
+		body, err := ioutil.ReadAll(resp.Body)
+
+		body_str := fmt.Sprintf("%s", body)
+		if status := resp.StatusCode; status != http.StatusInternalServerError {
+			t.Fatalf("wrong status code: got %d want %d", status, http.StatusOK)
+		}
+		if ( body_str != "SetupDB not called\n" ) {
+			t.Fatalf("Unexpected body: '%s'",body)
+		}
+	}
+
 }
 
 //
