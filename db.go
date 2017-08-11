@@ -184,9 +184,13 @@ func getYAML(prefix string, id string) ([]byte, error) {
 	// such as "$host/$time", rather than absolute paths
 	// such as "reports/$host/$time".)
 	//
-	path = filepath.Join(prefix, path)
-	content, err := ioutil.ReadFile(path)
-	return content, err
+	if len(path) > 0 {
+		path = filepath.Join(prefix, path)
+		content, err := ioutil.ReadFile(path)
+		return content, err
+	} else {
+		return nil, errors.New("Failed to find report with specified ID")
+	}
 }
 
 //
