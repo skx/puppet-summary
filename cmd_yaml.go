@@ -57,21 +57,24 @@ func YamlDump(file string) {
 	if node.Failed != "0" {
 		fmt.Printf("\nFailed:\n")
 		for i, _ := range node.Resources_Failed {
-			fmt.Printf("\t%s\n", node.Resources_Failed[i])
+			fmt.Printf("\t%s\n", node.Resources_Failed[i].Name)
+			fmt.Printf("\t\t%s:%s\n", node.Resources_Failed[i].File, node.Resources_Failed[i].Line)
 		}
 	}
 
 	if node.Changed != "0" {
 		fmt.Printf("\nChanged:\n")
 		for i, _ := range node.Resources_Changed {
-			fmt.Printf("\t%s\n", node.Resources_Changed[i])
+			fmt.Printf("\t%s\n", node.Resources_Changed[i].Name)
+			fmt.Printf("\t\t%s:%s\n", node.Resources_Changed[i].File, node.Resources_Changed[i].Line)
 		}
 	}
 
 	if node.Skipped != "0" {
 		fmt.Printf("\nSkipped:\n")
 		for i, _ := range node.Resources_Skipped {
-			fmt.Printf("\t%s\n", node.Resources_Skipped[i])
+			fmt.Printf("\t%s\n", node.Resources_Skipped[i].Name)
+			fmt.Printf("\t\t%s:%s\n", node.Resources_Skipped[i].File, node.Resources_Skipped[i].Line)
 		}
 	}
 

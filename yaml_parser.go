@@ -19,8 +19,16 @@ import (
 	"regexp"
 	"strings"
 	"time"
-	//	"io/ioutil"
 )
+
+//
+// A resource defined in a puppet manifest.
+//
+type Resource struct {
+	Name string
+	File string
+	Line string
+}
 
 //
 // Define a structure for our results.
@@ -63,12 +71,19 @@ type PuppetReport struct {
 	Skipped string
 
 	//
-	// Logs of things that changed/failed/etc
+	// Logs messages.
 	//
-	Log_Messages      []string
-	Resources_Failed  []string
-	Resources_Changed []string
-	Resources_Skipped []string
+	Log_Messages []string
+
+	//
+	// Resources which have failed/changed/been skipped.
+	//
+	// These include the file/line in which they were defined
+	// in the puppet manifest(s).
+	//
+	Resources_Failed  []Resource
+	Resources_Changed []Resource
+	Resources_Skipped []Resource
 }
 
 //
@@ -246,19 +261,25 @@ func ParsePuppetReport(content []byte) (PuppetReport, error) {
 		// Now we should be able to look for skipped ones.
 		if m["skipped"] == "true" {
 			x.Resources_Skipped = append(x.Resources_Skipped,
-				m["title"]+"("+m["file"]+":"+m["line"]+")")
+				Resource{Name: m["title"],
+					File: m["file"],
+					Line: m["line"]})
 		}
 
 		// Now we should be able to look for skipped ones.
 		if m["changed"] == "true" {
 			x.Resources_Changed = append(x.Resources_Changed,
-				m["title"]+"("+m["file"]+":"+m["line"]+")")
+				Resource{Name: m["title"],
+					File: m["file"],
+					Line: m["line"]})
 		}
 
 		// Now we should be able to look for skipped ones.
 		if m["failed"] == "true" {
 			x.Resources_Failed = append(x.Resources_Failed,
-				m["title"]+"("+m["file"]+":"+m["line"]+")")
+				Resource{Name: m["title"],
+					File: m["file"],
+					Line: m["line"]})
 		}
 	}
 
