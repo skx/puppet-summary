@@ -10,7 +10,6 @@
 package main
 
 import (
-	"fmt"
 	"regexp"
 	"testing"
 )
@@ -24,7 +23,6 @@ func TestYamlDates(t *testing.T) {
 		"---\ntime: 2017-03-10 10:22:33.493526494 +00:00\nhost: foo\n"}
 
 	for _, input := range tests {
-		fmt.Printf("Testing: %s\n", input)
 
 		//
 		// Error will be set here, since we only supply
