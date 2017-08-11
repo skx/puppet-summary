@@ -195,8 +195,19 @@ func NodeHandler(res http.ResponseWriter, req *http.Request) {
 	//
 	reports, err := getReports(fqdn)
 
+	//
+	// Ensure that something was present.
+	//
 	if (reports == nil) || (len(reports) < 1) {
 		status = http.StatusNotFound
+		return
+	}
+
+	//
+	// Handle error(s)
+	//
+	if err != nil {
+		status = http.StatusInternalServerError
 		return
 	}
 
@@ -238,6 +249,15 @@ func NodeHandler(res http.ResponseWriter, req *http.Request) {
 // along with a graph of recent states.
 //
 func IndexHandler(res http.ResponseWriter, req *http.Request) {
+	var (
+		status int
+		err    error
+	)
+	defer func() {
+		if nil != err {
+			http.Error(res, err.Error(), status)
+		}
+	}()
 
 	//
 	// Define a template for the result we'll send to the browser.
@@ -262,7 +282,8 @@ func IndexHandler(res http.ResponseWriter, req *http.Request) {
 	//
 	NodeList, err := getIndexNodes()
 	if err != nil {
-		panic(err)
+		status = http.StatusInternalServerError
+		return
 	}
 
 	//
@@ -270,7 +291,8 @@ func IndexHandler(res http.ResponseWriter, req *http.Request) {
 	//
 	graphs, err := getHistory()
 	if err != nil {
-		panic(err)
+		status = http.StatusInternalServerError
+		return
 	}
 
 	//
