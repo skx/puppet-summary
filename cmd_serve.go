@@ -6,6 +6,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
@@ -27,6 +28,63 @@ var ReportPrefix = "reports"
 func Exists(name string) bool {
 	_, err := os.Stat(name)
 	return !os.IsNotExist(err)
+}
+
+//
+// API /api/state/$state
+//
+func APIState(res http.ResponseWriter, req *http.Request) {
+
+	var (
+		status int
+		err    error
+	)
+	defer func() {
+		if nil != err {
+			http.Error(res, err.Error(), status)
+		}
+	}()
+
+	//
+	// Get the state the user is interested in.
+	//
+	vars := mux.Vars(req)
+	state := vars["state"]
+
+	//
+	// Get the nodes.
+	//
+	NodeList, err := getIndexNodes()
+	if err != nil {
+		panic(err)
+	}
+
+	//
+	// The result
+	//
+	var result []string
+
+	//
+	// See what state the user is interested in.
+	//
+	for _, o := range NodeList {
+		if o.State == state {
+			result = append(result, o.Fqdn)
+		}
+	}
+
+	//
+	// Convert the string-array to JSON, and return it.
+	//
+	res.Header().Set("Content-Type", "application/json")
+
+	if len(result) > 0 {
+		out, _ := json.Marshal(result)
+		fmt.Fprintf(res, "%s", out)
+	} else {
+		fmt.Fprintf(res, "[]")
+	}
+
 }
 
 /*
@@ -350,6 +408,12 @@ func cmd_serve(settings serveCmd) {
 	// Create a new router and our route-mappings.
 	//
 	router := mux.NewRouter()
+
+	//
+	// API end-points
+	//
+	router.HandleFunc("/api/state/{state}", APIState).Methods("GET")
+	router.HandleFunc("/api/state/{state}/", APIState).Methods("GET")
 
 	//
 	// Upload a new report.
