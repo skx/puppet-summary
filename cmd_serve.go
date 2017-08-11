@@ -152,7 +152,7 @@ func ReportHandler(res http.ResponseWriter, req *http.Request) {
 	//
 	// If the ID is non-numeric we're in trouble.
 	//
-	reg, _ := regexp.Compile("^(0-9]+)$")
+	reg, _ := regexp.Compile("^([0-9]+)$")
 	if !reg.MatchString(id) {
 		status = http.StatusInternalServerError
 		err = errors.New("The report ID must be numeric")
