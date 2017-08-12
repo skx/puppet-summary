@@ -261,8 +261,9 @@ func ReportHandler(res http.ResponseWriter, req *http.Request) {
 	//
 	tmpl, err := Asset("data/report_handler.template")
 	if err != nil {
-		fmt.Printf("Failed to find asset data/report_handler.template")
-		os.Exit(2)
+		err = errors.New("Failed to find asset data/report_handler.template")
+		status = http.StatusInternalServerError
+		return
 	}
 
 	//
@@ -340,8 +341,9 @@ func NodeHandler(res http.ResponseWriter, req *http.Request) {
 	//
 	tmpl, err := Asset("data/node_handler.template")
 	if err != nil {
-		fmt.Printf("Failed to find asset data/node_handler.template")
-		os.Exit(2)
+		err = errors.New("Failed to find asset data/node_handler.template")
+		status = http.StatusInternalServerError
+		return
 	}
 
 	//
@@ -377,8 +379,9 @@ func IndexHandler(res http.ResponseWriter, req *http.Request) {
 	//
 	tmpl, err := Asset("data/index_handler.template")
 	if err != nil {
-		fmt.Printf("Failed to find asset data/index_handler.template")
-		os.Exit(2)
+		err = errors.New("Failed to find asset data/index_handler.template")
+		status = http.StatusInternalServerError
+		return
 	}
 
 	//
