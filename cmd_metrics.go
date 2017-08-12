@@ -14,12 +14,15 @@ import (
 )
 
 //
-//  Entry-point.
+// Get all the metrics
 //
-func SendMetrics(host string, port int, prefix string, nop bool) {
+func getMetrics() map[string]string {
+
+	// A map to store the names & values which should be sent.
+	metrics := make(map[string]string)
 
 	//
-	// Get the nodes to show on our front-page
+	// Get the nodes we know about.
 	//
 	NodeList, err := getIndexNodes()
 	if err != nil {
@@ -29,19 +32,14 @@ func SendMetrics(host string, port int, prefix string, nop bool) {
 	//
 	// Create a map to hold state.
 	//
-	stats := make(map[string]int)
+	states := make(map[string]int)
 
 	//
 	// Each known-state will default to being empty.
 	//
-	stats["changed"] = 0
-	stats["unchanged"] = 0
-	stats["failed"] = 0
-
-	//
-	// Create the helper
-	//
-	g, err := graphite.NewGraphite(host, port)
+	states["changed"] = 0
+	states["unchanged"] = 0
+	states["failed"] = 0
 
 	//
 	// Sum up the number of nodes in each state.
@@ -56,41 +54,75 @@ func SendMetrics(host string, port int, prefix string, nop bool) {
 		//
 		// Build up the metrics.
 		//
-		metric := fmt.Sprintf("%s.%s.runtime", prefix, o.Fqdn)
+		metric := fmt.Sprintf("%s.runtime", o.Fqdn)
 		value := o.Runtime
 
 		//
-		// Send it.
+		// Store in our map.
 		//
-		if nop {
-			fmt.Printf("%s %s\n", metric, value)
-		} else {
-			g.SimpleSend(metric, value)
-		}
+		metrics[metric] = value
 
 		//
 		// Keep track of counts.
 		//
-		stats[o.State] += 1
+		states[o.State] += 1
 	}
 
 	//
-	// Now output states.
+	// Now record our states.
 	//
-	for i, o := range stats {
+	for i, o := range states {
 		//
 		// The name + value
 		//
-		metric := fmt.Sprintf("%s.state.%s", prefix, i)
+		metric := fmt.Sprintf("state.%s", i)
 		value := fmt.Sprintf("%d", o)
 
-		if nop {
-			fmt.Printf("%s %s\n", metric, value)
-		} else {
-			g.SimpleSend(metric, value)
-		}
+		metrics[metric] = value
 	}
 
+	return metrics
+}
+
+//
+//  Get and send the metrics
+//
+func SendMetrics(host string, port int, prefix string, nop bool) {
+
+	// Get the metrics.
+	metrics := getMetrics()
+
+	// Create the helper.
+	g, err := graphite.NewGraphite(host, port)
+
+	//
+	// If there was an error in the helper we're OK,
+	// providing we are running in `-nop`-mode.
+	//
+	if (err != nil) && (nop == false) {
+		panic(err)
+	}
+
+	//
+	// For each one ..
+	//
+	for name, value := range metrics {
+
+		//
+		// Add the prefix.
+		//
+		name = fmt.Sprintf("%s.%s", prefix, name)
+
+		//
+		// Show/Send.
+		//
+		if nop {
+			fmt.Printf("%s %s\n", name, value)
+		} else {
+			g.SimpleSend(name, value)
+		}
+
+	}
 }
 
 //
