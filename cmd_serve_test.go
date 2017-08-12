@@ -331,7 +331,7 @@ func TestUploadBogusReport(t *testing.T) {
 	//
 	// Upper-case the YAML
 	//
-	for i, _ := range tmpl {
+	for i := range tmpl {
 		tmpl[i] = byte(unicode.ToUpper(rune(tmpl[i])))
 	}
 
