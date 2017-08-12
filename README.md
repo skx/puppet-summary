@@ -1,7 +1,7 @@
 [![Travis CI](https://img.shields.io/travis/skx/puppet-summary/master.svg?style=flat-square)](https://travis-ci.org/skx/puppet-summary)
 [![Go Report Card](https://goreportcard.com/badge/github.com/skx/puppet-summary)](https://goreportcard.com/report/github.com/skx/puppet-summary)
 [![license](https://img.shields.io/github/license/skx/puppet-summary.svg)](https://github.com/skx/puppet-summary/blob/master/LICENSE)
-
+[![Release](https://github-release-version.herokuapp.com/github/skx/puppet-summary/release.svg?style=flat)](https://github.com/skx/puppet-summary/releases/latest)
 
 Puppet Summary
 ==============
