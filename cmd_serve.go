@@ -101,14 +101,14 @@ func APIState(res http.ResponseWriter, req *http.Request) {
 
 }
 
-/*
- * Handle the submission of Puppet report.
- *
- * The input is read, and parsed as Yaml, and assuming that succeeds
- * then the data is written beneath ./reports/$hostname/$timestamp
- * and a summary-record is inserted into our SQLite database.
- *
- */
+//
+// Handle the submission of Puppet report.
+//
+// The input is read, and parsed as Yaml, and assuming that succeeds
+// then the data is written beneath ./reports/$hostname/$timestamp
+// and a summary-record is inserted into our SQLite database.
+//
+//
 func ReportSubmissionHandler(res http.ResponseWriter, req *http.Request) {
 	var (
 		status int
