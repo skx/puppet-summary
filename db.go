@@ -141,6 +141,17 @@ func addDB(data PuppetReport, path string) {
 }
 
 //
+// Count the number of reports we have.
+//
+func countReports() (int, error) {
+
+	var count int
+	row := db.QueryRow("SELECT COUNT(*) FROM reports")
+	err := row.Scan(&count)
+	return count, err
+}
+
+//
 // Return the contents of the YAML file which was associated
 // with the given report-ID.
 //
