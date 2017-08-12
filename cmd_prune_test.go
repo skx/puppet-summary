@@ -2,8 +2,8 @@ package main
 
 import (
 	"io/ioutil"
-	"testing"
 	"os"
+	"testing"
 	"time"
 )
 
@@ -15,16 +15,16 @@ var path string
 //
 // Create a temporary database
 //
-func FakeDB(){
+func FakeDB() {
 	p, err := ioutil.TempDir(os.TempDir(), "prefix")
-	if ( err == nil ) {
+	if err == nil {
 		path = p
 	}
 
 	//
 	// Setup the tables.
 	//
-	SetupDB( p + "/db.sql")
+	SetupDB(p + "/db.sql")
 
 	tx, err := db.Begin()
 	if err != nil {
@@ -33,7 +33,7 @@ func FakeDB(){
 
 	//
 	// Add some records
-	stmt, err := tx.Prepare("INSERT INTO reports(yaml_file,executed_at) values(?,?)" )
+	stmt, err := tx.Prepare("INSERT INTO reports(yaml_file,executed_at) values(?,?)")
 	if err != nil {
 		panic(err)
 	}
@@ -41,8 +41,8 @@ func FakeDB(){
 
 	count := 0
 
-	for count < 10  {
-		now  := time.Now().Unix()
+	for count < 10 {
+		now := time.Now().Unix()
 		days := int64(60 * 60 * 24 * count)
 
 		now -= days
@@ -55,30 +55,29 @@ func FakeDB(){
 func TestPrune(t *testing.T) {
 
 	// Create a fake database
-	FakeDB();
-
+	FakeDB()
 
 	//
 	// Count records and assume we have some.
 	//
-	old,_ := countReports()
+	old, _ := countReports()
 
-	if ( old != 10 ) {
-		t.Errorf("We have %d reports, not 10", old )
+	if old != 10 {
+		t.Errorf("We have %d reports, not 10", old)
 	}
 
 	//
 	// Run the prune
 	//
-	pruneReports(5,false)
+	pruneReports(5, false)
 
 	//
 	// Count them again
 	//
-	new,_ := countReports()
+	new, _ := countReports()
 
-	if ( new != 6 ) {
-		t.Errorf("We have %d reports, not 5", new )
+	if new != 6 {
+		t.Errorf("We have %d reports, not 5", new)
 	}
 
 	//
