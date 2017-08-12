@@ -37,8 +37,7 @@ func TestNonNumericReport(t *testing.T) {
 
 	// Check the status code is what we expect.
 	if status := rr.Code; status != http.StatusInternalServerError {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusInternalServerError)
+		t.Errorf("Unexpected status-code: %v", status)
 	}
 
 	// Check the response body is what we expect.
@@ -50,21 +49,24 @@ func TestNonNumericReport(t *testing.T) {
 }
 
 //
-// Report IDs must be alphanumeric
+// API-state must use known values.
 //
-func TestNumericReport(t *testing.T) {
+func TestUknownAPIState(t *testing.T) {
+
+	// Wire up the route
 	r := mux.NewRouter()
 	r.HandleFunc("/api/state/{state}", APIState).Methods("GET")
 	r.HandleFunc("/api/state/{state}/", APIState).Methods("GET")
 
+	// Get the test-server
 	ts := httptest.NewServer(r)
 	defer ts.Close()
 
-	// Table driven test
-	names := []string{"changed", "failed", "unchanged"}
+	// These are all bogus
+	states := []string{"foo", "bart", "liza", "moi kiss"}
 
-	for _, name := range names {
-		url := ts.URL + "/api/state/" + name
+	for _, state := range states {
+		url := ts.URL + "/api/state/" + state
 
 		resp, err := http.Get(url)
 		if err != nil {
@@ -79,9 +81,9 @@ func TestNumericReport(t *testing.T) {
 
 		body_str := fmt.Sprintf("%s", body)
 		if status := resp.StatusCode; status != http.StatusInternalServerError {
-			t.Fatalf("wrong status code: got %d want %d", status, http.StatusOK)
+			t.Errorf("Unexpected status-code: %v", status)
 		}
-		if body_str != "SetupDB not called\n" {
+		if body_str != "Invalid state\n" {
 			t.Fatalf("Unexpected body: '%s'", body)
 		}
 	}
@@ -89,31 +91,59 @@ func TestNumericReport(t *testing.T) {
 }
 
 //
-// API state must be known must be alphanumeric
+// Reports must be numeric.
 //
-func TestUnknownAPIState(t *testing.T) {
+func TestNumericReports(t *testing.T) {
 
+	// Create a fake database
+	FakeDB()
+
+	// Add some data.
+	addFakeReports()
+
+	// Wire up the router.
 	r := mux.NewRouter()
 	r.HandleFunc("/report/{id}", ReportHandler).Methods("GET")
 
+	// Get the test-server
 	ts := httptest.NewServer(r)
 	defer ts.Close()
 
 	// Table driven test
-	names := []string{"1", "100", "303021"}
+	ids := []string{"1", "100", "303021"}
 
-	for _, name := range names {
-		url := ts.URL + "/report/" + name
+	for _, id := range ids {
+		url := ts.URL + "/report/" + id
 
 		resp, err := http.Get(url)
 		if err != nil {
 			t.Fatal(err)
 		}
 
+		//
+		// Get the body
+		//
+		defer resp.Body.Close()
+		body, err := ioutil.ReadAll(resp.Body)
+		body_str := fmt.Sprintf("%s", body)
+
 		if status := resp.StatusCode; status != http.StatusInternalServerError {
-			t.Fatalf("wrong status code: got %d want %d", status, http.StatusOK)
+			t.Fatalf("Unexpected status code: %d", status)
 		}
+
+		if body_str != "Failed to find report with specified ID\n" {
+			t.Fatalf("Unexpected body: '%s'", body)
+		}
+
 	}
+
+	//
+	// Cleanup here because otherwise later tests will
+	// see an active/valid DB-handle.
+	//
+	db.Close()
+	db = nil
+	os.RemoveAll(path)
 }
 
 //
@@ -132,6 +162,7 @@ func TestKnownAPIState(t *testing.T) {
 	r.HandleFunc("/api/state/{state}", APIState).Methods("GET")
 	r.HandleFunc("/api/state/{state}/", APIState).Methods("GET")
 
+	// Get the test-server
 	ts := httptest.NewServer(r)
 	defer ts.Close()
 
@@ -153,7 +184,7 @@ func TestKnownAPIState(t *testing.T) {
 	body_str := fmt.Sprintf("%s", body)
 
 	if status := resp.StatusCode; status != http.StatusOK {
-		t.Fatalf("wrong status code: got %d want %d", status, http.StatusOK)
+		t.Errorf("Unexpected status-code: %v", status)
 	}
 	if body_str != "[\"foo.example.com\"]" {
 		t.Fatalf("Unexpected body: '%s'", body)
@@ -187,8 +218,7 @@ func TestUploadReportMethod(t *testing.T) {
 
 	// Check the status code is what we expect.
 	if status := rr.Code; status != http.StatusInternalServerError {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusInternalServerError)
+		t.Errorf("Unexpected status-code: %v", status)
 	}
 
 	// Check the response body is what we expect.
