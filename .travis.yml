@@ -10,7 +10,8 @@ matrix:
 script:
     - go get -t -v -d $(go list ./...)
     - go build -ldflags "-X main.version=$(git describe --tags)" .
-
+    - go get golang.org/x/tools/cmd/cover
+    - go test -coverprofile fmt
 
 deploy:
   provider: releases
