@@ -117,7 +117,11 @@ func ReportSubmissionHandler(res http.ResponseWriter, req *http.Request) {
 	defer func() {
 		if nil != err {
 			http.Error(res, err.Error(), status)
-			fmt.Printf("Error: %s\n", err.Error())
+
+			// Don't spam stdout when running test-cases.
+			if flag.Lookup("test.v") == nil {
+				fmt.Printf("Error: %s\n", err.Error())
+			}
 		}
 	}()
 
@@ -210,8 +214,11 @@ func ReportHandler(res http.ResponseWriter, req *http.Request) {
 	defer func() {
 		if nil != err {
 			http.Error(res, err.Error(), status)
-			fmt.Printf("Error: %s\n", err.Error())
 
+			// Don't spam stdout when running test-cases.
+			if flag.Lookup("test.v") == nil {
+				fmt.Printf("Error: %s\n", err.Error())
+			}
 		}
 	}()
 
@@ -277,7 +284,11 @@ func NodeHandler(res http.ResponseWriter, req *http.Request) {
 	defer func() {
 		if nil != err {
 			http.Error(res, err.Error(), status)
-			fmt.Printf("Error: %s\n", err.Error())
+
+			// Don't spam stdout when running test-cases.
+			if flag.Lookup("test.v") == nil {
+				fmt.Printf("Error: %s\n", err.Error())
+			}
 		}
 	}()
 
@@ -353,7 +364,11 @@ func IndexHandler(res http.ResponseWriter, req *http.Request) {
 	defer func() {
 		if nil != err {
 			http.Error(res, err.Error(), status)
-			fmt.Printf("Error: %s\n", err.Error())
+
+			// Don't spam stdout when running test-cases.
+			if flag.Lookup("test.v") == nil {
+				fmt.Printf("Error: %s\n", err.Error())
+			}
 		}
 	}()
 
