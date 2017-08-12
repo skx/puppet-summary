@@ -164,34 +164,15 @@ func getYAML(prefix string, id string) ([]byte, error) {
 		return nil, errors.New("SetupDB not called")
 	}
 
-	//
-	// Get the path to the file for this file.
-	//
-	stmt, err := db.Prepare("SELECT yaml_file FROM reports WHERE id=?")
-	rows, err := stmt.Query(id)
-	if err != nil {
-		panic(err)
-	}
-	defer stmt.Close()
-	defer rows.Close()
-
-	//
-	// The path to the file we expect to receive.
-	//
 	var path string
+	row := db.QueryRow("SELECT yaml_file FROM reports WHERE id=?", id)
+	err := row.Scan(&path)
 
-	//
-	// For each row in the result-set
-	//
-	for rows.Next() {
-		err := rows.Scan(&path)
-		if err != nil {
-			return nil, errors.New("Failed to scan SQL")
-		}
-	}
-	err = rows.Err()
-	if err != nil {
-		panic(err)
+	switch {
+	case err == sql.ErrNoRows:
+	case err != nil:
+		return nil, errors.New("Report not found.")
+	default:
 	}
 
 	//
