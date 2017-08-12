@@ -168,7 +168,7 @@ func TestIndex(t *testing.T) {
 	//
 	runs, err := getIndexNodes()
 	if err != nil {
-		t.Errorf("getIndexNodes failed", err)
+		t.Errorf("getIndexNodes failed: %v", err)
 	}
 
 	//
@@ -216,7 +216,7 @@ func TestReports(t *testing.T) {
 	//
 	runs, err := getReports("foo.example.com")
 	if err != nil {
-		t.Errorf("getReports failed", err)
+		t.Errorf("getReports failed: %v", err)
 	}
 
 	//
@@ -251,7 +251,7 @@ func TestHistory(t *testing.T) {
 	//
 	runs, err := getHistory()
 	if err != nil {
-		t.Errorf("getHistory failed", err)
+		t.Errorf("getHistory failed: %v", err)
 	}
 
 	//
