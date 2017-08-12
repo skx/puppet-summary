@@ -77,6 +77,10 @@ func TestUknownAPIState(t *testing.T) {
 		defer resp.Body.Close()
 		body, err := ioutil.ReadAll(resp.Body)
 
+		if err != nil {
+			t.Errorf("Failed to read response-body %v\n", err)
+		}
+
 		body_str := fmt.Sprintf("%s", body)
 		if status := resp.StatusCode; status != http.StatusInternalServerError {
 			t.Errorf("Unexpected status-code: %v", status)
@@ -123,6 +127,11 @@ func TestNumericReports(t *testing.T) {
 		//
 		defer resp.Body.Close()
 		body, err := ioutil.ReadAll(resp.Body)
+
+		if err != nil {
+			t.Errorf("Failed to read response-body %v\n", err)
+		}
+
 		body_str := fmt.Sprintf("%s", body)
 
 		if status := resp.StatusCode; status != http.StatusInternalServerError {
@@ -179,6 +188,11 @@ func TestKnownAPIState(t *testing.T) {
 	//
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
+
+	if err != nil {
+		t.Errorf("Failed to read response-body %v\n", err)
+	}
+
 	body_str := fmt.Sprintf("%s", body)
 
 	if status := resp.StatusCode; status != http.StatusOK {
@@ -388,6 +402,11 @@ func TestUnknownNode(t *testing.T) {
 	//
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
+
+	if err != nil {
+		t.Errorf("Failed to read response-body %v\n", err)
+	}
+
 	body_str := fmt.Sprintf("%s", body)
 
 	if status := resp.StatusCode; status != http.StatusNotFound {
@@ -441,6 +460,11 @@ func TestKnownNode(t *testing.T) {
 	//
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
+
+	if err != nil {
+		t.Errorf("Failed to read response-body %v\n", err)
+	}
+
 	body_str := fmt.Sprintf("%s", body)
 
 	if status := resp.StatusCode; status != http.StatusOK {
@@ -501,6 +525,11 @@ func TestIndexView(t *testing.T) {
 	//
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
+
+	if err != nil {
+		t.Errorf("Failed to read response-body %v\n", err)
+	}
+
 	body_str := fmt.Sprintf("%s", body)
 
 	if status := resp.StatusCode; status != http.StatusOK {
