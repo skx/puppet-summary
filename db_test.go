@@ -79,7 +79,7 @@ func addFakeNodes() {
 	addDB(n, "")
 
 	n.Fqdn = "bar.example.com"
-	n.State = "changed"
+	n.State = "failed"
 	n.Runtime = "2.718"
 	n.At_Unix = time.Now().Unix()
 	n.Failed = "0"

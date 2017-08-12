@@ -15,6 +15,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 )
 
@@ -118,10 +119,15 @@ func TestUnknownAPIState(t *testing.T) {
 //
 // API state must be known.
 //
-// Call each one and assume we'll get a DB-Setup error.
-//
 func TestKnownAPIState(t *testing.T) {
 
+	// Create a fake database
+	FakeDB()
+
+	// Add some data.
+	addFakeNodes()
+
+	// Wire up the router.
 	r := mux.NewRouter()
 	r.HandleFunc("/api/state/{state}", APIState).Methods("GET")
 	r.HandleFunc("/api/state/{state}/", APIState).Methods("GET")
@@ -129,31 +135,37 @@ func TestKnownAPIState(t *testing.T) {
 	ts := httptest.NewServer(r)
 	defer ts.Close()
 
-	// Table driven test
-	names := []string{"changed", "failed", "unchanged"}
+	//
+	// Get the unchanged result - which should be foo.example.com
+	//
+	url := ts.URL + "/api/state/changed"
 
-	for _, name := range names {
-		url := ts.URL + "/api/state/" + name
-
-		resp, err := http.Get(url)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		//
-		// Get the body
-		//
-		defer resp.Body.Close()
-		body, err := ioutil.ReadAll(resp.Body)
-
-		body_str := fmt.Sprintf("%s", body)
-		if status := resp.StatusCode; status != http.StatusInternalServerError {
-			t.Fatalf("wrong status code: got %d want %d", status, http.StatusOK)
-		}
-		if body_str != "SetupDB not called\n" {
-			t.Fatalf("Unexpected body: '%s'", body)
-		}
+	resp, err := http.Get(url)
+	if err != nil {
+		t.Fatal(err)
 	}
+
+	//
+	// Get the body
+	//
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	body_str := fmt.Sprintf("%s", body)
+
+	if status := resp.StatusCode; status != http.StatusOK {
+		t.Fatalf("wrong status code: got %d want %d", status, http.StatusOK)
+	}
+	if body_str != "[\"foo.example.com\"]" {
+		t.Fatalf("Unexpected body: '%s'", body)
+	}
+
+	//
+	// Cleanup here because otherwise later tests will
+	// see an active/valid DB-handle.
+	//
+	db.Close()
+	db = nil
+	os.RemoveAll(path)
 
 }
 
