@@ -1,11 +1,6 @@
 //
 // Simple testing of the HTTP-server
 //
-//  TODO:
-//   * Add a setup-method to create a temporary DB
-//   * Add a cleanup method to remove that.
-//   * Populate some records.
-//   * Ensure the handlers all return valid content.
 //
 package main
 
@@ -16,6 +11,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"strings"
 	"testing"
 )
 
@@ -227,4 +223,177 @@ func TestUploadReportMethod(t *testing.T) {
 		t.Errorf("handler returned unexpected body: got '%v' want '%v'",
 			rr.Body.String(), expected)
 	}
+}
+
+//
+// Unknown-nodes are handled.
+//
+func TestUnknownNode(t *testing.T) {
+
+	// Create a fake database
+	FakeDB()
+
+	// Add some data.
+	addFakeNodes()
+
+	// Wire up the router.
+	r := mux.NewRouter()
+	r.HandleFunc("/node/{fqdn}", NodeHandler).Methods("GET")
+
+	// Get the test-server
+	ts := httptest.NewServer(r)
+	defer ts.Close()
+
+	//
+	// Test a bogus name.
+	//
+	url := ts.URL + "/node/missing.invalid.tld"
+
+	resp, err := http.Get(url)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	//
+	// Get the body
+	//
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	body_str := fmt.Sprintf("%s", body)
+
+	if status := resp.StatusCode; status != http.StatusNotFound {
+		t.Errorf("Unexpected status-code: %v", status)
+	}
+	if body_str != "Failed to find reports for missing.invalid.tld\n" {
+		t.Fatalf("Unexpected body: '%s'", body)
+	}
+
+	//
+	// Cleanup here because otherwise later tests will
+	// see an active/valid DB-handle.
+	//
+	db.Close()
+	db = nil
+	os.RemoveAll(path)
+
+}
+
+//
+// Valid-node is handled.
+//
+func TestKnownNode(t *testing.T) {
+
+	// Create a fake database
+	FakeDB()
+
+	// Add some data.
+	addFakeNodes()
+
+	// Wire up the router.
+	r := mux.NewRouter()
+	r.HandleFunc("/node/{fqdn}", NodeHandler).Methods("GET")
+
+	// Get the test-server
+	ts := httptest.NewServer(r)
+	defer ts.Close()
+
+	//
+	// Test a known-good node-name
+	//
+	url := ts.URL + "/node/foo.example.com"
+
+	resp, err := http.Get(url)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	//
+	// Get the body
+	//
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	body_str := fmt.Sprintf("%s", body)
+
+	if status := resp.StatusCode; status != http.StatusOK {
+		t.Errorf("Unexpected status-code: %v", status)
+	}
+
+	//
+	// Test that the body contained our run-time(s).
+	//
+	if !strings.Contains(body_str, "3.134") {
+		t.Fatalf("Unexpected body: '%s'", body)
+	}
+	if !strings.Contains(body_str, "2.718") {
+		t.Fatalf("Unexpected body: '%s'", body)
+	}
+
+	//
+	// Cleanup here because otherwise later tests will
+	// see an active/valid DB-handle.
+	//
+	db.Close()
+	db = nil
+	os.RemoveAll(path)
+
+}
+
+//
+// Our index contains the nodes we expect.
+//
+func TestIndexView(t *testing.T) {
+
+	// Create a fake database
+	FakeDB()
+
+	// Add some data.
+	addFakeNodes()
+
+	// Wire up the router.
+	r := mux.NewRouter()
+	r.HandleFunc("/", IndexHandler).Methods("GET")
+
+	// Get the test-server
+	ts := httptest.NewServer(r)
+	defer ts.Close()
+
+	//
+	// Get the front-page
+	//
+	url := ts.URL + "/"
+
+	resp, err := http.Get(url)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	//
+	// Get the body
+	//
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	body_str := fmt.Sprintf("%s", body)
+
+	if status := resp.StatusCode; status != http.StatusOK {
+		t.Errorf("Unexpected status-code: %v", status)
+	}
+
+	//
+	// Test that the body contained our run-time(s).
+	//
+	if !strings.Contains(body_str, "foo.example.com") {
+		t.Fatalf("Unexpected body: '%s'", body)
+	}
+	if !strings.Contains(body_str, "bar.example.com") {
+		t.Fatalf("Unexpected body: '%s'", body)
+	}
+
+	//
+	// Cleanup here because otherwise later tests will
+	// see an active/valid DB-handle.
+	//
+	db.Close()
+	db = nil
+	os.RemoveAll(path)
+
 }
