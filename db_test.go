@@ -108,13 +108,17 @@ func TestPrune(t *testing.T) {
 	// Create a fake database
 	FakeDB()
 
+	// With some reports.
 	addFakeReports()
 
 	//
 	// Count records and assume we have some.
 	//
-	old, _ := countReports()
+	old, err := countReports()
 
+	if err != nil {
+		t.Errorf("Error counting reports")
+	}
 	if old != 10 {
 		t.Errorf("We have %d reports, not 10", old)
 	}
@@ -127,7 +131,10 @@ func TestPrune(t *testing.T) {
 	//
 	// Count them again
 	//
-	new, _ := countReports()
+	new, err := countReports()
+	if err != nil {
+		t.Errorf("Error counting reports")
+	}
 
 	if new != 6 {
 		t.Errorf("We have %d reports, not 5", new)
@@ -148,9 +155,11 @@ func TestPrune(t *testing.T) {
 func TestIndex(t *testing.T) {
 
 	//
-	// Add fake reports.
+	// Create a fake database.
 	//
 	FakeDB()
+
+	// Add some fake nodes.
 	addFakeNodes()
 
 	//
@@ -172,7 +181,11 @@ func TestIndex(t *testing.T) {
 	//
 	// But three reports
 	//
-	total, _ := countReports()
+	total, err := countReports()
+	if err != nil {
+		t.Errorf("Failed to count reports")
+	}
+
 	if total != 3 {
 		t.Errorf("We found the wrong number of reports, %d", total)
 	}
