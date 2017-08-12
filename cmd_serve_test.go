@@ -249,28 +249,40 @@ func TestUploadReport(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	req, err := http.NewRequest("POST", "/upload", bytes.NewReader(tmpl))
-	if err != nil {
-		t.Fatal(err)
-	}
+	//
+	// Call this two times.
+	//
+	count := 0
 
-	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(ReportSubmissionHandler)
+	//
+	// The two expected results
+	//
+	expected := []string{"{\"host\":\"www.steve.org.uk\"}", "Ignoring duplicate submission"}
 
-	// Our handlers satisfy http.Handler, so we can call their ServeHTTP method
-	// directly and pass in our Request and ResponseRecorder.
-	handler.ServeHTTP(rr, req)
+	for count < 2 {
+		req, err := http.NewRequest("POST", "/upload", bytes.NewReader(tmpl))
+		if err != nil {
+			t.Fatal(err)
+		}
 
-	// Check the status code is what we expect.
-	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("Unexpected status-code: %v", status)
-	}
+		rr := httptest.NewRecorder()
+		handler := http.HandlerFunc(ReportSubmissionHandler)
 
-	// Check the response body is what we expect.
-	expected := "{\"host\":\"www.steve.org.uk\"}"
-	if rr.Body.String() != expected {
-		t.Errorf("handler returned unexpected body: got '%v' want '%v'",
-			rr.Body.String(), expected)
+		// Our handlers satisfy http.Handler, so we can call their ServeHTTP method
+		// directly and pass in our Request and ResponseRecorder.
+		handler.ServeHTTP(rr, req)
+
+		// Check the status code is what we expect.
+		if status := rr.Code; status != http.StatusOK {
+			t.Errorf("Unexpected status-code: %v", status)
+		}
+
+		if rr.Body.String() != expected[count] {
+			t.Errorf("Body was '%v' we wanted '%v'",
+				rr.Body.String(), expected[count])
+		}
+
+		count += 1
 	}
 
 	//
