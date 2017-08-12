@@ -56,7 +56,7 @@ type PuppetReport struct {
 	At_Unix int64
 
 	//
-	// The runtime of this exection, in seconds.
+	// The time puppet took to run, in seconds.
 	//
 	Runtime string
 
