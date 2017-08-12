@@ -202,12 +202,6 @@ func TestKnownAPIState(t *testing.T) {
 //
 func TestUploadReportMethod(t *testing.T) {
 
-	// Create a fake database
-	FakeDB()
-
-	ReportPrefix = path
-
-	fmt.Printf("XXX : %s\n", path)
 	req, err := http.NewRequest("GET", "/upload", nil)
 	if err != nil {
 		t.Fatal(err)
@@ -232,13 +226,6 @@ func TestUploadReportMethod(t *testing.T) {
 			rr.Body.String(), expected)
 	}
 
-	//
-	// Cleanup here because otherwise later tests will
-	// see an active/valid DB-handle.
-	//
-	db.Close()
-	db = nil
-	os.RemoveAll(path)
 
 }
 
@@ -246,6 +233,13 @@ func TestUploadReportMethod(t *testing.T) {
 // Submitting a pre-cooked method.
 //
 func TestUploadReport(t *testing.T) {
+
+	// Create a fake database
+	FakeDB()
+
+	// Ensure we point our report-upload directory at
+	// our temporary location.
+	ReportPrefix = path
 
 	//
 	// Read the YAML file.
@@ -278,6 +272,14 @@ func TestUploadReport(t *testing.T) {
 		t.Errorf("handler returned unexpected body: got '%v' want '%v'",
 			rr.Body.String(), expected)
 	}
+
+	//
+	// Cleanup here because otherwise later tests will
+	// see an active/valid DB-handle.
+	//
+	db.Close()
+	db = nil
+	os.RemoveAll(path)
 }
 
 //
