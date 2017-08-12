@@ -183,3 +183,47 @@ func TestNodeStatus(t *testing.T) {
 		}
 	}
 }
+
+//
+// Test importing a valid YAML file.
+//
+// TODO: Test bogus ones too.
+//
+func TestValidYaml(t *testing.T) {
+
+	//
+	// Read the YAML file.
+	//
+	tmpl, err := Asset("data/valid.yaml")
+	if err != nil {
+		t.Fatal("Failed to load YAML asset data/valid.yaml")
+	}
+
+	report, err := ParsePuppetReport(tmpl)
+
+	if err != nil {
+		t.Fatal("Failed to parse YAML file")
+	}
+
+	//
+	// Test data from YAML
+	//
+	if report.Fqdn != "www.steve.org.uk" {
+		t.Errorf("Incorrect hostname: %v", report.Fqdn)
+	}
+	if report.State != "unchanged" {
+		t.Errorf("Incorrect state: %v", report.State)
+	}
+	if report.At != "2017-07-29 23:17:01" {
+		t.Errorf("Incorrect at: %v", report.At)
+	}
+	if report.Failed != "0" {
+		t.Errorf("Incorrect failed: %v", report.Failed)
+	}
+	if report.Changed != "0" {
+		t.Errorf("Incorrect changed: %v", report.Changed)
+	}
+	if report.Skipped != "2" {
+		t.Errorf("Incorrect skipped: %v", report.Skipped)
+	}
+}

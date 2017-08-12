@@ -116,15 +116,22 @@ func SetupDB(path string) {
 // But note that it odesn't contain changed resources, etc.
 //
 //
-func addDB(data PuppetReport, path string) {
+func addDB(data PuppetReport, path string) error {
+
+	//
+	// Ensure we have a DB-handle
+	//
+	if db == nil {
+		return errors.New("SetupDB not called")
+	}
 
 	tx, err := db.Begin()
 	if err != nil {
-		panic(err)
+		return err
 	}
 	stmt, err := tx.Prepare("INSERT INTO reports(fqdn,state,yaml_file,executed_at,runtime, failed, changed, total, skipped) values(?,?,?,?,?,?,?,?,?)")
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer stmt.Close()
 
@@ -138,12 +145,21 @@ func addDB(data PuppetReport, path string) {
 		data.Total,
 		data.Skipped)
 	tx.Commit()
+
+	return nil
 }
 
 //
 // Count the number of reports we have.
 //
 func countReports() (int, error) {
+
+	//
+	// Ensure we have a DB-handle
+	//
+	if db == nil {
+		return 0, errors.New("SetupDB not called")
+	}
 
 	var count int
 	row := db.QueryRow("SELECT COUNT(*) FROM reports")
