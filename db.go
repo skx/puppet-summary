@@ -68,7 +68,8 @@ func SetupDB(path string) {
 	//
 	db, err = sql.Open("sqlite3", path)
 	if err != nil {
-		panic(err)
+		fmt.Printf("Failed to setup database at %s\n", path)
+		os.Exit(1)
 	}
 
 	//
@@ -101,6 +102,8 @@ func SetupDB(path string) {
 
 	//
 	// Create the table, if missing.
+	//
+	// Errors here are pretty unlikely.
 	//
 	_, err = db.Exec(sqlStmt)
 	if err != nil {
@@ -229,7 +232,7 @@ func getIndexNodes() ([]PuppetRuns, error) {
 	//
 	rows, err := db.Query("SELECT fqdn, state, runtime, max(executed_at) FROM reports GROUP by fqdn;")
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	defer rows.Close()
 
@@ -264,7 +267,7 @@ func getIndexNodes() ([]PuppetRuns, error) {
 	}
 	err = rows.Err()
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	return NodeList, nil
@@ -288,7 +291,7 @@ func getReports(fqdn string) ([]PuppetReportSummary, error) {
 	stmt, err := db.Prepare("SELECT id, fqdn, state, executed_at, runtime, failed, changed, total FROM reports WHERE fqdn=? ORDER by executed_at DESC LIMIT 50")
 	rows, err := stmt.Query(fqdn)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	defer stmt.Close()
 	defer rows.Close()
@@ -324,7 +327,7 @@ func getReports(fqdn string) ([]PuppetReportSummary, error) {
 	}
 	err = rows.Err()
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	if len(NodeList) < 1 {
@@ -362,7 +365,7 @@ func getHistory() ([]PuppetHistory, error) {
 	stmt, err := db.Prepare("SELECT DISTINCT(strftime('%d/%m/%Y', DATE(executed_at, 'unixepoch'))) FROM reports")
 	rows, err := stmt.Query()
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	defer stmt.Close()
 	defer rows.Close()
@@ -381,7 +384,7 @@ func getHistory() ([]PuppetHistory, error) {
 	}
 	err = rows.Err()
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	//
@@ -401,7 +404,7 @@ func getHistory() ([]PuppetHistory, error) {
 		stmt, err = db.Prepare("SELECT distinct state, COUNT(state) AS CountOf FROM reports WHERE strftime('%d/%m/%Y', DATE(executed_at, 'unixepoch'))=? GROUP by state")
 		rows, err = stmt.Query(known)
 		if err != nil {
-			panic(err)
+			return nil, err
 		}
 		defer stmt.Close()
 		defer rows.Close()
@@ -429,7 +432,7 @@ func getHistory() ([]PuppetHistory, error) {
 		}
 		err = rows.Err()
 		if err != nil {
-			panic(err)
+			return nil, err
 		}
 
 		//
@@ -469,7 +472,7 @@ func pruneReports(days int, verbose bool) error {
 	//
 	find, err := db.Prepare("SELECT id,yaml_file FROM reports WHERE ( ( strftime('%s','now') - executed_at ) > ? )")
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	//
@@ -477,7 +480,7 @@ func pruneReports(days int, verbose bool) error {
 	//
 	clean, err := db.Prepare("DELETE FROM reports WHERE ( ( strftime('%s','now') - executed_at ) > ? )")
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	//
@@ -485,7 +488,7 @@ func pruneReports(days int, verbose bool) error {
 	//
 	rows, err := find.Query(time)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer find.Close()
 	defer clean.Close()
