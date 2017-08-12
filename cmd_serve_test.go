@@ -14,6 +14,7 @@ import (
 	"os"
 	"strings"
 	"testing"
+	"unicode"
 )
 
 //
@@ -226,7 +227,6 @@ func TestUploadReportMethod(t *testing.T) {
 			rr.Body.String(), expected)
 	}
 
-
 }
 
 //
@@ -249,7 +249,7 @@ func TestUploadReport(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	req, err := http.NewRequest("POST", "/questions/", bytes.NewReader(tmpl))
+	req, err := http.NewRequest("POST", "/upload", bytes.NewReader(tmpl))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -268,6 +268,66 @@ func TestUploadReport(t *testing.T) {
 
 	// Check the response body is what we expect.
 	expected := "{\"host\":\"www.steve.org.uk\"}"
+	if rr.Body.String() != expected {
+		t.Errorf("handler returned unexpected body: got '%v' want '%v'",
+			rr.Body.String(), expected)
+	}
+
+	//
+	// Cleanup here because otherwise later tests will
+	// see an active/valid DB-handle.
+	//
+	db.Close()
+	db = nil
+	os.RemoveAll(path)
+}
+
+//
+// Submitting a pre-cooked method.
+//
+func TestUploadBogusReport(t *testing.T) {
+
+	// Create a fake database
+	FakeDB()
+
+	// Ensure we point our report-upload directory at
+	// our temporary location.
+	ReportPrefix = path
+
+	//
+	// Read the YAML file.
+	//
+	tmpl, err := Asset("data/valid.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	//
+	// Upper-case the YAML
+	//
+	for i, _ := range tmpl {
+		tmpl[i] = byte(unicode.ToUpper(rune(tmpl[i])))
+	}
+
+	req, err := http.NewRequest("POST", "/upload", bytes.NewReader(tmpl))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(ReportSubmissionHandler)
+
+	// Our handlers satisfy http.Handler, so we can call their ServeHTTP method
+	// directly and pass in our Request and ResponseRecorder.
+	handler.ServeHTTP(rr, req)
+
+	// Check the status code is what we expect.
+	if status := rr.Code; status != http.StatusInternalServerError {
+		t.Errorf("Unexpected status-code: %v", status)
+	}
+
+	// Check the response body is what we expect.
+	expected := "Failed to get 'host' from YAML\n"
 	if rr.Body.String() != expected {
 		t.Errorf("handler returned unexpected body: got '%v' want '%v'",
 			rr.Body.String(), expected)
