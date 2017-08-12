@@ -17,7 +17,6 @@ import (
 // modified during testing
 //
 var out io.Writer = os.Stdout
-var exit func(code int) = os.Exit
 
 var (
 	version string = "unreleased"
