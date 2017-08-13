@@ -141,7 +141,7 @@
 
          $('.time').each(function(i, e) {
            var time = moment($(e).attr('datetime'));
-           $(e).html('<span>' + time.from(now) + '</span>');
+           $(e).html('<span title="' + $(e).attr('datetime') + '">' + time.from(now) + '</span>');
          });
        });
       </script>
