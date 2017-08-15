@@ -203,10 +203,10 @@ func AssetNames() []string {
 
 // _bindata is a table, holding each asset generator, mapped to its name.
 var _bindata = map[string]func() (*asset, error){
-	"data/index_handler.template": dataIndex_handlerTemplate,
-	"data/node_handler.template": dataNode_handlerTemplate,
+	"data/index_handler.template":  dataIndex_handlerTemplate,
+	"data/node_handler.template":   dataNode_handlerTemplate,
 	"data/report_handler.template": dataReport_handlerTemplate,
-	"data/valid.yaml": dataValidYaml,
+	"data/valid.yaml":              dataValidYaml,
 }
 
 // AssetDir returns the file names below a certain
@@ -248,12 +248,13 @@ type bintree struct {
 	Func     func() (*asset, error)
 	Children map[string]*bintree
 }
+
 var _bintree = &bintree{nil, map[string]*bintree{
 	"data": &bintree{nil, map[string]*bintree{
-		"index_handler.template": &bintree{dataIndex_handlerTemplate, map[string]*bintree{}},
-		"node_handler.template": &bintree{dataNode_handlerTemplate, map[string]*bintree{}},
+		"index_handler.template":  &bintree{dataIndex_handlerTemplate, map[string]*bintree{}},
+		"node_handler.template":   &bintree{dataNode_handlerTemplate, map[string]*bintree{}},
 		"report_handler.template": &bintree{dataReport_handlerTemplate, map[string]*bintree{}},
-		"valid.yaml": &bintree{dataValidYaml, map[string]*bintree{}},
+		"valid.yaml":              &bintree{dataValidYaml, map[string]*bintree{}},
 	}},
 }}
 
@@ -303,4 +304,3 @@ func _filePath(dir, name string) string {
 	cannonicalName := strings.Replace(name, "\\", "/", -1)
 	return filepath.Join(append([]string{dir}, strings.Split(cannonicalName, "/")...)...)
 }
-
