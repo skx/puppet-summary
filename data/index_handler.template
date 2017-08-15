@@ -261,6 +261,18 @@
            var time = moment($(e).attr('datetime'));
            $(e).html('<span title="' + $(e).attr('datetime') + '">' + time.from(now) + '</span>');
          });
+
+         // Reselect TAB based on hash in URL.
+         var url = document.location.toString();
+         if (url.match('#')) {
+           $('.nav-tabs a[href="#' + url.split('#')[1] + '"]').tab('show');
+         }
+
+         // Change hash when tabs are selected.
+         $('.nav-tabs a').on('shown.bs.tab', function (e) {
+           window.location.hash = e.target.hash;
+         })
+
        });
       </script>
   </body>
