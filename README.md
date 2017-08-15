@@ -107,10 +107,10 @@ Over time your reports will start to consuming ever-increasing amounts
 of disk-space so they should be pruned.  To prune (read: delete) old reports
 run:
 
-    puppet-summary prune -days 15
+    puppet-summary prune -days 15 -prefix ./reports/
 
-That will remove the reports from disk which are > 15 days old, and
-also remove the associated SQLite entries that refer to them.
+That will remove the saved YAML files from disk which are > 15 days old, and
+also remove the associated database entries that refer to them.
 
 If you have a carbon-server running locally you can also submit metrics
 to it :

@@ -126,7 +126,7 @@ func TestPrune(t *testing.T) {
 	//
 	// Run the prune
 	//
-	pruneReports(5, false)
+	pruneReports("", 5, false)
 
 	//
 	// Count them again

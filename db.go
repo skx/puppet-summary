@@ -453,7 +453,7 @@ func getHistory() ([]PuppetHistory, error) {
 // copy of the on-disk YAML, but once we've done that we can delete them
 // as a group.
 //
-func pruneReports(days int, verbose bool) error {
+func pruneReports(prefix string, days int, verbose bool) error {
 
 	//
 	// Ensure we have a DB-handle
@@ -506,6 +506,11 @@ func pruneReports(days int, verbose bool) error {
 		err := rows.Scan(&id, &path)
 		if err == nil {
 
+			//
+			// Convert the path to a qualified one,
+			// rather than one relative to our report-dir.
+			//
+			path = filepath.Join(prefix, path)
 			if verbose {
 				fmt.Printf("Removing ID:%s - %s\n", id, path)
 			}

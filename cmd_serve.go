@@ -507,11 +507,10 @@ func (*serveCmd) Usage() string {
 // Flag setup
 //
 func (p *serveCmd) SetFlags(f *flag.FlagSet) {
-	f.StringVar(&p.bind_host, "host", "127.0.0.1", "The IP to listen upon.")
 	f.IntVar(&p.bind_port, "port", 3001, "The port to bind upon.")
-
+	f.StringVar(&p.bind_host, "host", "127.0.0.1", "The IP to listen upon.")
 	f.StringVar(&p.db_file, "db-file", "ps.db", "The SQLite database to use.")
-	f.StringVar(&p.prefix, "prefix", "./reports/", "The prefix to save the YAML files beneath.")
+	f.StringVar(&p.prefix, "prefix", "./reports/", "The prefix to the local YAML hierarchy.")
 }
 
 //

@@ -17,6 +17,7 @@ import (
 type pruneCmd struct {
 	db_file string
 	days    int
+	prefix  string
 	verbose bool
 }
 
@@ -35,9 +36,10 @@ func (*pruneCmd) Usage() string {
 // Flag setup
 //
 func (p *pruneCmd) SetFlags(f *flag.FlagSet) {
-	f.StringVar(&p.db_file, "db-file", "ps.db", "The SQLite database to use.")
-	f.IntVar(&p.days, "days", 7, "Remove reports older than this many days.")
 	f.BoolVar(&p.verbose, "verbose", false, "Be verbose in reporting output")
+	f.IntVar(&p.days, "days", 7, "Remove reports older than this many days.")
+	f.StringVar(&p.db_file, "db-file", "ps.db", "The SQLite database to use.")
+	f.StringVar(&p.prefix, "prefix", "./reports/", "The prefix to the local YAML hierarchy.")
 }
 
 //
@@ -55,10 +57,10 @@ func (p *pruneCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{})
 	// Run the prune
 	//
 	if p.verbose {
-		fmt.Printf("Pruning reports older than %d days\n", p.days)
+		fmt.Printf("Pruning reports older than %d days from beneath %s\n", p.days, ReportPrefix)
 	}
 
-	err := pruneReports(p.days, p.verbose)
+	err := pruneReports(p.prefix, p.days, p.verbose)
 	if err == nil {
 		return subcommands.ExitSuccess
 	} else {
