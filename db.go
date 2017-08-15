@@ -228,9 +228,9 @@ func getIndexNodes() ([]PuppetRuns, error) {
 	}
 
 	//
-	// Select the status.
+	// Select the status - for nodes seen in the past 24 hours.
 	//
-	rows, err := db.Query("SELECT fqdn, state, runtime, max(executed_at) FROM reports GROUP by fqdn;")
+	rows, err := db.Query("SELECT fqdn, state, runtime, max(executed_at) FROM reports WHERE  ( ( strftime('%s','now') - executed_at ) < ( 24 * 60 * 60 ) ) GROUP by fqdn;")
 	if err != nil {
 		return nil, err
 	}
@@ -266,6 +266,44 @@ func getIndexNodes() ([]PuppetRuns, error) {
 		}
 	}
 	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	//
+	// Now look for orphaned nodes.
+	//
+	rows2, err2 := db.Query("SELECT fqdn, state, runtime, max(executed_at) FROM reports WHERE ( ( strftime('%s','now') - executed_at ) > ( 24 * 60 * 60 ) ) GROUP by fqdn;")
+	if err2 != nil {
+		return nil, err
+	}
+	defer rows2.Close()
+
+	//
+	// For each row in the result-set
+	//
+	// Parse into a structure and add to the list.
+	//
+	for rows2.Next() {
+		var tmp PuppetRuns
+		err := rows2.Scan(&tmp.Fqdn, &tmp.State, &tmp.Runtime, &tmp.At)
+		if err == nil {
+
+			//
+			// At this point tmp.At is a string containing
+			// seconds-past-the-epoch.
+			//
+			// We want that to contain a human-readable
+			// string so we first convert to an integer, then
+			// parse as a Unix-timestamp
+			//
+			i, _ := strconv.ParseInt(tmp.At, 10, 64)
+			tmp.At = time.Unix(i, 0).Format("2006-01-02 15:04:05")
+			tmp.State = "orphaned"
+			NodeList = append(NodeList, tmp)
+		}
+	}
+	err = rows2.Err()
 	if err != nil {
 		return nil, err
 	}

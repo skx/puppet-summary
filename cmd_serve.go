@@ -58,6 +58,7 @@ func APIState(res http.ResponseWriter, req *http.Request) {
 	case "changed":
 	case "unchanged":
 	case "failed":
+	case "orphaned":
 	default:
 		err = errors.New("Invalid state")
 		status = http.StatusInternalServerError

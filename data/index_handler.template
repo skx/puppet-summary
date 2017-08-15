@@ -11,8 +11,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.bundle.min.js"></script>
     <script type="text/javascript">
      window.onload = function () {
-
-
        //
        // We populate the tables in our template-generation
        // rather than having to keep a separate count here
@@ -20,14 +18,15 @@
        // and that gives us our count indirectly.
        //
        changed   = $('#changed_table tr').length - 1;
-       unchanged = $('#unchanged_table tr').length - 1;
        failed    = $('#failed_table tr').length - 1;
+       orphaned  = $('#orphaned_table tr').length - 1;
 
        //
-       // Update the tab-headers for `changed` & `failed`.
+       // Update the tab-headers to include counts.
        //
        if ( changed > 0 ) { $('#changed_count').html( changed ) }
        if ( failed > 0 ) { $('#failed_count').html( failed )  }
+       if ( orphaned > 0 ) { $('#orphaned_count').html( orphaned )  }
 
        var barChartData = {
          labels: [
@@ -39,25 +38,25 @@
            label: 'Changed',
            backgroundColor: '#d9edf7',
            data: [
-           {{range .Graph }}
-           "{{.Changed }}",
-           {{end}}
+             {{range .Graph }}
+             "{{.Changed }}",
+             {{end}}
            ]
          }, {
            label: 'Unchanged',
            backgroundColor: '#e7e7e7',
            data: [
-           {{range .Graph }}
-           "{{.Unchanged }}",
-           {{end}}
+             {{range .Graph }}
+             "{{.Unchanged }}",
+             {{end}}
            ]
          }, {
            label: 'Failed',
            backgroundColor: '#f2dede',
            data: [
-           {{range .Graph }}
-           "{{.Failed }}",
-           {{end}}
+             {{range .Graph }}
+             "{{.Failed }}",
+             {{end}}
            ]
          }]
 
@@ -102,7 +101,6 @@
     <div class="container">
 
       <h1>Node Summary</h1>
-
       <canvas id="canvas" style="height: 150px; width: 90%; margin-left:5%; margin-right:5%"></canvas>
       <div id="fcanvas" ></div>
       <p>&nbsp;</p>
@@ -112,6 +110,7 @@
         <li><a data-toggle="tab" href="#failed">Failed <span class="badge" id="failed_count"></span></a></li>
         <li><a data-toggle="tab" href="#changed">Changed <span class="badge" id="changed_count"></span></a></li>
         <li><a data-toggle="tab" href="#unchanged">Unchanged</a></li></a></li>
+    <li><a data-toggle="tab" href="#orphaned">Orphaned <span class="badge" id="orphaned_count"></span></a></li>
       </ul>
 
 
@@ -128,6 +127,7 @@
             <tr
                 {{if eq .State "failed" }} class="danger" {{ end }}
                 {{if eq .State "changed" }} class="info"  {{ end }}
+                {{if eq .State "orphaned" }} class="warning"  {{ end }}
                 data-href="/node/{{.Fqdn}}">
               <td>{{.Fqdn}}</td>
               <td>{{.State}}</td>
@@ -196,6 +196,29 @@
             {{end}}
           </table>
         </div>
+
+        <!-- Orphaned -->
+        <div id="orphaned" class="tab-pane fade">
+          <table id="orphaned_table" class="table table-bordered table-striped table-condensed table-hover">
+            <tr>
+              <th>Node</th>
+              <th>State</th>
+              <th>Seen</th>
+            </tr>
+            {{range .Nodes }}
+            {{if eq .State "orphaned" }}
+            <tr class="warning" data-href="/node/{{.Fqdn}}">
+              <td>{{.Fqdn}}</td>
+              <td>{{.State}}</td>
+              <td class="time" datetime="{{.At}}">{{.At}}</td>
+            </tr>
+            {{end}}
+            {{end}}
+          </table>
+          <p>&nbsp;</p>
+          <p>Orphaned nodes are those which have not submitted a report to the puppet-master within the past 24 hours, they will gradually fall off the display as reports are pruned.</p>
+        </div>
+
       </div>
 
       <p>&nbsp;</p>
