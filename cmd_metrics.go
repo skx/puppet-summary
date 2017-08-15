@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"github.com/google/subcommands"
 	"github.com/marpaia/graphite-golang"
-	"strings"
 )
 
 //
@@ -40,31 +39,12 @@ func getMetrics() map[string]string {
 	states["changed"] = 0
 	states["unchanged"] = 0
 	states["failed"] = 0
+	states["orphaned"] = 0
 
 	//
 	// Sum up the number of nodes in each state.
 	//
 	for _, o := range NodeList {
-
-		//
-		// Escape dots in the hostnames
-		//
-		o.Fqdn = strings.Replace(o.Fqdn, ".", "_", -1)
-
-		//
-		// Build up the metrics.
-		//
-		metric := fmt.Sprintf("%s.runtime", o.Fqdn)
-		value := o.Runtime
-
-		//
-		// Store in our map.
-		//
-		metrics[metric] = value
-
-		//
-		// Keep track of counts.
-		//
 		states[o.State] += 1
 	}
 
