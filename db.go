@@ -221,6 +221,11 @@ func getYAML(prefix string, id string) ([]byte, error) {
 func getIndexNodes() ([]PuppetRuns, error) {
 
 	//
+	// Our return-result.
+	//
+	var NodeList []PuppetRuns
+
+	//
 	// Ensure we have a DB-handle
 	//
 	if db == nil {
@@ -237,9 +242,9 @@ func getIndexNodes() ([]PuppetRuns, error) {
 	defer rows.Close()
 
 	//
-	// We'll have a list of them.
+	// We'll keep track of which nodes we've seen recently.
 	//
-	var NodeList []PuppetRuns
+	seen := make(map[string]int)
 
 	//
 	// For each row in the result-set
@@ -262,6 +267,14 @@ func getIndexNodes() ([]PuppetRuns, error) {
 			i, _ := strconv.ParseInt(tmp.At, 10, 64)
 			tmp.At = time.Unix(i, 0).Format("2006-01-02 15:04:05")
 
+			//
+			// Mark this node as non-orphaned.
+			//
+			seen[tmp.Fqdn] = 1
+
+			//
+			// Add the new record.
+			//
 			NodeList = append(NodeList, tmp)
 		}
 	}
@@ -300,7 +313,14 @@ func getIndexNodes() ([]PuppetRuns, error) {
 			i, _ := strconv.ParseInt(tmp.At, 10, 64)
 			tmp.At = time.Unix(i, 0).Format("2006-01-02 15:04:05")
 			tmp.State = "orphaned"
-			NodeList = append(NodeList, tmp)
+
+			//
+			// If we've NOT already seen this node then
+			// we can add it to our result set.
+			//
+			if seen[tmp.Fqdn] != 1 {
+				NodeList = append(NodeList, tmp)
+			}
 		}
 	}
 	err = rows2.Err()
