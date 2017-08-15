@@ -126,18 +126,11 @@ The metrics will include:
   * `puppet.example_com.state.changed 1`
   * `puppet.example_com.state.unchanged 297`
   * `..`
-* The runtime of each node, for example:
-  * `puppet.example_com.www1_example_com.runtime 23.21`
-  * `puppet.example_com.www2_example_com.runtime 23.21`
-  * `..`
 
 When running with `-nop` the metrics will be dumped to the console instead
 of submitted.  For example:
 
      $ puppet-summary metrics -nop
-     ..
-     puppet.rsync_io.runtime 2.1318351220327783
-     puppet.www_steve_fi.runtime 3.1109390222183892
      ..
      puppet.state.unchanged 1
      puppet.state.changed 1
@@ -150,6 +143,7 @@ of submitted.  For example:
 * Rather than exposing it publicly you should prefer to run behind an `nginx`/`apache2` reverse-proxy.
 * Received YAML files are stored beneath `./reports`
     * This can be changed with the `-prefix` argument to `puppet-summary serve`
+    * Don't forget to specify the prefix for the `prune` command too.
 * The default SQLite database is located at `./ps.db`, but it can be changed via the command-line, for example:
     * `puppet-summary serve -db-file local.sqlite3`
     * **NOTE** If you change the default you'll need to specify this for all commands, e.g. `serve`, `prune`, and `metrics`.
