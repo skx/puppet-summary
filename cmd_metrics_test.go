@@ -31,6 +31,9 @@ func TestMetrics(t *testing.T) {
 	if metrics["state.failed"] != "1" {
 		t.Errorf("Unexpected metrics value")
 	}
+	if metrics["state.orphaned"] != "0" {
+		t.Errorf("Unexpected metrics value")
+	}
 
 	//
 	// Cleanup here because otherwise later tests will
