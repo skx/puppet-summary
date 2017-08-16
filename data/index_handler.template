@@ -249,10 +249,22 @@
              },
              function(){
                $(this).removeClass('active');
-             }).click( function(){
-               document.location = $(this).attr('data-href');
-             }
-             );
+             }).on('mouseup', function (e) {
+               switch (e.which)
+               {
+                 // Left Click.
+                 case 1:
+                 document.location = $(this).attr('data-href');
+                 break;
+
+                 // Middle click.
+                 case 2:
+                 var newWindow = $(this).attr('data-href');
+                 window.open(newWindow, '_blank');
+                 e.preventDefault();
+                 break;
+               }
+             })
          });
 
          var now = moment();
