@@ -100,7 +100,7 @@ but that is a reasonable default.
 * It also assumes you're running the `puppet-summary` instance upon the puppet-master, if you're on a different host remember to change the URI.
 
 
-## Maintenance & Metrics
+## Maintenance
 
 Over time your reports will start to consuming ever-increasing amounts
 of disk-space so they should be pruned.  To prune (read: delete) old reports
@@ -111,6 +111,8 @@ run:
 That will remove the saved YAML files from disk which are > 15 days old, and
 also remove the associated database entries that refer to them.
 
+## Metrics
+
 If you have a carbon-server running locally you can also submit metrics
 to it :
 
@@ -119,31 +121,10 @@ to it :
       -port 2003 \
       -prefix puppet.example_com  [-nop]
 
-The metrics will include:
-
-* A count of nodes in each state, for example:
-  * `puppet.example_com.state.failed 3`
-  * `puppet.example_com.state.changed 1`
-  * `puppet.example_com.state.unchanged 297`
-  * `..`
-
-When running with `-nop` the metrics will be dumped to the console instead
-of submitted.  For example:
-
-     $ puppet-summary metrics -nop
-     ..
-     puppet.state.unchanged 1
-     puppet.state.changed 1
-     puppet.state.failed  0
+The metrics include the count of nodes in each state, `changed`, `unchanged`, `failed`, and `orphaned` and can be used to raise alerts when things fail.  When running with `-nop` the metrics will be dumped to the console instead of submitted.
 
 
 ## Notes On Deployment
-
-* Please don't run this application as root.
-* Rather than exposing it publicly you should prefer to run behind an `nginx`/`apache2` reverse-proxy.
-* The defaults are sane, YAML files are stored beneath `./reports`, and the SQLite database is located at "`./ps.db`.
-    * Both these values can be changed, but if you change them you'll need to remember to change for all appropriate actions.
-      * For example "`serve -db-file ./new.db`",  "`metrics -db-file ./new.db`", and "`prune -db-file ./new.db`".
 
 If you can run this software upon your puppet-master then that's the ideal, that way your puppet-master would be configured to uploaded your reports to `127.0.0.1:3001/upload`, and the dashboard itself may be viewed via a reverse-proxy.
 
@@ -168,5 +149,11 @@ The appeal of allowing submissions from the loopback is that your reverse-proxy 
          }
      }
 
- Steve
+* Please don't run this application as root.
+* The defaults are sane, YAML files are stored beneath `./reports`, and the SQLite database is located at "`./ps.db`.
+    * Both these values can be changed, but if you change them you'll need to remember to change for all appropriate actions.
+      * For example "`puppet-summary serve -db-file ./new.db`",  "`puppet-summary metrics -db-file ./new.db`", and "`puppet-summary prune -db-file ./new.db`".
+
+
+Steve
  --
