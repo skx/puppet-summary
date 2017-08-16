@@ -141,12 +141,32 @@ of submitted.  For example:
 
 * Please don't run this application as root.
 * Rather than exposing it publicly you should prefer to run behind an `nginx`/`apache2` reverse-proxy.
-* Received YAML files are stored beneath `./reports`
-    * This can be changed with the `-prefix` argument to `puppet-summary serve`
-    * Don't forget to specify the prefix for the `prune` command too.
-* The default SQLite database is located at `./ps.db`, but it can be changed via the command-line, for example:
-    * `puppet-summary serve -db-file local.sqlite3`
-    * **NOTE** If you change the default you'll need to specify this for all commands, e.g. `serve`, `prune`, and `metrics`.
+* The defaults are sane, YAML files are stored beneath `./reports`, and the SQLite database is located at "`./ps.db`.
+    * Both these values can be changed, but if you change them you'll need to remember to change for all appropriate actions.
+      * For example "`serve -db-file ./new.db`",  "`metrics -db-file ./new.db`", and "`prune -db-file ./new.db`".
+
+If you can run this software upon your puppet-master then that's the ideal, that way your puppet-master would be configured to uploaded your reports to `127.0.0.1:3001/upload`, and the dashboard itself may be viewed via a reverse-proxy.
+
+The appeal of allowing submissions from the loopback is that your reverse-proxy can deny access to the upload end-point, ensuring nobody else can submit details.  A simple nginx configure might look like this:
+
+     server {
+         server_name reports.example.com;
+         listen [::]:80  default ipv6only=off;
+
+         ## Puppet-master is the only host that needs access here
+         ## it is configured to POST to localhost:3001 directly
+         ## so we can disable access here.
+         location /upload {
+            deny all;
+         }
+
+         ## send all traffic to the back-end
+         location / {
+           proxy_pass  http://127.0.0.1:3001;
+           proxy_redirect off;
+           proxy_set_header        X-Forwarded-For $remote_addr;
+         }
+     }
 
  Steve
  --
