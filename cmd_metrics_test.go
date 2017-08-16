@@ -17,7 +17,7 @@ func TestMetrics(t *testing.T) {
 	metrics := getMetrics()
 
 	// Now test we can find things.
-	if len(metrics) != 5 {
+	if len(metrics) != 4 {
 		t.Errorf("Unexpected metrics-size: %v", len(metrics))
 	}
 
