@@ -27,7 +27,7 @@ func getMetrics() map[string]string {
 	}
 
 	// Now record the metrics we would send.
-	for i, _ := range data {
+	for i := range data {
 		//
 		// The name + value
 		//

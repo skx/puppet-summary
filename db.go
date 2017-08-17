@@ -391,7 +391,7 @@ func getStates() ([]PuppetState, error) {
 	// Get the distinct keys/states in a sorted order.
 	//
 	var keys []string
-	for name, _ := range states {
+	for name := range states {
 		keys = append(keys, name)
 	}
 	sort.Strings(keys)

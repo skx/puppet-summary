@@ -130,7 +130,7 @@ func RadiatorView(res http.ResponseWriter, req *http.Request) {
 	// Sum up our known-nodes.
 	//
 	total := 0
-	for i, _ := range data {
+	for i := range data {
 		total += data[i].Count
 	}
 
