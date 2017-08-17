@@ -555,3 +555,64 @@ func TestIndexView(t *testing.T) {
 	os.RemoveAll(path)
 
 }
+
+//
+// Our radiator-view contains a 50% count.   Yeah this test is woolly.
+//
+func TestRadiatorView(t *testing.T) {
+
+	// Create a fake database
+	FakeDB()
+
+	// Add some data.
+	addFakeNodes()
+
+	// Wire up the router.
+	r := mux.NewRouter()
+	r.HandleFunc("/radiator/", RadiatorView).Methods("GET")
+
+	// Get the test-server
+	ts := httptest.NewServer(r)
+	defer ts.Close()
+
+	//
+	// Get the front-page
+	//
+	url := ts.URL + "/radiator/"
+
+	resp, err := http.Get(url)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	//
+	// Get the body
+	//
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+
+	if err != nil {
+		t.Errorf("Failed to read response-body %v\n", err)
+	}
+	body_str := fmt.Sprintf("%s", body)
+
+	if status := resp.StatusCode; status != http.StatusOK {
+		t.Errorf("Unexpected status-code: %v", status)
+	}
+
+	//
+	// Test that the body contained 50% count.
+	//
+	if !strings.Contains(body_str, " <p class=\"percent\" style=\"width: 50%\">") {
+		t.Fatalf("Unexpected body: '%s'", body)
+	}
+
+	//
+	// Cleanup here because otherwise later tests will
+	// see an active/valid DB-handle.
+	//
+	db.Close()
+	db = nil
+	os.RemoveAll(path)
+
+}
