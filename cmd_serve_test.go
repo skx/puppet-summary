@@ -81,11 +81,11 @@ func TestUknownAPIState(t *testing.T) {
 			t.Errorf("Failed to read response-body %v\n", err)
 		}
 
-		body_str := fmt.Sprintf("%s", body)
+		content := fmt.Sprintf("%s", body)
 		if status := resp.StatusCode; status != http.StatusInternalServerError {
 			t.Errorf("Unexpected status-code: %v", status)
 		}
-		if body_str != "Invalid state\n" {
+		if content != "Invalid state\n" {
 			t.Fatalf("Unexpected body: '%s'", body)
 		}
 	}
@@ -132,13 +132,13 @@ func TestNumericReports(t *testing.T) {
 			t.Errorf("Failed to read response-body %v\n", err)
 		}
 
-		body_str := fmt.Sprintf("%s", body)
+		content := fmt.Sprintf("%s", body)
 
 		if status := resp.StatusCode; status != http.StatusInternalServerError {
 			t.Fatalf("Unexpected status code: %d", status)
 		}
 
-		if body_str != "Failed to find report with specified ID\n" {
+		if content != "Failed to find report with specified ID\n" {
 			t.Fatalf("Unexpected body: '%s'", body)
 		}
 
@@ -193,12 +193,12 @@ func TestKnownAPIState(t *testing.T) {
 		t.Errorf("Failed to read response-body %v\n", err)
 	}
 
-	body_str := fmt.Sprintf("%s", body)
+	content := fmt.Sprintf("%s", body)
 
 	if status := resp.StatusCode; status != http.StatusOK {
 		t.Errorf("Unexpected status-code: %v", status)
 	}
-	if body_str != "[\"foo.example.com\"]" {
+	if content != "[\"foo.example.com\"]" {
 		t.Fatalf("Unexpected body: '%s'", body)
 	}
 
@@ -407,12 +407,12 @@ func TestUnknownNode(t *testing.T) {
 		t.Errorf("Failed to read response-body %v\n", err)
 	}
 
-	body_str := fmt.Sprintf("%s", body)
+	content := fmt.Sprintf("%s", body)
 
 	if status := resp.StatusCode; status != http.StatusNotFound {
 		t.Errorf("Unexpected status-code: %v", status)
 	}
-	if body_str != "Failed to find reports for missing.invalid.tld\n" {
+	if content != "Failed to find reports for missing.invalid.tld\n" {
 		t.Fatalf("Unexpected body: '%s'", body)
 	}
 
@@ -465,7 +465,7 @@ func TestKnownNode(t *testing.T) {
 		t.Errorf("Failed to read response-body %v\n", err)
 	}
 
-	body_str := fmt.Sprintf("%s", body)
+	content := fmt.Sprintf("%s", body)
 
 	if status := resp.StatusCode; status != http.StatusOK {
 		t.Errorf("Unexpected status-code: %v", status)
@@ -474,10 +474,10 @@ func TestKnownNode(t *testing.T) {
 	//
 	// Test that the body contained our run-time(s).
 	//
-	if !strings.Contains(body_str, "3.134") {
+	if !strings.Contains(content, "3.134") {
 		t.Fatalf("Unexpected body: '%s'", body)
 	}
-	if !strings.Contains(body_str, "2.718") {
+	if !strings.Contains(content, "2.718") {
 		t.Fatalf("Unexpected body: '%s'", body)
 	}
 
@@ -530,7 +530,7 @@ func TestIndexView(t *testing.T) {
 		t.Errorf("Failed to read response-body %v\n", err)
 	}
 
-	body_str := fmt.Sprintf("%s", body)
+	content := fmt.Sprintf("%s", body)
 
 	if status := resp.StatusCode; status != http.StatusOK {
 		t.Errorf("Unexpected status-code: %v", status)
@@ -539,10 +539,10 @@ func TestIndexView(t *testing.T) {
 	//
 	// Test that the body contained our run-time(s).
 	//
-	if !strings.Contains(body_str, "foo.example.com") {
+	if !strings.Contains(content, "foo.example.com") {
 		t.Fatalf("Unexpected body: '%s'", body)
 	}
-	if !strings.Contains(body_str, "bar.example.com") {
+	if !strings.Contains(content, "bar.example.com") {
 		t.Fatalf("Unexpected body: '%s'", body)
 	}
 
@@ -594,7 +594,7 @@ func TestRadiatorView(t *testing.T) {
 	if err != nil {
 		t.Errorf("Failed to read response-body %v\n", err)
 	}
-	body_str := fmt.Sprintf("%s", body)
+	content := fmt.Sprintf("%s", body)
 
 	if status := resp.StatusCode; status != http.StatusOK {
 		t.Errorf("Unexpected status-code: %v", status)
@@ -603,7 +603,7 @@ func TestRadiatorView(t *testing.T) {
 	//
 	// Test that the body contained 50% count.
 	//
-	if !strings.Contains(body_str, " <p class=\"percent\" style=\"width: 50%\">") {
+	if !strings.Contains(content, " <p class=\"percent\" style=\"width: 50%\">") {
 		t.Fatalf("Unexpected body: '%s'", body)
 	}
 
