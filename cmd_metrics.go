@@ -42,7 +42,9 @@ func getMetrics() map[string]string {
 }
 
 //
-//  Get and send the metrics
+//  SendMetrics submits the metrics discovered to the specified carbon
+// server - unless `nop` is in-use, in which case they are dumped to
+// STDOUT.
 //
 func SendMetrics(host string, port int, prefix string, nop bool) {
 
