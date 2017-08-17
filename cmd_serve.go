@@ -17,6 +17,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"text/template"
 )
 
@@ -100,6 +101,125 @@ func APIState(res http.ResponseWriter, req *http.Request) {
 		fmt.Fprintf(res, "[]")
 	}
 
+}
+
+//
+// Show the radiator
+//
+func RadiatorView(res http.ResponseWriter, req *http.Request) {
+
+	var (
+		status int
+		err    error
+	)
+	defer func() {
+		if nil != err {
+			http.Error(res, err.Error(), status)
+		}
+	}()
+
+	//
+	// Get the nodes.
+	//
+	NodeList, err := getIndexNodes()
+	if err != nil {
+		status = http.StatusInternalServerError
+		return
+	}
+
+	//
+	// Create a map to hold state.
+	//
+	states := make(map[string]float64)
+
+	//
+	// Each known-state will default to being empty.
+	//
+	states["changed"] = 0
+	states["unchanged"] = 0
+	states["failed"] = 0
+	states["orphaned"] = 0
+
+	//
+	// Count the nodes we encounter, such that we can
+	// create a %-figure for each distinct-state.
+	//
+	var total float64
+
+	//
+	// Count the states.
+	//
+	for _, o := range NodeList {
+		states[o.State] += 1
+		total += 1
+	}
+
+	//
+	// This is the structure we'll use for our
+	// template-rendering.
+	//
+	type Radiator struct {
+		State      string
+		Count      float64
+		Percentage float64
+	}
+
+	//
+	// We'll have an array of these.
+	//
+	var data []Radiator
+
+	//
+	// Get the distinct keys/states in a sorted order.
+	//
+	var keys []string
+	for name, _ := range states {
+		keys = append(keys, name)
+	}
+	sort.Strings(keys)
+
+	//
+	// Now for each key ..
+	//
+	for _, name := range keys {
+
+		var tmp Radiator
+		tmp.State = name
+		tmp.Count = states[name]
+		tmp.Percentage = 0
+
+		// Percentage has to be capped :)
+		if total != 0 {
+			tmp.Percentage = states[name] / total * 100
+		}
+		data = append(data, tmp)
+	}
+
+	//
+	// Add in the total count of nodes.
+	//
+	var tmp Radiator
+	tmp.State = "All"
+	tmp.Count = total
+	tmp.Percentage = 0
+	data = append(data, tmp)
+
+	//
+	// Load our template to host the result we'll send to the browser.
+	//
+	tmpl, err := Asset("data/radiator.template")
+	if err != nil {
+		err = errors.New("Failed to find asset data/radiator.template")
+		status = http.StatusInternalServerError
+		return
+	}
+
+	//
+	// Populate & return the template.
+	//
+	src := string(tmpl)
+	t := template.Must(template.New("tmpl").Parse(src))
+	t.Execute(res, data)
 }
 
 //
@@ -445,22 +565,31 @@ func cmd_serve(settings serveCmd) {
 	//
 	// API end-points
 	//
-	router.HandleFunc("/api/state/{state}", APIState).Methods("GET")
 	router.HandleFunc("/api/state/{state}/", APIState).Methods("GET")
+	router.HandleFunc("/api/state/{state}", APIState).Methods("GET")
+
+	//
+	//
+	//
+	router.HandleFunc("/radiator/", RadiatorView).Methods("GET")
+	router.HandleFunc("/radiator", RadiatorView).Methods("GET")
 
 	//
 	// Upload a new report.
 	//
+	router.HandleFunc("/upload/", ReportSubmissionHandler).Methods("POST")
 	router.HandleFunc("/upload", ReportSubmissionHandler).Methods("POST")
 
 	//
 	// Show the recent state of a node.
 	//
+	router.HandleFunc("/node/{fqdn}/", NodeHandler).Methods("GET")
 	router.HandleFunc("/node/{fqdn}", NodeHandler).Methods("GET")
 
 	//
 	// Show "everything" about a given run.
 	//
+	router.HandleFunc("/report/{id}/", ReportHandler).Methods("GET")
 	router.HandleFunc("/report/{id}", ReportHandler).Methods("GET")
 
 	//

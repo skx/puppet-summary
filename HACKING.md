@@ -21,13 +21,15 @@ binary to make your changes:
 
 ## End-Points
 
-There are four main end-points:
+There are several main end-points:
 
 * `GET /`
   * Show all known-nodes and their current status.
 * `GET /node/${fqdn}`
    * Shows the last N (max 50) runs of puppet against the given node.
    * This includes a graph of run-time.
+* `GET /radiator`
+   * This shows a simple dashboard/radiator view.
 * `GET /report/${n}`
    * This shows useful output of a given run.
 * `POST /upload`
