@@ -228,10 +228,13 @@
         <div class="container">
           <div class="col-md-4">
             <ul class="nav">
-              <li><a href="https://github.com/skx/puppet-summary">GitHub Project Home</a></li>
+              <li><a href="/radiator/">Radiator View</a></li>
             </ul>
           </div>
           <div class="col-md-4">
+            <ul class="nav">
+              <li><a href="https://github.com/skx/puppet-summary">GitHub Project</a></li>
+            </ul>
           </div>
           <div class="col-md-4">
             <ul class="nav">
