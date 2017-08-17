@@ -36,7 +36,8 @@ func (p *yamlCmd) SetFlags(f *flag.FlagSet) {
 }
 
 //
-// Dump the given file, as a puppet-report.
+// YamlDump parses the given file, and then dumps appropriate information
+// from the give report.
 //
 func YamlDump(file string) {
 	content, _ := ioutil.ReadFile(file)

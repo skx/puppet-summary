@@ -63,8 +63,9 @@ func (p *pruneCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{})
 	err := pruneReports(p.prefix, p.days, p.verbose)
 	if err == nil {
 		return subcommands.ExitSuccess
-	} else {
-		fmt.Printf("Error pruning: %s\n", err.Error())
-		return subcommands.ExitFailure
 	}
+
+	// Error.
+	fmt.Printf("Error pruning: %s\n", err.Error())
+	return subcommands.ExitFailure
 }
