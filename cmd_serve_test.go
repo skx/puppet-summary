@@ -556,8 +556,6 @@ func TestIndexView(t *testing.T) {
 
 }
 
-
-
 //
 // Our radiator-view contains a 50% count.   Yeah this test is woolly.
 //
@@ -572,7 +570,6 @@ func TestRadiatorView(t *testing.T) {
 	// Wire up the router.
 	r := mux.NewRouter()
 	r.HandleFunc("/radiator/", RadiatorView).Methods("GET")
-
 
 	// Get the test-server
 	ts := httptest.NewServer(r)
