@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Radiator View</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="30; url=/radiator/"></noscript>
+    <style>
+     html,
+     body,
+     div,
+     span,
+     p,
+     label,
+     table,
+     tbody,
+     tfoot,
+     thead,
+     tr,
+     th,
+     td {
+       margin: 0;
+       padding: 0;
+       border: 0;
+       font-weight: inherit;
+       font-style: inherit;
+       font-size: 100%;
+       font-family: inherit;
+       vertical-align: baseline
+     }
+     body {
+       line-height: 20px
+     }
+     table {
+       border-collapse: separate;
+       border-spacing: 0
+     }
+     th,
+     td {
+       text-align: left;
+       font-weight: normal
+     }
+     table,
+     td,
+     th {
+       vertical-align: middle
+     }
+     body {
+       font-size: 815%;
+       line-height: 1;
+       font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+       background-color: #000
+     }
+     body table {
+       padding: 20px;
+       position: absolute;
+       height: 100%;
+       width: 100%
+     }
+     body table .count_column {
+       min-width: 2em;
+       width: 2.5em
+     }
+     body table tr:last-child td {
+       border-bottom: none
+     }
+     table tr:last-child td .label {
+       border-left: 0px #000 solid
+     }
+     table tr.unresponsive .percent {
+       background-color: #888;
+       border-radius: 0 3px 3px 0
+     }
+     table tr.unresponsive .label,
+     table tr.unresponsive .count {
+       color: #888
+     }
+     table tr.unresponsive .label {
+       border-left: 1px #333 dashed
+     }
+     table tr.failed .percent {
+       background-color: #c21;
+       border-radius: 0 3px 3px 0
+     }
+     table tr.failed .label,
+     table tr.failed .count {
+       color: #c21
+     }
+     table tr.failed .label {
+       border-left: 1px #333 dashed
+     }
+     table tr.changed .percent {
+       background-color: #069;
+       border-radius: 0 3px 3px 0
+     }
+     table tr.changed .label,
+     table tr.changed .count {
+       color: #069
+     }
+     table tr.changed .label {
+       border-left: 1px #333 dashed
+     }
+     table tr.unchanged .percent {
+       background-color: #093;
+       border-radius: 0 3px 3px 0
+     }
+     table tr.unchanged .label,
+     table tr.unchanged .count {
+       color: #093
+     }
+     table tr.unchanged .label {
+       border-left: 1px #333 dashed
+     }
+     table tr.orphaned .percent {
+       background-color: #aaa;
+       border-radius: 0 3px 3px 0
+     }
+     table tr.orphaned .label,
+     table tr.orphaned .count {
+       color: #aaa
+     }
+     table tr.orphaned .label {
+       border-left: 1px #333 dashed
+     }
+     table tr.total {
+       color: #fff;
+       background-color: #181818
+     }
+     table tr.total .percent {
+       background-color: #fff;
+       border-radius: 0 3px 3px 0
+     }
+     table tr.total .label,
+     table tr.total .count {
+       color: #fff
+     }
+     table tr.total .label {
+       border-left: 1px #333 dashed
+     }
+     table tr.total .percent {
+       display: none
+     }
+     table tr.total td {
+       border-top: 1px solid #fff
+     }
+     table tr td {
+       color: #ccc;
+       font-weight: normal;
+       position: relative;
+       border-bottom: 1px solid #333;
+       vertical-align: baseline
+     }
+     table tr td div {
+       position: relative;
+       height: 100%
+     }
+     table tr td .percent {
+       color: #000;
+       position: absolute;
+       top: 0;
+       left: 0;
+       height: 100%;
+       overflow: hidden;
+       transition: width 1s
+     }
+     table tr td .percent span {
+       margin-left: 0.1em
+     }
+     table tr td .label {
+       position: relative;
+       height: 100%
+     }
+     table tr td .label span {
+       margin-left: 0.1em
+     }
+     table tr td .count {
+       text-align: right;
+       width: 2em;
+       display: inline-block;
+       font-weight: bold;
+       margin-top: -0.12em
+     }
+    </style>
+  </head>
+  <body class="radiator_controller">
+    <table>
+      <tr style="text-color: white;">
+        <td colspan="2">Puppet Summary <span id="status">✓</span></td>
+      </tr>
+      {{range . }}
+      <tr class="{{.State}}">
+        <td class="count_column"><p class="count"><span>{{.Count}}</span></p></td>
+        <td>
+          <div>
+            <p class="label">
+              <span>
+                {{.State}}
+              </span>
+            </p>
+            <p class="percent" style="width: {{.Percentage}}%"><span>{{.State}}</span></p>
+          </div>
+        </td>
+      </tr>
+      {{end}}
+    </table>
+  </body>
+</html>
