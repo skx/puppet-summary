@@ -7,7 +7,7 @@ screenshot of each one:
 * [System List](#system-list)
 * [Report List](#report-list)
 * [Single Report](#single-report)
-* [Radiator View][#radiator-view)
+* [Radiator View](#radiator-view)
 
 **NOTE**: Screenshots might lag behind the in-progress release.
 
