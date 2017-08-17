@@ -17,7 +17,6 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"sort"
 	"text/template"
 )
 
@@ -119,86 +118,26 @@ func RadiatorView(res http.ResponseWriter, req *http.Request) {
 	}()
 
 	//
-	// Get the nodes.
+	// Get the state of the nodes.
 	//
-	NodeList, err := getIndexNodes()
+	data, err := getStates()
 	if err != nil {
 		status = http.StatusInternalServerError
 		return
 	}
 
 	//
-	// Create a map to hold state.
+	// Sum up our known-nodes.
 	//
-	states := make(map[string]float64)
-
-	//
-	// Each known-state will default to being empty.
-	//
-	states["changed"] = 0
-	states["unchanged"] = 0
-	states["failed"] = 0
-	states["orphaned"] = 0
-
-	//
-	// Count the nodes we encounter, such that we can
-	// create a %-figure for each distinct-state.
-	//
-	var total float64
-
-	//
-	// Count the states.
-	//
-	for _, o := range NodeList {
-		states[o.State] += 1
-		total += 1
-	}
-
-	//
-	// This is the structure we'll use for our
-	// template-rendering.
-	//
-	type Radiator struct {
-		State      string
-		Count      float64
-		Percentage float64
-	}
-
-	//
-	// We'll have an array of these.
-	//
-	var data []Radiator
-
-	//
-	// Get the distinct keys/states in a sorted order.
-	//
-	var keys []string
-	for name, _ := range states {
-		keys = append(keys, name)
-	}
-	sort.Strings(keys)
-
-	//
-	// Now for each key ..
-	//
-	for _, name := range keys {
-
-		var tmp Radiator
-		tmp.State = name
-		tmp.Count = states[name]
-		tmp.Percentage = 0
-
-		// Percentage has to be capped :)
-		if total != 0 {
-			tmp.Percentage = states[name] / total * 100
-		}
-		data = append(data, tmp)
+	total := 0
+	for i, _ := range data {
+		total += data[i].Count
 	}
 
 	//
 	// Add in the total count of nodes.
 	//
-	var tmp Radiator
+	var tmp PuppetState
 	tmp.State = "All"
 	tmp.Count = total
 	tmp.Percentage = 0

@@ -20,47 +20,24 @@ func getMetrics() map[string]string {
 	// A map to store the names & values which should be sent.
 	metrics := make(map[string]string)
 
-	//
-	// Get the nodes we know about.
-	//
-	NodeList, err := getIndexNodes()
+	// Get the node-states.
+	data, err := getStates()
 	if err != nil {
 		panic(err)
 	}
 
-	//
-	// Create a map to hold state.
-	//
-	states := make(map[string]int)
-
-	//
-	// Each known-state will default to being empty.
-	//
-	states["changed"] = 0
-	states["unchanged"] = 0
-	states["failed"] = 0
-	states["orphaned"] = 0
-
-	//
-	// Sum up the number of nodes in each state.
-	//
-	for _, o := range NodeList {
-		states[o.State] += 1
-	}
-
-	//
-	// Now record our states.
-	//
-	for i, o := range states {
+	// Now record the metrics we would send.
+	for i, _ := range data {
 		//
 		// The name + value
 		//
-		metric := fmt.Sprintf("state.%s", i)
-		value := fmt.Sprintf("%d", o)
+		metric := fmt.Sprintf("state.%s", data[i].State)
+		value := fmt.Sprintf("%d", data[i].Count)
 
 		metrics[metric] = value
 	}
 
+	// And return them
 	return metrics
 }
 

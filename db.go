@@ -12,6 +12,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"time"
 )
@@ -54,6 +55,16 @@ type PuppetHistory struct {
 	Failed    string
 	Changed   string
 	Unchanged string
+}
+
+//
+// This structure is used to return information about our nodes
+// either for the submission of metrics, or for our radiator-view
+//
+type PuppetState struct {
+	State      string
+	Count      int
+	Percentage float64
 }
 
 //
@@ -329,6 +340,82 @@ func getIndexNodes() ([]PuppetRuns, error) {
 	}
 
 	return NodeList, nil
+}
+
+//
+// Return the state of our nodes.
+//
+func getStates() ([]PuppetState, error) {
+
+	//
+	// Get the nodes.
+	//
+	NodeList, err := getIndexNodes()
+	if err != nil {
+		return nil, err
+	}
+
+	//
+	// Create a map to hold state.
+	//
+	states := make(map[string]int)
+
+	//
+	// Each known-state will default to being empty.
+	//
+	states["changed"] = 0
+	states["unchanged"] = 0
+	states["failed"] = 0
+	states["orphaned"] = 0
+
+	//
+	// Count the nodes we encounter, such that we can
+	// create a %-figure for each distinct-state.
+	//
+	var total int
+
+	//
+	// Count the states.
+	//
+	for _, o := range NodeList {
+		states[o.State] += 1
+		total += 1
+	}
+
+	//
+	// Our return-result
+	//
+	var data []PuppetState
+
+	//
+	// Get the distinct keys/states in a sorted order.
+	//
+	var keys []string
+	for name, _ := range states {
+		keys = append(keys, name)
+	}
+	sort.Strings(keys)
+
+	//
+	// Now for each key ..
+	//
+	for _, name := range keys {
+
+		var tmp PuppetState
+		tmp.State = name
+		tmp.Count = states[name]
+		tmp.Percentage = 0
+
+		// Percentage has to be capped :)
+		if total != 0 {
+			var c float64
+			c = float64(states[name])
+			tmp.Percentage = (c / float64(total)) * 100
+		}
+		data = append(data, tmp)
+	}
+
+	return data, nil
 }
 
 //
