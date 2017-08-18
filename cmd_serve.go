@@ -7,6 +7,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"encoding/xml"
 	"errors"
 	"flag"
 	"fmt"
@@ -154,11 +155,38 @@ func RadiatorView(res http.ResponseWriter, req *http.Request) {
 	}
 
 	//
-	// Populate & return the template.
+	// What kind of reply should we send?
 	//
-	src := string(tmpl)
-	t := template.Must(template.New("tmpl").Parse(src))
-	t.Execute(res, data)
+	accept := req.Header.Get("Accept")
+
+	switch accept {
+	case "application/json":
+		js, err := json.Marshal(data)
+
+		if err != nil {
+			status = http.StatusInternalServerError
+			return
+		}
+		res.Header().Set("Content-Type", "application/json")
+		res.Write(js)
+
+	case "application/xml":
+		x, err := xml.MarshalIndent(data, "", "  ")
+		if err != nil {
+			status = http.StatusInternalServerError
+			return
+		}
+
+		res.Header().Set("Content-Type", "application/xml")
+		res.Write(x)
+	default:
+		//
+		// Populate & return the template.
+		//
+		src := string(tmpl)
+		t := template.Must(template.New("tmpl").Parse(src))
+		t.Execute(res, data)
+	}
 }
 
 //
@@ -327,11 +355,38 @@ func ReportHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	//
-	// All done.
+	// What kind of reply should we send?
 	//
-	src := string(tmpl)
-	t := template.Must(template.New("tmpl").Parse(src))
-	t.Execute(res, report)
+	accept := req.Header.Get("Accept")
+
+	switch accept {
+	case "application/json":
+		js, err := json.Marshal(report)
+
+		if err != nil {
+			status = http.StatusInternalServerError
+			return
+		}
+		res.Header().Set("Content-Type", "application/json")
+		res.Write(js)
+
+	case "application/xml":
+		x, err := xml.MarshalIndent(report, "", "  ")
+		if err != nil {
+			status = http.StatusInternalServerError
+			return
+		}
+
+		res.Header().Set("Content-Type", "application/xml")
+		res.Write(x)
+	default:
+		//
+		// Populate & return the template.
+		//
+		src := string(tmpl)
+		t := template.Must(template.New("tmpl").Parse(src))
+		t.Execute(res, report)
+	}
 }
 
 //
@@ -407,11 +462,38 @@ func NodeHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	//
-	//  Populate the template and return it.
+	// What kind of reply should we send?
 	//
-	src := string(tmpl)
-	t := template.Must(template.New("tmpl").Parse(src))
-	t.Execute(res, x)
+	accept := req.Header.Get("Accept")
+
+	switch accept {
+	case "application/json":
+		js, err := json.Marshal(reports)
+
+		if err != nil {
+			status = http.StatusInternalServerError
+			return
+		}
+		res.Header().Set("Content-Type", "application/json")
+		res.Write(js)
+
+	case "application/xml":
+		x, err := xml.MarshalIndent(reports, "", "  ")
+		if err != nil {
+			status = http.StatusInternalServerError
+			return
+		}
+
+		res.Header().Set("Content-Type", "application/xml")
+		res.Write(x)
+	default:
+		//
+		//  Populate the template and return it.
+		//
+		src := string(tmpl)
+		t := template.Must(template.New("tmpl").Parse(src))
+		t.Execute(res, x)
+	}
 }
 
 //
@@ -479,11 +561,38 @@ func IndexHandler(res http.ResponseWriter, req *http.Request) {
 	x.Nodes = NodeList
 
 	//
-	//  Populate the template and return it.
+	// What kind of reply should we send?
 	//
-	src := string(tmpl)
-	t := template.Must(template.New("tmpl").Parse(src))
-	t.Execute(res, x)
+	accept := req.Header.Get("Accept")
+
+	switch accept {
+	case "application/json":
+		js, err := json.Marshal(NodeList)
+
+		if err != nil {
+			status = http.StatusInternalServerError
+			return
+		}
+		res.Header().Set("Content-Type", "application/json")
+		res.Write(js)
+
+	case "application/xml":
+		x, err := xml.MarshalIndent(NodeList, "", "  ")
+		if err != nil {
+			status = http.StatusInternalServerError
+			return
+		}
+
+		res.Header().Set("Content-Type", "application/xml")
+		res.Write(x)
+	default:
+		//
+		//  Populate the template and return it.
+		//
+		src := string(tmpl)
+		t := template.Must(template.New("tmpl").Parse(src))
+		t.Execute(res, x)
+	}
 }
 
 //

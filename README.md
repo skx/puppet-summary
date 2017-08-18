@@ -20,6 +20,8 @@ This project is directly inspired by the [puppet-dashboard](https://github.com/s
    * This project only involves deploying a single binary.
 * It allows you to submit metrics to a carbon-receiver.
    * The metrics include a distinct count of each state, allowing you to raise alerts when nodes in the failed state are present.
+* The output can be used for scripting, and automation.
+   * All output is available as [JSON/XML](API.md) in addition to human-viewable HTML.
 
 There are [screenshots included within this repository](screenshots/), and you can view a [sample installation here](https://master.steve.org.uk/).
 
