@@ -35,7 +35,7 @@ To receive a non-HTML response you merely need to set the HTTP `Accept` header a
     $ curl -H Accept:application/json http://localhost:3001/
     $ curl -H Accept:application/xml  http://localhost:3001/
 
-Similarly the raditor-view can be shown:
+Similarly the raditor-view can be shown like so:
 
     $ curl -H Accept:application/xml  localhost:3001/radiator/
     <PuppetState>
