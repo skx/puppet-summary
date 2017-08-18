@@ -19,31 +19,6 @@ binary to make your changes:
     go build .
 
 
-## End-Points
-
-There are several main end-points:
-
-* `GET /`
-  * Show all known-nodes and their current status.
-* `GET /node/${fqdn}`
-   * Shows the last N (max 50) runs of puppet against the given node.
-   * This includes a graph of run-time.
-* `GET /radiator`
-   * This shows a simple dashboard/radiator view.
-* `GET /report/${n}`
-   * This shows useful output of a given run.
-* `POST /upload`
-   * Store a report, this is expected to be invoked from the puppet-master.
-
-In addition to that there is a simple end-point which is designed to
-return a list of all the nodes in the given state:
-
-* `GET /api/state/$state`
-
-Only valid states are permitted (`changed`, `failed`, & `unchanged`).
-
-
-
 ## Code Quality
 
 Test our the test-suite coverage :
