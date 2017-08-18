@@ -8,7 +8,6 @@
     <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
     <script type="text/javascript">
 
      window.onload = function () {
@@ -94,7 +93,7 @@
             data-href="/report/{{.Id }}">
           <td>{{$.Fqdn}}</td>
           <td>{{.State}}</td>
-          <td class="time" datetime="{{.At}}">{{.At}}</td>
+          <td>{{.At}}</td>
           <td>{{.Failed}}</td>
           <td>{{.Changed}}</td>
           <td>{{.Total}}</td>
@@ -149,14 +148,6 @@
                  break;
                }
              })
-         });
-
-
-         var now = moment();
-
-         $('.time').each(function(i, e) {
-           var time = moment($(e).attr('datetime'));
-           $(e).html('<span title="' + $(e).attr('datetime') + '">' + time.from(now) + '</span>');
          });
        });
       </script>
