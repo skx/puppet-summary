@@ -21,28 +21,33 @@ import (
 // Report IDs must be alphanumeric
 //
 func TestNonNumericReport(t *testing.T) {
-	req, err := http.NewRequest("GET", "/report/3a", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
+	router := mux.NewRouter()
+	router.HandleFunc("/report/{id}/", ReportHandler).Methods("GET")
+	router.HandleFunc("/report/{id}", ReportHandler).Methods("GET")
 
-	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(ReportHandler)
+	// Table driven test
+	ids := []string{"/report/1a", "/report/steve", "/report/bob/", "/report/3a.3/"}
 
-	// Our handlers satisfy http.Handler, so we can call their ServeHTTP method
-	// directly and pass in our Request and ResponseRecorder.
-	handler.ServeHTTP(rr, req)
+	for _, id := range ids {
+		req, err := http.NewRequest("GET", id, nil)
+		if err != nil {
+			t.Fatal(err)
+		}
 
-	// Check the status code is what we expect.
-	if status := rr.Code; status != http.StatusInternalServerError {
-		t.Errorf("Unexpected status-code: %v", status)
-	}
+		rr := httptest.NewRecorder()
+		router.ServeHTTP(rr, req)
 
-	// Check the response body is what we expect.
-	expected := "The report ID must be numeric\n"
-	if rr.Body.String() != expected {
-		t.Errorf("handler returned unexpected body: got '%v' want '%v'",
-			rr.Body.String(), expected)
+		// Check the status code is what we expect.
+		if status := rr.Code; status != http.StatusInternalServerError {
+			t.Errorf("Unexpected status-code: %v", status)
+		}
+
+		// Check the response body is what we expect.
+		expected := "The report ID must be numeric\n"
+		if rr.Body.String() != expected {
+			t.Errorf("handler returned unexpected body: got '%v' want '%v'",
+				rr.Body.String(), expected)
+		}
 	}
 }
 
@@ -61,7 +66,7 @@ func TestUknownAPIState(t *testing.T) {
 	defer ts.Close()
 
 	// These are all bogus
-	states := []string{"foo", "bart", "liza", "moi kiss"}
+	states := []string{"foo", "bart", "liza", "moi kissa", "steve/"}
 
 	for _, state := range states {
 		url := ts.URL + "/api/state/" + state
@@ -103,45 +108,68 @@ func TestNumericReports(t *testing.T) {
 	// Add some data.
 	addFakeReports()
 
-	// Wire up the router.
-	r := mux.NewRouter()
-	r.HandleFunc("/report/{id}", ReportHandler).Methods("GET")
+	//
+	// We'll make one test for each supported content-type
+	//
+	type TestCase struct {
+		Type     string
+		Response string
+	}
 
-	// Get the test-server
-	ts := httptest.NewServer(r)
-	defer ts.Close()
+	//
+	// The tests
+	//
+	tests := []TestCase{
+		{"text/html", "Report of www.steve.org.uk which ran 2017-07-29 23:17:01"},
+		{"application/json", "\"State\":\"unchanged\","},
+		{"application/xml", "<State>unchanged</State>"}}
 
-	// Table driven test
-	ids := []string{"1", "100", "303021"}
+	//
+	// Run each one.
+	//
+	for _, test := range tests {
 
-	for _, id := range ids {
-		url := ts.URL + "/report/" + id
+		//
+		// Create a router.
+		//
+		router := mux.NewRouter()
+		router.HandleFunc("/report/{id}/", ReportHandler).Methods("GET")
+		router.HandleFunc("/report/{id}", ReportHandler).Methods("GET")
 
-		resp, err := http.Get(url)
+		//
+		// Get a valid report ID
+		//
+		id, _ := validReportID()
+		url := fmt.Sprintf("/report/%d", id)
+
+		//
+		// Make the request, with the appropriate Accept: header
+		//
+		req, err := http.NewRequest("GET", url, nil)
 		if err != nil {
 			t.Fatal(err)
 		}
+		req.Header.Add("Accept", test.Type)
 
 		//
-		// Get the body
+		// Fake out the request
 		//
-		defer resp.Body.Close()
-		body, err := ioutil.ReadAll(resp.Body)
+		rr := httptest.NewRecorder()
+		router.ServeHTTP(rr, req)
 
-		if err != nil {
-			t.Errorf("Failed to read response-body %v\n", err)
+		//
+		// Test the status-code is OK
+		//
+		if status := rr.Code; status != http.StatusOK {
+			t.Errorf("Unexpected status-code: %v", status)
 		}
 
-		content := fmt.Sprintf("%s", body)
-
-		if status := resp.StatusCode; status != http.StatusInternalServerError {
-			t.Fatalf("Unexpected status code: %d", status)
+		//
+		// Test that the body contained our expected content.
+		//
+		if !strings.Contains(rr.Body.String(), test.Response) {
+			t.Fatalf("Unexpected body: '%s'", rr.Body.String())
 		}
-
-		if content != "Failed to find report with specified ID\n" {
-			t.Fatalf("Unexpected body: '%s'", body)
-		}
-
 	}
 
 	//
@@ -435,48 +463,62 @@ func TestKnownNode(t *testing.T) {
 	// Add some data.
 	addFakeNodes()
 
-	// Wire up the router.
-	r := mux.NewRouter()
-	r.HandleFunc("/node/{fqdn}", NodeHandler).Methods("GET")
-
-	// Get the test-server
-	ts := httptest.NewServer(r)
-	defer ts.Close()
-
 	//
-	// Test a known-good node-name
+	// We'll make one test for each supported content-type
 	//
-	url := ts.URL + "/node/foo.example.com"
-
-	resp, err := http.Get(url)
-	if err != nil {
-		t.Fatal(err)
+	type TestCase struct {
+		Type     string
+		Response string
 	}
 
 	//
-	// Get the body
+	// The tests
 	//
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-
-	if err != nil {
-		t.Errorf("Failed to read response-body %v\n", err)
-	}
-
-	content := fmt.Sprintf("%s", body)
-
-	if status := resp.StatusCode; status != http.StatusOK {
-		t.Errorf("Unexpected status-code: %v", status)
-	}
+	tests := []TestCase{
+		{"text/html", "3.134"},
+		{"application/json", "\"State\":\"unchanged\","},
+		{"application/xml", "<PuppetReportSummary>"}}
 
 	//
-	// Test that the body contained our run-time(s).
+	// Run each one.
 	//
-	if !strings.Contains(content, "3.134") {
-		t.Fatalf("Unexpected body: '%s'", body)
-	}
-	if !strings.Contains(content, "2.718") {
-		t.Fatalf("Unexpected body: '%s'", body)
+	for _, test := range tests {
+
+		//
+		// Create a router.
+		//
+		router := mux.NewRouter()
+		router.HandleFunc("/node/{fqdn}/", NodeHandler).Methods("GET")
+		router.HandleFunc("/node/{fqdn}", NodeHandler).Methods("GET")
+
+		//
+		// Make the request, with the appropriate Accept: header
+		//
+		req, err := http.NewRequest("GET", "/node/foo.example.com", nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		req.Header.Add("Accept", test.Type)
+
+		//
+		// Fake out the request
+		//
+		rr := httptest.NewRecorder()
+		router.ServeHTTP(rr, req)
+
+		//
+		// Test the status-code is OK
+		//
+		if status := rr.Code; status != http.StatusOK {
+			t.Errorf("Unexpected status-code: %v", status)
+		}
+
+		//
+		// Test that the body contained our expected content.
+		//
+		if !strings.Contains(rr.Body.String(), test.Response) {
+			t.Fatalf("Unexpected body: '%s'", rr.Body.String())
+		}
 	}
 
 	//
