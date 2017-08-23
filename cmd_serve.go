@@ -497,6 +497,38 @@ func NodeHandler(res http.ResponseWriter, req *http.Request) {
 }
 
 //
+// Serve the single "/favicon.ico" file.
+//
+func IconHandler(res http.ResponseWriter, req *http.Request) {
+	var (
+		status int
+		err    error
+	)
+	defer func() {
+		if nil != err {
+			http.Error(res, err.Error(), status)
+
+			// Don't spam stdout when running test-cases.
+			if flag.Lookup("test.v") == nil {
+				fmt.Printf("Error: %s\n", err.Error())
+			}
+		}
+	}()
+
+	//
+	// Load the binary-asset.
+	//
+	data, err := Asset("data/favicon.ico")
+	if err != nil {
+		err = errors.New("Failed to find asset data/favicon.ico")
+		status = http.StatusInternalServerError
+		return
+	}
+	res.Header().Set("Content-Type", "image/vnd.microsoft.icon")
+	res.Write(data)
+}
+
+//
 // Show all the hosts we know about - and their last known state -
 // along with a graph of recent states.
 //
@@ -644,6 +676,11 @@ func cmd_serve(settings serveCmd) {
 	// Handle a display of all known nodes, and their last state.
 	//
 	router.HandleFunc("/", IndexHandler).Methods("GET")
+
+	//
+	// FavIcon.
+	//
+	router.HandleFunc("/favicon.ico", IconHandler).Methods("GET")
 
 	//
 	// Bind the router.

@@ -3,6 +3,7 @@
   <head>
     <title>Radiator View</title>
     <meta charset="utf-8">
+    <link href="/favicon.ico" rel="shortcut icon">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="refresh" content="30; url=/radiator/"></noscript>
     <style>
