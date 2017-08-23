@@ -3,7 +3,7 @@
   <head>
     <title>Node List</title>
     <meta charset="utf-8">
-    <link href="/favicon.ico" rel="shortcut icon">
+    <link href="/favicon.ico" rel="shortcut icon" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ" crossorigin="anonymous"></script>
@@ -109,8 +109,8 @@
         <li class="active"><a data-toggle="tab" href="#all">All</a></li>
         <li><a data-toggle="tab" href="#failed">Failed <span class="badge" id="failed_count"></span></a></li>
         <li><a data-toggle="tab" href="#changed">Changed <span class="badge" id="changed_count"></span></a></li>
-        <li><a data-toggle="tab" href="#unchanged">Unchanged</a></li></a></li>
-    <li><a data-toggle="tab" href="#orphaned">Orphaned <span class="badge" id="orphaned_count"></span></a></li>
+        <li><a data-toggle="tab" href="#unchanged">Unchanged</a></li>
+        <li><a data-toggle="tab" href="#orphaned">Orphaned <span class="badge" id="orphaned_count"></span></a></li>
       </ul>
 
 
@@ -220,68 +220,68 @@
         </div>
 
       </div>
-
-      <p>&nbsp;</p>
-      <p>&nbsp;</p>
-      <hr />
-      <footer id="footer">
-        <div class="container">
-          <div class="col-md-4">
-            <ul class="nav">
-              <li><a href="/radiator/">Radiator View</a></li>
-            </ul>
-          </div>
-          <div class="col-md-4">
-            <ul class="nav">
-              <li><a href="https://github.com/skx/puppet-summary">GitHub Project</a></li>
-            </ul>
-          </div>
-          <div class="col-md-4">
-            <ul class="nav">
-              <li><a href="https://steve.kemp.fi/">© 2017 - Steve Kemp</a></li>
-            </ul>
-          </div>
+    </div>
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+    <hr />
+    <footer id="footer">
+      <div class="container">
+        <div class="col-md-4">
+          <ul class="nav">
+            <li><a href="/radiator/">Radiator View</a></li>
+          </ul>
         </div>
-      </footer>
-      <script type="text/javascript">
-       $(function(){
-         $('.table tr[data-href]').each(function(){
-           $(this).css('cursor','pointer').hover(
-             function(){
-               $(this).addClass('active');
-             },
-             function(){
-               $(this).removeClass('active');
-             }).on('mouseup', function (e) {
-               switch (e.which)
-               {
-                 // Left Click.
-                 case 1:
-                 document.location = $(this).attr('data-href');
-                 break;
+        <div class="col-md-4">
+          <ul class="nav">
+            <li><a href="https://github.com/skx/puppet-summary">GitHub Project</a></li>
+          </ul>
+        </div>
+        <div class="col-md-4">
+          <ul class="nav">
+            <li><a href="https://steve.kemp.fi/">© 2017 - Steve Kemp</a></li>
+          </ul>
+        </div>
+      </div>
+    </footer>
+    <script type="text/javascript">
+     $(function(){
+       $('.table tr[data-href]').each(function(){
+         $(this).css('cursor','pointer').hover(
+           function(){
+             $(this).addClass('active');
+           },
+           function(){
+             $(this).removeClass('active');
+           }).on('mouseup', function (e) {
+             switch (e.which)
+             {
+               // Left Click.
+               case 1:
+               document.location = $(this).attr('data-href');
+               break;
 
-                 // Middle click.
-                 case 2:
-                 var newWindow = $(this).attr('data-href');
-                 window.open(newWindow, '_blank');
-                 e.preventDefault();
-                 break;
-               }
-             })
-         });
-
-         // Reselect TAB based on hash in URL.
-         var url = document.location.toString();
-         if (url.match('#')) {
-           $('.nav-tabs a[href="#' + url.split('#')[1] + '"]').tab('show');
-         }
-
-         // Change hash when tabs are selected.
-         $('.nav-tabs a').on('shown.bs.tab', function (e) {
-           window.location.hash = e.target.hash;
-         })
-
+               // Middle click.
+               case 2:
+               var newWindow = $(this).attr('data-href');
+               window.open(newWindow, '_blank');
+               e.preventDefault();
+               break;
+             }
+           })
        });
-      </script>
+
+       // Reselect TAB based on hash in URL.
+       var url = document.location.toString();
+       if (url.match('#')) {
+         $('.nav-tabs a[href="#' + url.split('#')[1] + '"]').tab('show');
+       }
+
+       // Change hash when tabs are selected.
+       $('.nav-tabs a').on('shown.bs.tab', function (e) {
+         window.location.hash = e.target.hash;
+       })
+
+     });
+    </script>
   </body>
 </html>
