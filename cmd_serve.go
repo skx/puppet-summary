@@ -524,7 +524,6 @@ func IconHandler(res http.ResponseWriter, req *http.Request) {
 		status = http.StatusInternalServerError
 		return
 	}
-	fmt.Printf("Served favicon.ico\n")
 	res.Header().Set("Content-Type", "image/vnd.microsoft.icon")
 	res.Write(data)
 }
