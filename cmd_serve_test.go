@@ -225,8 +225,6 @@ func TestUploadReportMethod(t *testing.T) {
 	rr := httptest.NewRecorder()
 	handler := http.HandlerFunc(ReportSubmissionHandler)
 
-	// Our handlers satisfy http.Handler, so we can call their ServeHTTP method
-	// directly and pass in our Request and ResponseRecorder.
 	handler.ServeHTTP(rr, req)
 
 	// Check the status code is what we expect.
@@ -492,7 +490,12 @@ func TestKnownNode(t *testing.T) {
 }
 
 //
-// Our index contains the nodes we expect.
+// Test that our index-view returns content that seems reasonable,
+// in all three cases:
+//
+//   * text/html
+//   * application/json
+//   * application/xml
 //
 func TestIndexView(t *testing.T) {
 
@@ -597,19 +600,49 @@ func TestFavIcon(t *testing.T) {
 		t.Errorf("Failed to read response-body %v\n", err)
 	}
 
+	//
+	// Test the size is that we expect.
+	//
 	if len(body) != 1150 {
 		t.Errorf("Icon was the wrong size %v\n", len(body))
 	}
 
+	//
+	// Test that the content-type was what we expect.
+	//
 	headers := resp.Header
 	ctype := headers["Content-Type"][0]
 	if ctype != "image/vnd.microsoft.icon" {
 		t.Errorf("content type header does not match: got %v", ctype)
 	}
+
+	//
+	// Now test we were served the data we expect.
+	//
+	// Load the resource
+	//
+	tmpl, err := Asset("data/favicon.ico")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	//
+	// Compare byte by byte
+	//
+	for _, b := range tmpl {
+		if body[b] != tmpl[b] {
+			t.Errorf("favicon.ico content is corrupt?")
+		}
+	}
 }
 
 //
-// Our radiator-view contains a 50% count.   Yeah this test is woolly.
+// Test that our radiator-view returns content that seems reasonable,
+// in all three cases:
+//
+//   * text/html
+//   * application/json
+//   * application/xml
 //
 func TestRadiatorView(t *testing.T) {
 
