@@ -18,7 +18,8 @@ import (
 )
 
 //
-// Report IDs must be alphanumeric
+// Report IDs must be alphanumeric.  Submit some bogus requests to
+// ensure they fail with a suitable error-message.
 //
 func TestNonNumericReport(t *testing.T) {
 	router := mux.NewRouter()
@@ -52,7 +53,8 @@ func TestNonNumericReport(t *testing.T) {
 }
 
 //
-// API-state must use known values.
+// API-state must use known values.  Submit some bogus values to ensure
+// a suitable error is returned.
 //
 func TestUknownAPIState(t *testing.T) {
 
@@ -98,9 +100,14 @@ func TestUknownAPIState(t *testing.T) {
 }
 
 //
-// Reports must be numeric.
+// Test that our report-view returns content that seems reasonable,
+// in all three cases:
 //
-func TestNumericReports(t *testing.T) {
+//   * text/html
+//   * application/json
+//   * application/xml
+//
+func TestReportView(t *testing.T) {
 
 	// Create a fake database
 	FakeDB()
@@ -137,7 +144,7 @@ func TestNumericReports(t *testing.T) {
 		router.HandleFunc("/report/{id}", ReportHandler).Methods("GET")
 
 		//
-		// Get a valid report ID
+		// Get a valid report ID, and use it to build a URL.
 		//
 		id, _ := validReportID()
 		url := fmt.Sprintf("/report/%d", id)
@@ -202,7 +209,7 @@ func TestKnownAPIState(t *testing.T) {
 	defer ts.Close()
 
 	//
-	// Get the unchanged result - which should be foo.example.com
+	// Get the "changed" result - which should only match foo.example.com
 	//
 	url := ts.URL + "/api/state/changed"
 
@@ -270,7 +277,7 @@ func TestUploadReportMethod(t *testing.T) {
 }
 
 //
-// Submitting a pre-cooked method.
+// Submitting a pre-cooked report should succeed.
 //
 func TestUploadReport(t *testing.T) {
 
@@ -335,7 +342,7 @@ func TestUploadReport(t *testing.T) {
 }
 
 //
-// Submitting a pre-cooked method.
+// Submitting a pre-cooked report which is bogus should fail.
 //
 func TestUploadBogusReport(t *testing.T) {
 
@@ -453,7 +460,13 @@ func TestUnknownNode(t *testing.T) {
 }
 
 //
-// Valid-node is handled.
+// Test that our node-view returns content that seems reasonable,
+// in all three cases:
+//
+//   * text/html
+//   * application/json
+//   * application/xml
+//
 //
 func TestKnownNode(t *testing.T) {
 
