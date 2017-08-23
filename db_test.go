@@ -56,7 +56,7 @@ func addFakeReports() {
 		days := int64(60 * 60 * 24 * count)
 
 		now -= days
-		stmt.Exec("", now)
+		stmt.Exec("/../data/valid.yaml", now)
 		count += 1
 	}
 	tx.Commit()
@@ -98,6 +98,16 @@ func addFakeNodes() {
 	n.Skipped = "3"
 	addDB(n, "")
 
+}
+
+//
+// Get a valid report ID.
+//
+func validReportID() (int, error) {
+	var count int
+	row := db.QueryRow("SELECT MAX(id) FROM reports")
+	err := row.Scan(&count)
+	return count, err
 }
 
 //
