@@ -53,6 +53,15 @@ func APIState(res http.ResponseWriter, req *http.Request) {
 	state := vars["state"]
 
 	//
+	// Ensure we received a parameter.
+	//
+	if len(state) < 1 {
+		status = http.StatusNotFound
+		err = errors.New("Missing 'state' parameter")
+		return
+	}
+
+	//
 	// Test the state is valid
 	//
 	switch state {
@@ -317,6 +326,15 @@ func ReportHandler(res http.ResponseWriter, req *http.Request) {
 	id := vars["id"]
 
 	//
+	// Ensure we received a parameter.
+	//
+	if len(id) < 1 {
+		status = http.StatusNotFound
+		err = errors.New("Missing 'id' parameter")
+		return
+	}
+
+	//
 	// If the ID is non-numeric we're in trouble.
 	//
 	reg, _ := regexp.Compile("^([0-9]+)$")
@@ -413,6 +431,15 @@ func NodeHandler(res http.ResponseWriter, req *http.Request) {
 	//
 	vars := mux.Vars(req)
 	fqdn := vars["fqdn"]
+
+	//
+	// Ensure we received a parameter.
+	//
+	if len(fqdn) < 1 {
+		status = http.StatusNotFound
+		err = errors.New("Missing 'fqdn' parameter")
+		return
+	}
 
 	//
 	// Get the reports
