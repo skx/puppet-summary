@@ -557,6 +557,50 @@ func TestIndexView(t *testing.T) {
 }
 
 //
+// Our icon is correct.
+//
+func TestFavIcon(t *testing.T) {
+
+	// Wire up the router.
+	r := mux.NewRouter()
+	r.HandleFunc("/favicon.ico", IconHandler).Methods("GET")
+
+	// Get the test-server
+	ts := httptest.NewServer(r)
+	defer ts.Close()
+
+	//
+	// Get the icon
+	//
+	url := ts.URL + "/favicon.ico"
+
+	resp, err := http.Get(url)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	//
+	// Get the body
+	//
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+
+	if err != nil {
+		t.Errorf("Failed to read response-body %v\n", err)
+	}
+
+	if len(body) != 1150 {
+		t.Errorf("Icon was the wrong size %v\n", len(body))
+	}
+
+	headers := resp.Header
+	ctype := headers["Content-Type"][0]
+	if ctype != "image/vnd.microsoft.icon" {
+		t.Errorf("content type header does not match: got %v", ctype)
+	}
+}
+
+//
 // Our radiator-view contains a 50% count.   Yeah this test is woolly.
 //
 func TestRadiatorView(t *testing.T) {
