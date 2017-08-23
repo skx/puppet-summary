@@ -502,48 +502,56 @@ func TestIndexView(t *testing.T) {
 	// Add some data.
 	addFakeNodes()
 
-	// Wire up the router.
-	r := mux.NewRouter()
-	r.HandleFunc("/", IndexHandler).Methods("GET")
-
-	// Get the test-server
-	ts := httptest.NewServer(r)
-	defer ts.Close()
-
 	//
-	// Get the front-page
+	// We'll make one test for each supported content-type
 	//
-	url := ts.URL + "/"
-
-	resp, err := http.Get(url)
-	if err != nil {
-		t.Fatal(err)
+	type TestCase struct {
+		Type     string
+		Response string
 	}
 
 	//
-	// Get the body
+	// The tests
 	//
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-
-	if err != nil {
-		t.Errorf("Failed to read response-body %v\n", err)
-	}
-
-	content := fmt.Sprintf("%s", body)
-
-	if status := resp.StatusCode; status != http.StatusOK {
-		t.Errorf("Unexpected status-code: %v", status)
-	}
+	tests := []TestCase{
+		{"text/html", "foo.example.com"},
+		{"application/json", "\"State\":\"failed\","},
+		{"application/xml", "<PuppetRuns>"}}
 
 	//
-	// Test that the body contained our run-time(s).
+	// Run each one.
 	//
-	if !strings.Contains(content, "foo.example.com") {
-		t.Fatalf("Unexpected body: '%s'", body)
-	}
-	if !strings.Contains(content, "bar.example.com") {
-		t.Fatalf("Unexpected body: '%s'", body)
+	for _, test := range tests {
+
+		//
+		// Make the request, with the appropriate Accept: header
+		//
+		req, err := http.NewRequest("GET", "/", nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		req.Header.Add("Accept", test.Type)
+
+		//
+		// Fake it out
+		//
+		rr := httptest.NewRecorder()
+		handler := http.HandlerFunc(IndexHandler)
+		handler.ServeHTTP(rr, req)
+
+		//
+		// Test the status-code is OK
+		//
+		if status := rr.Code; status != http.StatusOK {
+			t.Errorf("Unexpected status-code: %v", status)
+		}
+
+		//
+		// Test that the body contained our expected content.
+		//
+		if !strings.Contains(rr.Body.String(), test.Response) {
+			t.Fatalf("Unexpected body: '%s'", rr.Body.String())
+		}
 	}
 
 	//
