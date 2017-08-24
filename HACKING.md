@@ -29,3 +29,28 @@ Test our the test-suite coverage :
 Look for advice on code:
 
      go vet .
+
+# Cross compiling puppet-summary
+
+In this example, the compilation is happening on x86_64 Fedora system with a target of Raspbian on ARM (raspberry PI). This should be quite similar (different package names basically, for Debian-based distros).
+
+## Install the packages you need.
+
+`# dnf install binutils-arm-linux-gnu cross-gcc-common cross-binutils-common gcc-c++-arm-linux-gnu kernel-cross-headers glibc-arm-linux-gnu  glibc-arm-linux-gnu-devel`
+
+## Manually fix pthreads
+
+The way cgo works for cross compiles, it assumes a sysroot, which is normal. However, the way pthreads is called in the github.com/mattn/go-sqlite3 package, it requires and absolute path, but that path is relative to the sysroot provided.
+
+`# pushd /usr/arm-linux-gnu; ln -s /usr .; popd`
+
+## Compile
+
+I use `-v` when cross compiling because it will give much more info if something errors out.
+
+`$ CC=arm-linux-gnu-gcc CGO_ENABLED=1 GOOS=linux GOARCH=arm CGO_LDFLAGS=--sysroot=/usr/arm-linux-gnu CGO_CFLAGS=--sysroot=/usr/arm-linux-gnu go build -v .`
+
+## Verify build
+
+```$ file puppet-summary
+puppet-summary: ELF 32-bit LSB executable, ARM, EABI5 version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux-armhf.so.3, for GNU/Linux 3.2.0, BuildID[sha1]=810382dc0c531df0de230c2f681925d9ebf59fd6, with debug_info, not stripped```
