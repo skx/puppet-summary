@@ -45,7 +45,8 @@ In this example, the compilation is happening on x86_64 Fedora or a Debian 9 amd
 `# dnf install binutils-arm-linux-gnu cross-gcc-common cross-binutils-common gcc-c++-arm-linux-gnu kernel-cross-headers glibc-arm-linux-gnu  glibc-arm-linux-gnu-devel`
 
 ### Debian
-` # apt-get install  cpp-6-arm-linux-gnueabihf g++-6-arm-linux-gnueabihf gcc-6-arm-linux-gnueabihf gcc-6-arm-linux-gnueabihf-base gccgo-6-arm-linux-gnueabihf
+`# apt-get install  cpp-6-arm-linux-gnueabihf g++-6-arm-linux-gnueabihf gcc-6-arm-linux-gnueabihf gcc-6-arm-linux-gnueabihf-base gccgo-6-arm-linux-gnueabihf`
+
 ## Manually fix pthreads
 
 _Note:_ This is only required on Fedora builders.
@@ -59,12 +60,14 @@ The way cgo works for cross compiles, it assumes a sysroot, which is normal. How
 I use `-v` when cross compiling because it will give much more info if something errors out.
 
 ### Fedora
+
 `$ CC=arm-linux-gnu-gcc CGO_ENABLED=1 GOOS=linux GOARCH=arm CGO_LDFLAGS=--sysroot=/usr/arm-linux-gnu CGO_CFLAGS=--sysroot=/usr/arm-linux-gnu go build -v .`
 
 ### Debian
+
 `$ CC=arm-linux-gnueabihf-gcc-6  CGO_ENABLED=1 GOOS=linux GOARCH=arm CGO_LDFLAGS=--sysroot=/usr/arm-linux-gnu CGO_CFLAGS=--sysroot=/usr/arm-linux-gnu go build -v .`
 
 ## Verify build
 
-```$ file puppet-summary
-puppet-summary: ELF 32-bit LSB executable, ARM, EABI5 version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux-armhf.so.3, for GNU/Linux 3.2.0, BuildID[sha1]=810382dc0c531df0de230c2f681925d9ebf59fd6, with debug_info, not stripped```
+`$ file puppet-summary
+puppet-summary: ELF 32-bit LSB executable, ARM, EABI5 version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux-armhf.so.3, for GNU/Linux 3.2.0, BuildID[sha1]=810382dc0c531df0de230c2f681925d9ebf59fd6, with debug_info, not stripped`
