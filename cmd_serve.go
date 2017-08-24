@@ -22,12 +22,12 @@ import (
 )
 
 //
-// This is the location, on-disk, beneath which reports are stored.
+// ReportPrefix is the path beneath which reports are stored.
 //
 var ReportPrefix = "reports"
 
 //
-// Utility method to determine whether a file/directory exists.
+// Exists is a utility method to determine whether a file/directory exists.
 //
 func Exists(name string) bool {
 	_, err := os.Stat(name)
@@ -35,7 +35,9 @@ func Exists(name string) bool {
 }
 
 //
-// API /api/state/$state
+// APIState is the handler for the HTTP end-point
+//
+//     GET /api/state/$state
 //
 func APIState(res http.ResponseWriter, req *http.Request) {
 
@@ -116,7 +118,12 @@ func APIState(res http.ResponseWriter, req *http.Request) {
 }
 
 //
-// Show the radiator
+// RadiatorView is the handler for the HTTP end-point
+//
+//     GET /radiator/
+//
+// It will respond in either HTML, JSON, or XML depending on the
+// Accepts-header which is received.
 //
 func RadiatorView(res http.ResponseWriter, req *http.Request) {
 
@@ -202,7 +209,9 @@ func RadiatorView(res http.ResponseWriter, req *http.Request) {
 }
 
 //
-// Handle the submission of Puppet report.
+// ReportSubmissionHandler is the handler for the HTTP end-point:
+//
+//    POST /upload
 //
 // The input is read, and parsed as Yaml, and assuming that succeeds
 // then the data is written beneath ./reports/$hostname/$timestamp
@@ -304,7 +313,12 @@ func ReportSubmissionHandler(res http.ResponseWriter, req *http.Request) {
 }
 
 //
-// Called via GET /report/NN
+// ReportHandler is the handler for the HTTP end-point
+//
+//     GET /report/NN
+//
+// It will respond in either HTML, JSON, or XML depending on the
+// Accepts-header which is received.
 //
 func ReportHandler(res http.ResponseWriter, req *http.Request) {
 	var (
@@ -411,7 +425,12 @@ func ReportHandler(res http.ResponseWriter, req *http.Request) {
 }
 
 //
-// Called via GET /node/$FQDN
+// NodeHandler is the handler for the HTTP end-point
+//
+//     GET /node/$FQDN
+//
+// It will respond in either HTML, JSON, or XML depending on the
+// Accepts-header which is received.
 //
 func NodeHandler(res http.ResponseWriter, req *http.Request) {
 	var (
@@ -527,7 +546,11 @@ func NodeHandler(res http.ResponseWriter, req *http.Request) {
 }
 
 //
-// Serve the single "/favicon.ico" file.
+// IconHandler is the handler for the HTTP end-point
+//
+//     GET /favicon.ico
+//
+// It will server an embedded binary resource.
 //
 func IconHandler(res http.ResponseWriter, req *http.Request) {
 	var (
@@ -559,8 +582,12 @@ func IconHandler(res http.ResponseWriter, req *http.Request) {
 }
 
 //
-// Show all the hosts we know about - and their last known state -
-// along with a graph of recent states.
+// IndexHandler is the handler for the HTTP end-point
+//
+//     GET /
+//
+// It will respond in either HTML, JSON, or XML depending on the
+// Accepts-header which is received.
 //
 func IndexHandler(res http.ResponseWriter, req *http.Request) {
 	var (
