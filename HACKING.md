@@ -70,4 +70,5 @@ I use `-v` when cross compiling because it will give much more info if something
 ## Verify build
 
 `$ file puppet-summary
+
 puppet-summary: ELF 32-bit LSB executable, ARM, EABI5 version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux-armhf.so.3, for GNU/Linux 3.2.0, BuildID[sha1]=810382dc0c531df0de230c2f681925d9ebf59fd6, with debug_info, not stripped`
