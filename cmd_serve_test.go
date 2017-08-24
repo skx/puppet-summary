@@ -329,7 +329,7 @@ func TestUploadReport(t *testing.T) {
 				rr.Body.String(), expected[count])
 		}
 
-		count += 1
+		count++
 	}
 
 	//

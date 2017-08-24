@@ -57,7 +57,7 @@ func addFakeReports() {
 
 		now -= days
 		stmt.Exec("/../data/valid.yaml", now)
-		count += 1
+		count++
 	}
 	tx.Commit()
 }

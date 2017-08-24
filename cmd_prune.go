@@ -15,7 +15,7 @@ import (
 // The options set by our command-line flags.
 //
 type pruneCmd struct {
-	db_file string
+	dbFile  string
 	days    int
 	prefix  string
 	verbose bool
@@ -38,7 +38,7 @@ func (*pruneCmd) Usage() string {
 func (p *pruneCmd) SetFlags(f *flag.FlagSet) {
 	f.BoolVar(&p.verbose, "verbose", false, "Be verbose in reporting output")
 	f.IntVar(&p.days, "days", 7, "Remove reports older than this many days.")
-	f.StringVar(&p.db_file, "db-file", "ps.db", "The SQLite database to use.")
+	f.StringVar(&p.dbFile, "db-file", "ps.db", "The SQLite database to use.")
 	f.StringVar(&p.prefix, "prefix", "./reports/", "The prefix to the local YAML hierarchy.")
 }
 
@@ -51,7 +51,7 @@ func (p *pruneCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{})
 	// Setup the database, by opening a handle, and creating it if
 	// missing.
 	//
-	SetupDB(p.db_file)
+	SetupDB(p.dbFile)
 
 	//
 	// Run the prune

@@ -21,6 +21,9 @@ import (
 	"text/template"
 )
 
+//
+// This is the location, on-disk, beneath which reports are stored.
+//
 var ReportPrefix = "reports"
 
 //
@@ -288,9 +291,9 @@ func ReportSubmissionHandler(res http.ResponseWriter, req *http.Request) {
 	//
 	// Record that report in our SQLite database
 	//
-	relative_path := filepath.Join(report.Fqdn, fmt.Sprintf("%d", report.AtUnix))
+	relativePath := filepath.Join(report.Fqdn, fmt.Sprintf("%d", report.AtUnix))
 
-	addDB(report, relative_path)
+	addDB(report, relativePath)
 
 	//
 	// Show something to the caller.
@@ -657,7 +660,7 @@ func IndexHandler(res http.ResponseWriter, req *http.Request) {
 //
 //  Entry-point.
 //
-func cmd_serve(settings serveCmd) {
+func serve(settings serveCmd) {
 
 	//
 	// Preserve our prefix
@@ -717,8 +720,8 @@ func cmd_serve(settings serveCmd) {
 	//
 	// Launch the server
 	//
-	fmt.Printf("Launching the server on http://%s:%d\n", settings.bind_host, settings.bind_port)
-	err := http.ListenAndServe(fmt.Sprintf("%s:%d", settings.bind_host, settings.bind_port), nil)
+	fmt.Printf("Launching the server on http://%s:%d\n", settings.bindHost, settings.bindPort)
+	err := http.ListenAndServe(fmt.Sprintf("%s:%d", settings.bindHost, settings.bindPort), nil)
 	if err != nil {
 		panic(err)
 	}
@@ -728,10 +731,10 @@ func cmd_serve(settings serveCmd) {
 // The options set by our command-line flags.
 //
 type serveCmd struct {
-	bind_host string
-	bind_port int
-	db_file   string
-	prefix    string
+	bindHost string
+	bindPort int
+	dbFile   string
+	prefix   string
 }
 
 //
@@ -749,9 +752,9 @@ func (*serveCmd) Usage() string {
 // Flag setup
 //
 func (p *serveCmd) SetFlags(f *flag.FlagSet) {
-	f.IntVar(&p.bind_port, "port", 3001, "The port to bind upon.")
-	f.StringVar(&p.bind_host, "host", "127.0.0.1", "The IP to listen upon.")
-	f.StringVar(&p.db_file, "db-file", "ps.db", "The SQLite database to use.")
+	f.IntVar(&p.bindPort, "port", 3001, "The port to bind upon.")
+	f.StringVar(&p.bindHost, "host", "127.0.0.1", "The IP to listen upon.")
+	f.StringVar(&p.dbFile, "db-file", "ps.db", "The SQLite database to use.")
 	f.StringVar(&p.prefix, "prefix", "./reports/", "The prefix to the local YAML hierarchy.")
 }
 
@@ -764,12 +767,12 @@ func (p *serveCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{})
 	// Setup the database, by opening a handle, and creating it if
 	// missing.
 	//
-	SetupDB(p.db_file)
+	SetupDB(p.dbFile)
 
 	//
 	// Start the server
 	//
-	cmd_serve(*p)
+	serve(*p)
 
 	//
 	// All done.

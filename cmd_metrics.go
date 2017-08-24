@@ -42,7 +42,7 @@ func getMetrics() map[string]string {
 }
 
 //
-//  SendMetrics submits the metrics discovered to the specified carbon
+// SendMetrics submits the metrics discovered to the specified carbon
 // server - unless `nop` is in-use, in which case they are dumped to
 // STDOUT.
 //
@@ -88,11 +88,11 @@ func SendMetrics(host string, port int, prefix string, nop bool) {
 // The options set by our command-line flags.
 //
 type metricsCmd struct {
-	db_file string
-	host    string
-	port    int
-	prefix  string
-	nop     bool
+	dbFile string
+	host   string
+	port   int
+	prefix string
+	nop    bool
 }
 
 //
@@ -110,7 +110,7 @@ func (*metricsCmd) Usage() string {
 // Flag setup
 //
 func (p *metricsCmd) SetFlags(f *flag.FlagSet) {
-	f.StringVar(&p.db_file, "db-file", "ps.db", "The SQLite database to use.")
+	f.StringVar(&p.dbFile, "db-file", "ps.db", "The SQLite database to use.")
 	f.StringVar(&p.host, "host", "localhost", "The carbon host to send metrics to.")
 	f.IntVar(&p.port, "port", 2003, "The carbon port to use, when submitting metrics.")
 	f.StringVar(&p.prefix, "prefix", "puppet", "The prefix to use when submitting metrics.")
@@ -126,7 +126,7 @@ func (p *metricsCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{
 	// Setup the database, by opening a handle, and creating it if
 	// missing.
 	//
-	SetupDB(p.db_file)
+	SetupDB(p.dbFile)
 
 	//
 	// Run metrics

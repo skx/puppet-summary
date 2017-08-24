@@ -19,7 +19,7 @@ import (
 var out io.Writer = os.Stdout
 
 var (
-	version string = "unreleased"
+	version = "unreleased"
 )
 
 type versionCmd struct{}

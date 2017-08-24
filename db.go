@@ -36,7 +36,7 @@ type PuppetRuns struct {
 // Define a structure for our list of reports
 //
 type PuppetReportSummary struct {
-	Id      string
+	ID      string
 	Fqdn    string
 	State   string
 	At      string
@@ -201,7 +201,7 @@ func getYAML(prefix string, id string) ([]byte, error) {
 	switch {
 	case err == sql.ErrNoRows:
 	case err != nil:
-		return nil, errors.New("Report not found.")
+		return nil, errors.New("report not found")
 	default:
 	}
 
@@ -217,9 +217,8 @@ func getYAML(prefix string, id string) ([]byte, error) {
 		path = filepath.Join(prefix, path)
 		content, err := ioutil.ReadFile(path)
 		return content, err
-	} else {
-		return nil, errors.New("Failed to find report with specified ID")
 	}
+	return nil, errors.New("Failed to find report with specified ID")
 }
 
 //
@@ -378,8 +377,8 @@ func getStates() ([]PuppetState, error) {
 	// Count the states.
 	//
 	for _, o := range NodeList {
-		states[o.State] += 1
-		total += 1
+		states[o.State]++
+		total++
 	}
 
 	//
@@ -453,7 +452,7 @@ func getReports(fqdn string) ([]PuppetReportSummary, error) {
 	//
 	for rows.Next() {
 		var tmp PuppetReportSummary
-		err := rows.Scan(&tmp.Id, &tmp.Fqdn, &tmp.State, &tmp.At, &tmp.Runtime, &tmp.Failed, &tmp.Changed, &tmp.Total)
+		err := rows.Scan(&tmp.ID, &tmp.Fqdn, &tmp.State, &tmp.At, &tmp.Runtime, &tmp.Failed, &tmp.Changed, &tmp.Total)
 		if err == nil {
 			//
 			// At this point tmp.At is a string containing
