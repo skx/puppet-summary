@@ -21,12 +21,17 @@ binary to make your changes:
 
 ## Code Quality
 
-Test our the test-suite coverage :
+To test the coverage of the test-suite you can use the `cover` tool:
 
      go get golang.org/x/tools/cmd/cover
      go test -coverprofile fmt
 
-Look for advice on code:
+Once you've done that you can view the coverage of various functions via:
+
+     go tool cover -func=fmt
+
+If you're looking for suggestions on code-quality you can use the `go vet`
+tool:
 
      go vet .
 
