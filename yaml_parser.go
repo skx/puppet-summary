@@ -22,7 +22,9 @@ import (
 )
 
 //
-// A resource defined in a puppet manifest.
+// Resource refers to a resource in your puppet modules, a resource has
+// a name, along with the file & line-number it was defined in within your
+// manifest
 //
 type Resource struct {
 	Name string
@@ -31,7 +33,7 @@ type Resource struct {
 }
 
 //
-// Define a structure for our results.
+// PuppetReport stores the details of a single run of puppet.
 //
 type PuppetReport struct {
 
@@ -53,7 +55,7 @@ type PuppetReport struct {
 	//
 	// The time the puppet-run was completed, as seconds past epoch
 	//
-	At_Unix int64
+	AtUnix int64
 
 	//
 	// The time puppet took to run, in seconds.
@@ -73,21 +75,27 @@ type PuppetReport struct {
 	//
 	// Logs messages.
 	//
-	Log_Messages []string
+	LogMessages []string
 
 	//
 	// Resources which have failed/changed/been skipped.
 	//
 	// These include the file/line in which they were defined
-	// in the puppet manifest(s).
+	// in the puppet manifest(s), due to their use of the Resource
+	// structure
 	//
-	Resources_Failed  []Resource
-	Resources_Changed []Resource
-	Resources_Skipped []Resource
+	ResourcesFailed  []Resource
+	ResourcesChanged []Resource
+	ResourcesSkipped []Resource
 }
 
 //
-// Parse the given content into a struct, which we return.
+// ParsePuppetReport is our main function in this module.  Given an
+// array of bytes we read the input and produce a PuppetReport structure.
+//
+// Various (simple) error conditions are handled to ensure that the result
+// is somewhat safe - for example we must have some fields such as
+// `hostname`, `time`, etc.
 //
 func ParsePuppetReport(content []byte) (PuppetReport, error) {
 	//
@@ -144,7 +152,7 @@ func ParsePuppetReport(content []byte) (PuppetReport, error) {
 	}
 
 	// update the struct
-	x.At_Unix = t.Unix()
+	x.AtUnix = t.Unix()
 	x.At = at
 
 	//
@@ -185,10 +193,10 @@ func ParsePuppetReport(content []byte) (PuppetReport, error) {
 	// Get the resource-data from this run
 	//
 	resources, err := yaml.Get("metrics").Get("resources").Get("values").Array()
-	t_r, _ := regexp.Compile("Total ([0-9.]+)")
-	f_r, _ := regexp.Compile("Failed ([0-9.]+)")
-	s_r, _ := regexp.Compile("Skipped ([0-9.]+)")
-	c_r, _ := regexp.Compile("Changed ([0-9.]+)")
+	tr, _ := regexp.Compile("Total ([0-9.]+)")
+	fr, _ := regexp.Compile("Failed ([0-9.]+)")
+	sr, _ := regexp.Compile("Skipped ([0-9.]+)")
+	cr, _ := regexp.Compile("Changed ([0-9.]+)")
 
 	//
 	// HORRID: Help me, I'm in hell.
@@ -196,21 +204,21 @@ func ParsePuppetReport(content []byte) (PuppetReport, error) {
 	// TODO: Improve via reflection as per log-handling.
 	//
 	for _, value := range resources {
-		m_r := t_r.FindStringSubmatch(fmt.Sprint(value))
-		if len(m_r) == 2 {
-			x.Total = m_r[1]
+		mr := tr.FindStringSubmatch(fmt.Sprint(value))
+		if len(mr) == 2 {
+			x.Total = mr[1]
 		}
-		m_f := f_r.FindStringSubmatch(fmt.Sprint(value))
-		if len(m_f) == 2 {
-			x.Failed = m_f[1]
+		mf := fr.FindStringSubmatch(fmt.Sprint(value))
+		if len(mf) == 2 {
+			x.Failed = mf[1]
 		}
-		m_s := s_r.FindStringSubmatch(fmt.Sprint(value))
-		if len(m_s) == 2 {
-			x.Skipped = m_s[1]
+		ms := sr.FindStringSubmatch(fmt.Sprint(value))
+		if len(ms) == 2 {
+			x.Skipped = ms[1]
 		}
-		m_c := c_r.FindStringSubmatch(fmt.Sprint(value))
-		if len(m_c) == 2 {
-			x.Changed = m_c[1]
+		mc := cr.FindStringSubmatch(fmt.Sprint(value))
+		if len(mc) == 2 {
+			x.Changed = mc[1]
 		}
 	}
 
@@ -241,7 +249,7 @@ func ParsePuppetReport(content []byte) (PuppetReport, error) {
 		}
 
 		if len(m["message"]) > 0 {
-			x.Log_Messages = append(x.Log_Messages, m["message"])
+			x.LogMessages = append(x.LogMessages, m["message"])
 		}
 	}
 
@@ -268,7 +276,7 @@ func ParsePuppetReport(content []byte) (PuppetReport, error) {
 
 		// Now we should be able to look for skipped ones.
 		if m["skipped"] == "true" {
-			x.Resources_Skipped = append(x.Resources_Skipped,
+			x.ResourcesSkipped = append(x.ResourcesSkipped,
 				Resource{Name: m["title"],
 					File: m["file"],
 					Line: m["line"]})
@@ -276,7 +284,7 @@ func ParsePuppetReport(content []byte) (PuppetReport, error) {
 
 		// Now we should be able to look for skipped ones.
 		if m["changed"] == "true" {
-			x.Resources_Changed = append(x.Resources_Changed,
+			x.ResourcesChanged = append(x.ResourcesChanged,
 				Resource{Name: m["title"],
 					File: m["file"],
 					Line: m["line"]})
@@ -284,7 +292,7 @@ func ParsePuppetReport(content []byte) (PuppetReport, error) {
 
 		// Now we should be able to look for skipped ones.
 		if m["failed"] == "true" {
-			x.Resources_Failed = append(x.Resources_Failed,
+			x.ResourcesFailed = append(x.ResourcesFailed,
 				Resource{Name: m["title"],
 					File: m["file"],
 					Line: m["line"]})

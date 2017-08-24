@@ -35,8 +35,8 @@ func TestYamlDates(t *testing.T) {
 		if node.At != "2017-03-10 10:22:33" {
 			t.Errorf("Invalid time result, got '%s'", node.At)
 		}
-		if node.At_Unix != 1489141353 {
-			t.Errorf("Time was wrong number of epoch seconds %d", node.At_Unix)
+		if node.AtUnix != 1489141353 {
+			t.Errorf("Time was wrong number of epoch seconds %d", node.AtUnix)
 		}
 
 	}

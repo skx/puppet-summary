@@ -71,7 +71,7 @@ func addFakeNodes() {
 	n.Fqdn = "foo.example.com"
 	n.State = "changed"
 	n.Runtime = "3.134"
-	n.At_Unix = time.Now().Unix()
+	n.AtUnix = time.Now().Unix()
 	n.Failed = "0"
 	n.Total = "1"
 	n.Changed = "2"
@@ -81,7 +81,7 @@ func addFakeNodes() {
 	n.Fqdn = "bar.example.com"
 	n.State = "failed"
 	n.Runtime = "2.718"
-	n.At_Unix = time.Now().Unix()
+	n.AtUnix = time.Now().Unix()
 	n.Failed = "0"
 	n.Total = "1"
 	n.Changed = "2"
@@ -91,7 +91,7 @@ func addFakeNodes() {
 	n.Fqdn = "foo.example.com"
 	n.State = "unchanged"
 	n.Runtime = "2.718"
-	n.At_Unix = time.Now().Unix() - 100
+	n.AtUnix = time.Now().Unix() - 100
 	n.Failed = "0"
 	n.Total = "1"
 	n.Changed = "2"

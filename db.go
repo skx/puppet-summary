@@ -152,7 +152,7 @@ func addDB(data PuppetReport, path string) error {
 	stmt.Exec(data.Fqdn,
 		data.State,
 		path,
-		data.At_Unix,
+		data.AtUnix,
 		data.Runtime,
 		data.Failed,
 		data.Changed,

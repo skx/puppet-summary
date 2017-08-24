@@ -269,7 +269,7 @@ func ReportSubmissionHandler(res http.ResponseWriter, req *http.Request) {
 	// (Which is something you might do when testing this
 	// dashboard.)
 	//
-	path := filepath.Join(dir, fmt.Sprintf("%d", report.At_Unix))
+	path := filepath.Join(dir, fmt.Sprintf("%d", report.AtUnix))
 
 	if Exists(path) {
 		fmt.Fprintf(res, "Ignoring duplicate submission")
@@ -288,7 +288,7 @@ func ReportSubmissionHandler(res http.ResponseWriter, req *http.Request) {
 	//
 	// Record that report in our SQLite database
 	//
-	relative_path := filepath.Join(report.Fqdn, fmt.Sprintf("%d", report.At_Unix))
+	relative_path := filepath.Join(report.Fqdn, fmt.Sprintf("%d", report.AtUnix))
 
 	addDB(report, relative_path)
 
