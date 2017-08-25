@@ -5,6 +5,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"encoding/xml"
@@ -164,16 +165,6 @@ func RadiatorView(res http.ResponseWriter, req *http.Request) {
 	data = append(data, tmp)
 
 	//
-	// Load our template to host the result we'll send to the browser.
-	//
-	tmpl, err := Asset("data/radiator.template")
-	if err != nil {
-		err = errors.New("Failed to find asset data/radiator.template")
-		status = http.StatusInternalServerError
-		return
-	}
-
-	//
 	// What kind of reply should we send?
 	//
 	accept := req.Header.Get("Accept")
@@ -200,11 +191,37 @@ func RadiatorView(res http.ResponseWriter, req *http.Request) {
 		res.Write(x)
 	default:
 		//
-		// Populate & return the template.
+		// Load our template resource.
+		//
+		tmpl, err := Asset("data/radiator.template")
+		if err != nil {
+			fmt.Fprintf(res, err.Error())
+			return
+		}
+
+		//
+		//  Load our template, from the resource.
 		//
 		src := string(tmpl)
 		t := template.Must(template.New("tmpl").Parse(src))
-		t.Execute(res, data)
+
+		//
+		// Execute the template into our buffer.
+		//
+		buf := &bytes.Buffer{}
+		err = t.Execute(buf, data)
+
+		//
+		// If there were errors, then show them.
+		if err != nil {
+			fmt.Fprintf(res, err.Error())
+			return
+		}
+
+		//
+		// Otherwise write the result.
+		//
+		buf.WriteTo(res)
 	}
 }
 
@@ -380,16 +397,6 @@ func ReportHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	//
-	// Define a template for the result we'll send to the browser.
-	//
-	tmpl, err := Asset("data/report_handler.template")
-	if err != nil {
-		err = errors.New("Failed to find asset data/report_handler.template")
-		status = http.StatusInternalServerError
-		return
-	}
-
-	//
 	// What kind of reply should we send?
 	//
 	accept := req.Header.Get("Accept")
@@ -415,12 +422,39 @@ func ReportHandler(res http.ResponseWriter, req *http.Request) {
 		res.Header().Set("Content-Type", "application/xml")
 		res.Write(x)
 	default:
+
 		//
-		// Populate & return the template.
+		// Load our template resource.
+		//
+		tmpl, err := Asset("data/report_handler.template")
+		if err != nil {
+			fmt.Fprintf(res, err.Error())
+			return
+		}
+
+		//
+		//  Load our template, from the resource.
 		//
 		src := string(tmpl)
 		t := template.Must(template.New("tmpl").Parse(src))
-		t.Execute(res, report)
+
+		//
+		// Execute the template into our buffer.
+		//
+		buf := &bytes.Buffer{}
+		err = t.Execute(buf, report)
+
+		//
+		// If there were errors, then show them.
+		if err != nil {
+			fmt.Fprintf(res, err.Error())
+			return
+		}
+
+		//
+		// Otherwise write the result.
+		//
+		buf.WriteTo(res)
 	}
 }
 
@@ -501,16 +535,6 @@ func NodeHandler(res http.ResponseWriter, req *http.Request) {
 	x.Fqdn = fqdn
 
 	//
-	// Define a template for the result we'll send to the browser.
-	//
-	tmpl, err := Asset("data/node_handler.template")
-	if err != nil {
-		err = errors.New("Failed to find asset data/node_handler.template")
-		status = http.StatusInternalServerError
-		return
-	}
-
-	//
 	// What kind of reply should we send?
 	//
 	accept := req.Header.Get("Accept")
@@ -536,12 +560,39 @@ func NodeHandler(res http.ResponseWriter, req *http.Request) {
 		res.Header().Set("Content-Type", "application/xml")
 		res.Write(x)
 	default:
+
 		//
-		//  Populate the template and return it.
+		// Load our template resource.
+		//
+		tmpl, err := Asset("data/node_handler.template")
+		if err != nil {
+			fmt.Fprintf(res, err.Error())
+			return
+		}
+
+		//
+		//  Load our template, from the resource.
 		//
 		src := string(tmpl)
 		t := template.Must(template.New("tmpl").Parse(src))
-		t.Execute(res, x)
+
+		//
+		// Execute the template into our buffer.
+		//
+		buf := &bytes.Buffer{}
+		err = t.Execute(buf, x)
+
+		//
+		// If there were errors, then show them.
+		if err != nil {
+			fmt.Fprintf(res, err.Error())
+			return
+		}
+
+		//
+		// Otherwise write the result.
+		//
+		buf.WriteTo(res)
 	}
 }
 
@@ -573,10 +624,10 @@ func IconHandler(res http.ResponseWriter, req *http.Request) {
 	//
 	data, err := Asset("data/favicon.ico")
 	if err != nil {
-		err = errors.New("Failed to find asset data/favicon.ico")
-		status = http.StatusInternalServerError
+		fmt.Fprintf(res, err.Error())
 		return
 	}
+
 	res.Header().Set("Content-Type", "image/vnd.microsoft.icon")
 	res.Write(data)
 }
@@ -604,16 +655,6 @@ func IndexHandler(res http.ResponseWriter, req *http.Request) {
 			}
 		}
 	}()
-
-	//
-	// Define a template for the result we'll send to the browser.
-	//
-	tmpl, err := Asset("data/index_handler.template")
-	if err != nil {
-		err = errors.New("Failed to find asset data/index_handler.template")
-		status = http.StatusInternalServerError
-		return
-	}
 
 	//
 	// Annoying struct to allow us to populate our template
@@ -675,12 +716,39 @@ func IndexHandler(res http.ResponseWriter, req *http.Request) {
 		res.Header().Set("Content-Type", "application/xml")
 		res.Write(x)
 	default:
+
 		//
-		//  Populate the template and return it.
+		// Load our template source.
+		//
+		tmpl, err := Asset("data/index_handler.template")
+		if err != nil {
+			fmt.Fprintf(res, err.Error())
+			return
+		}
+
+		//
+		//  Load our template, from the resource.
 		//
 		src := string(tmpl)
 		t := template.Must(template.New("tmpl").Parse(src))
-		t.Execute(res, x)
+
+		//
+		// Execute the template into our buffer.
+		//
+		buf := &bytes.Buffer{}
+		err = t.Execute(buf, x)
+
+		//
+		// If there were errors, then show them.
+		if err != nil {
+			fmt.Fprintf(res, err.Error())
+			return
+		}
+
+		//
+		// Otherwise write the result.
+		//
+		buf.WriteTo(res)
 	}
 }
 
