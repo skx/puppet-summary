@@ -43,7 +43,7 @@
           <div class="col-sm-1 col-md-1">
           </div>
           <div class="col-sm-11 col-md-11">
-            {{range .Log_Messages}}
+            {{range .LogMessages}}
             <p>{{.}}</p>
             {{else}}
             <p>Nothing reported.</p>
@@ -52,7 +52,7 @@
         </div>
       </div>
 
-      {{if .Resources_Failed }}
+      {{if .ResourcesFailed }}
       <h3 style="border-bottom: 1px solid #d3d3d3; width:100%">Failed</h3>
       <div class="container-fluid">
         <div class="row">
@@ -60,7 +60,7 @@
           </div>
           <div class="col-sm-11 col-md-11">
             <ul>
-              {{range .Resources_Failed}}
+              {{range .ResourcesFailed}}
               <li>{{.Name}}
                 <ul>
                   <li><small><code>{{.File}}:{{.Line}}</code></small></li>
@@ -72,7 +72,7 @@
       </div>
       {{end}}
 
-      {{if .Resources_Changed }}
+      {{if .ResourcesChanged }}
       <h3 style="border-bottom: 1px solid #d3d3d3; width:100%">Changed</h3>
       <div class="container-fluid">
         <div class="row">
@@ -80,7 +80,7 @@
           </div>
           <div class="col-sm-11 col-md-11">
             <ul>
-              {{range .Resources_Changed}}
+              {{range .ResourcesChanged}}
               <li>{{.Name}}
                 <ul>
                   <li><small><code>{{.File}}:{{.Line}}</code></small></li>
@@ -92,7 +92,7 @@
       </div>
       {{end}}
 
-      {{if .Resources_Skipped}}
+      {{if .ResourcesSkipped}}
       <h3 style="border-bottom: 1px solid #d3d3d3; width:100%">Skipped</h3>
       <div class="container-fluid">
         <div class="row">
@@ -100,7 +100,7 @@
           </div>
           <div class="col-sm-11 col-md-11">
             <ul>
-              {{range .Resources_Skipped}}
+              {{range .ResourcesSkipped}}
               <li>{{.Name}}
                 <ul>
                   <li><small><code>{{.File}}:{{.Line}}</code></small></li>
