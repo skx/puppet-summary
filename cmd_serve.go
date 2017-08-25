@@ -167,7 +167,13 @@ func RadiatorView(res http.ResponseWriter, req *http.Request) {
 	//
 	// What kind of reply should we send?
 	//
-	accept := req.Header.Get("Accept")
+	// Accept either a "?accept=XXX" URL-parameter, or
+	// the Accept HEADER in the HTTP request
+	//
+	accept := req.FormValue("accept")
+	if len(accept) < 1 {
+		accept = req.Header.Get("Accept")
+	}
 
 	switch accept {
 	case "application/json":
@@ -397,9 +403,13 @@ func ReportHandler(res http.ResponseWriter, req *http.Request) {
 	}
 
 	//
-	// What kind of reply should we send?
+	// Accept either a "?accept=XXX" URL-parameter, or
+	// the Accept HEADER in the HTTP request
 	//
-	accept := req.Header.Get("Accept")
+	accept := req.FormValue("accept")
+	if len(accept) < 1 {
+		accept = req.Header.Get("Accept")
+	}
 
 	switch accept {
 	case "application/json":
@@ -535,9 +545,13 @@ func NodeHandler(res http.ResponseWriter, req *http.Request) {
 	x.Fqdn = fqdn
 
 	//
-	// What kind of reply should we send?
+	// Accept either a "?accept=XXX" URL-parameter, or
+	// the Accept HEADER in the HTTP request
 	//
-	accept := req.Header.Get("Accept")
+	accept := req.FormValue("accept")
+	if len(accept) < 1 {
+		accept = req.Header.Get("Accept")
+	}
 
 	switch accept {
 	case "application/json":
@@ -691,9 +705,13 @@ func IndexHandler(res http.ResponseWriter, req *http.Request) {
 	x.Nodes = NodeList
 
 	//
-	// What kind of reply should we send?
+	// Accept either a "?accept=XXX" URL-parameter, or
+	// the Accept HEADER in the HTTP request
 	//
-	accept := req.Header.Get("Accept")
+	accept := req.FormValue("accept")
+	if len(accept) < 1 {
+		accept = req.Header.Get("Accept")
+	}
 
 	switch accept {
 	case "application/json":
