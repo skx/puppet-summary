@@ -23,7 +23,8 @@ import (
 var db *sql.DB
 
 //
-// Define a structure for the nodes that are shown in the index.
+// PuppetRuns is the structure which is used to list a summary of puppet
+// runs on the front-page.
 //
 type PuppetRuns struct {
 	Fqdn    string
@@ -33,7 +34,8 @@ type PuppetRuns struct {
 }
 
 //
-// Define a structure for our list of reports
+// PuppetReportSummary is the structure used to represent a series
+// of puppet-runs against a particular node.
 //
 type PuppetReportSummary struct {
 	ID      string
@@ -47,8 +49,8 @@ type PuppetReportSummary struct {
 }
 
 //
-// This structure is used solely for the stacked-graph on the
-// front-page.
+// PuppetHistory is a simple structure used solely for the stacked-graph
+// on the front-page of our site.
 //
 type PuppetHistory struct {
 	Date      string
@@ -58,8 +60,8 @@ type PuppetHistory struct {
 }
 
 //
-// This structure is used to return information about our nodes
-// either for the submission of metrics, or for our radiator-view
+// PuppetState is used to return the number of nodes in a given state,
+// and is used for the submission of metrics.
 //
 type PuppetState struct {
 	State      string
@@ -68,7 +70,7 @@ type PuppetState struct {
 }
 
 //
-// Open our SQLite database, creating it if necessary.
+// SetupDB opens our SQLite database, creating it if necessary.
 //
 func SetupDB(path string) {
 
