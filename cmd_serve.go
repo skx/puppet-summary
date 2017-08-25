@@ -40,6 +40,8 @@ func Exists(name string) bool {
 //
 //     GET /api/state/$state
 //
+// This only returns JSON, which is perhaps a mistake.
+//
 func APIState(res http.ResponseWriter, req *http.Request) {
 
 	var (
@@ -68,7 +70,7 @@ func APIState(res http.ResponseWriter, req *http.Request) {
 	}
 
 	//
-	// Test the state is valid
+	// Test the supplied state is valid.
 	//
 	switch state {
 	case "changed":
@@ -96,7 +98,7 @@ func APIState(res http.ResponseWriter, req *http.Request) {
 	var result []string
 
 	//
-	// See what state the user is interested in.
+	// Add the hosts in the correct users' preferred state.
 	//
 	for _, o := range NodeList {
 		if o.State == state {
@@ -436,7 +438,7 @@ func ReportHandler(res http.ResponseWriter, req *http.Request) {
 		//
 		// Load our template resource.
 		//
-		tmpl, err := Asset("data/report_handler.template")
+		tmpl, err := Asset("data/report.template")
 		if err != nil {
 			fmt.Fprintf(res, err.Error())
 			return
@@ -578,7 +580,7 @@ func NodeHandler(res http.ResponseWriter, req *http.Request) {
 		//
 		// Load our template resource.
 		//
-		tmpl, err := Asset("data/node_handler.template")
+		tmpl, err := Asset("data/node.template")
 		if err != nil {
 			fmt.Fprintf(res, err.Error())
 			return
@@ -738,7 +740,7 @@ func IndexHandler(res http.ResponseWriter, req *http.Request) {
 		//
 		// Load our template source.
 		//
-		tmpl, err := Asset("data/index_handler.template")
+		tmpl, err := Asset("data/index.template")
 		if err != nil {
 			fmt.Fprintf(res, err.Error())
 			return
