@@ -11,6 +11,7 @@ import (
 	"github.com/google/subcommands"
 	"io"
 	"os"
+	"runtime"
 )
 
 //
@@ -22,7 +23,9 @@ var (
 	version = "unreleased"
 )
 
-type versionCmd struct{}
+type versionCmd struct {
+	verbose bool
+}
 
 //
 // Glue
@@ -39,13 +42,17 @@ func (*versionCmd) Usage() string {
 // Flag setup
 //
 func (p *versionCmd) SetFlags(f *flag.FlagSet) {
+	f.BoolVar(&p.verbose, "verbose", false, "Show go version the binary was generated with.")
 }
 
 //
 // Show the version - using the "out"-writer.
 //
-func showVersion() {
+func showVersion(verbose bool) {
 	fmt.Fprintf(out, "%s\n", version)
+	if verbose {
+		fmt.Fprintf(out, "Built with %s\n", runtime.Version())
+	}
 }
 
 //
@@ -53,6 +60,6 @@ func showVersion() {
 //
 func (p *versionCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
 
-	showVersion()
+	showVersion(p.verbose)
 	return subcommands.ExitSuccess
 }
