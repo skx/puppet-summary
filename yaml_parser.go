@@ -410,7 +410,7 @@ func ParsePuppetReport(content []byte) (PuppetReport, error) {
 	//
 	// Parse the status
 	//
-	statError := parseStatus(yaml, &x)
+	stateError := parseStatus(yaml, &x)
 	if stateError != nil {
 		return x, stateError
 	}
