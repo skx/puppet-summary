@@ -13,6 +13,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/google/subcommands"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"io/ioutil"
 	"net/http"
@@ -833,12 +834,22 @@ func serve(settings serveCmd) {
 	http.Handle("/", router)
 
 	//
-	// Launch the server
+	// Show where we'll bind
 	//
-	fmt.Printf("Launching the server on http://%s:%d\n", settings.bindHost, settings.bindPort)
-	err := http.ListenAndServe(fmt.Sprintf("%s:%d", settings.bindHost, settings.bindPort), nil)
+	bind := fmt.Sprintf("%s:%d", settings.bindHost, settings.bindPort)
+	fmt.Printf("Launching the server on http://%s\n", bind)
+
+	//
+	// Wire up logging.
+	//
+	loggedRouter := handlers.LoggingHandler(os.Stdout, router)
+
+	//
+	// Launch the server.
+	//
+	err := http.ListenAndServe(bind, loggedRouter)
 	if err != nil {
-		panic(err)
+		fmt.Printf("\nError: %s\n", err.Error())
 	}
 }
 
