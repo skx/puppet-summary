@@ -136,7 +136,7 @@ resource_statuses:
     - default
     time: '2017-07-29T23:17:09.829591823+00:00'
     failed: false
-    changed: false
+    changed: true
     out_of_sync: false
     skipped: false
     change_count: 0
@@ -161,7 +161,7 @@ resource_statuses:
     - node
     - default
     time: '2017-07-29T23:17:09.830274185+00:00'
-    failed: false
+    failed: true
     changed: false
     out_of_sync: false
     skipped: false
