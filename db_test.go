@@ -7,6 +7,7 @@ package main
 import (
 	"io/ioutil"
 	"os"
+	"regexp"
 	"testing"
 	"time"
 )
@@ -111,6 +112,54 @@ func validReportID() (int, error) {
 }
 
 //
+// Test that functions return errors if setup hasn't been called.
+//
+func TestMissingInit(t *testing.T) {
+
+	//
+	// Regexp to match the error we expect to receive.
+	//
+	reg, _ := regexp.Compile("SetupDB not called")
+
+	var x PuppetReport
+	err := addDB(x, "")
+	if !reg.MatchString(err.Error()) {
+		t.Errorf("Got wrong error: %v", err)
+	}
+
+	_, err = countReports()
+	if !reg.MatchString(err.Error()) {
+		t.Errorf("Got wrong error: %v", err)
+	}
+
+	_, err = getYAML("", "")
+	if !reg.MatchString(err.Error()) {
+		t.Errorf("Got wrong error: %v", err)
+	}
+
+	_, err = getIndexNodes()
+	if !reg.MatchString(err.Error()) {
+		t.Errorf("Got wrong error: %v", err)
+	}
+
+	_, err = getReports("example.com")
+	if !reg.MatchString(err.Error()) {
+		t.Errorf("Got wrong error: %v", err)
+	}
+
+	_, err = getHistory()
+	if !reg.MatchString(err.Error()) {
+		t.Errorf("Got wrong error: %v", err)
+	}
+
+	err = pruneReports("", 3, false)
+	if !reg.MatchString(err.Error()) {
+		t.Errorf("Got wrong error: %v", err)
+	}
+
+}
+
+//
 // Add some nodes and verify they are reaped.
 //
 func TestPrune(t *testing.T) {
@@ -198,6 +247,28 @@ func TestIndex(t *testing.T) {
 
 	if total != 3 {
 		t.Errorf("We found the wrong number of reports, %d", total)
+	}
+
+	//
+	// Cleanup here because otherwise later tests will
+	// see an active/valid DB-handle.
+	//
+	db.Close()
+	db = nil
+	os.RemoveAll(path)
+}
+
+//
+//  Test the report-run are valid
+//
+func TestMissiongReport(t *testing.T) {
+	FakeDB()
+
+	_, err := getYAML("", "")
+
+	reg, _ := regexp.Compile("Failed to find report with specified ID")
+	if !reg.MatchString(err.Error()) {
+		t.Errorf("Got wrong error: %v", err)
 	}
 
 	//
