@@ -76,7 +76,7 @@ func SendMetrics(host string, port int, prefix string, nop bool) {
 		// Show/Send.
 		//
 		if nop {
-			fmt.Printf("%s %s\n", name, value)
+			fmt.Fprintf(out, "%s %s\n", name, value)
 		} else {
 			g.SimpleSend(name, value)
 		}
