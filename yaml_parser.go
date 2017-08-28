@@ -12,6 +12,7 @@
 package main
 
 import (
+	"crypto/sha1"
 	"errors"
 	"fmt"
 	"github.com/smallfish/simpleyaml"
@@ -87,6 +88,14 @@ type PuppetReport struct {
 	ResourcesFailed  []Resource
 	ResourcesChanged []Resource
 	ResourcesSkipped []Resource
+
+	//
+	// Hash of the report-body.
+	//
+	// This is used to create the file to store the report in on-disk,
+	// and as a means of detecting duplication submissions.
+	//
+	Hash string
 }
 
 //
@@ -390,6 +399,13 @@ func ParsePuppetReport(content []byte) (PuppetReport, error) {
 	if err != nil {
 		return x, errors.New("Failed to parse YAML")
 	}
+
+	//
+	// Store the SHA1-hash of the report contents
+	//
+	helper := sha1.New()
+	helper.Write(content)
+	x.Hash = fmt.Sprintf("%x", helper.Sum(nil))
 
 	//
 	// Parse the hostname

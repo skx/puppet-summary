@@ -304,10 +304,9 @@ func ReportSubmissionHandler(res http.ResponseWriter, req *http.Request) {
 	// in a usual setup, but will happen if you're repeatedly
 	// importing reports manually from a puppet-server.
 	//
-	// (Which is something you might do when testing this
-	// dashboard.)
+	// (Which is something you might do when testing the dashboard.)
 	//
-	path := filepath.Join(dir, fmt.Sprintf("%d", report.AtUnix))
+	path := filepath.Join(dir, fmt.Sprintf("%s", report.Hash))
 
 	if Exists(path) {
 		fmt.Fprintf(res, "Ignoring duplicate submission")
