@@ -32,9 +32,12 @@ func timeRelative(epoch string) string {
 	var result string
 
 	//
-	// How long ago was that, in seconds?
+	// How long ago was that, in an absolute number of seconds?
 	//
 	ago := now - unix
+	if ( ago < 0 ) {
+		ago *= -1
+	}
 
 	//
 	// Hacky code to divide that up into human-readable periods.
