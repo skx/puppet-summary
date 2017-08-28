@@ -22,6 +22,21 @@ type pruneCmd struct {
 }
 
 //
+// Run a prune
+//
+func runPrune(x pruneCmd) error {
+	//
+	// Run the prune
+	//
+	if x.verbose {
+		fmt.Printf("Pruning reports older than %d days from beneath %s\n", x.days, ReportPrefix)
+	}
+
+	err := pruneReports(x.prefix, x.days, x.verbose)
+	return err
+}
+
+//
 // Glue
 //
 func (*pruneCmd) Name() string     { return "prune" }
@@ -54,18 +69,14 @@ func (p *pruneCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{})
 	SetupDB(p.dbFile)
 
 	//
-	// Run the prune
+	// Invoke the prune
 	//
-	if p.verbose {
-		fmt.Printf("Pruning reports older than %d days from beneath %s\n", p.days, ReportPrefix)
-	}
+	err := runPrune(*p)
 
-	err := pruneReports(p.prefix, p.days, p.verbose)
 	if err == nil {
 		return subcommands.ExitSuccess
 	}
 
-	// Error.
 	fmt.Printf("Error pruning: %s\n", err.Error())
 	return subcommands.ExitFailure
 }
