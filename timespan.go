@@ -27,11 +27,6 @@ func timeRelative(epoch string) string {
 	var unix, _ = strconv.ParseInt(epoch, 10, 64)
 
 	//
-	// The result
-	//
-	var result string
-
-	//
 	// How long ago was that, in an absolute number of seconds?
 	//
 	ago := now - unix
