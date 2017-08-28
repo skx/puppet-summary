@@ -209,32 +209,52 @@ func TestKnownAPIState(t *testing.T) {
 	defer ts.Close()
 
 	//
-	// Get the "changed" result - which should only match foo.example.com
+	// We'll make one test for each known-state
 	//
-	url := ts.URL + "/api/state/changed"
-
-	resp, err := http.Get(url)
-	if err != nil {
-		t.Fatal(err)
+	type TestCase struct {
+		State    string
+		Response string
 	}
 
+	tests := []TestCase{
+		{"changed", "[\"foo.example.com\"]"},
+		{"unchanged", "[]"},
+		{"failed", "[\"bar.example.com\"]"},
+		{"orphaned", "[]"}}
+
 	//
-	// Get the body
+	// Run each one.
 	//
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	for _, test := range tests {
 
-	if err != nil {
-		t.Errorf("Failed to read response-body %v\n", err)
-	}
+		//
+		// Make the request
+		//
+		url := ts.URL + "/api/state/" + test.State
 
-	content := fmt.Sprintf("%s", body)
+		resp, err := http.Get(url)
+		if err != nil {
+			t.Fatal(err)
+		}
 
-	if status := resp.StatusCode; status != http.StatusOK {
-		t.Errorf("Unexpected status-code: %v", status)
-	}
-	if content != "[\"foo.example.com\"]" {
-		t.Fatalf("Unexpected body: '%s'", body)
+		//
+		// Get the body
+		//
+		defer resp.Body.Close()
+		body, err := ioutil.ReadAll(resp.Body)
+
+		if err != nil {
+			t.Errorf("Failed to read response-body %v\n", err)
+		}
+
+		content := fmt.Sprintf("%s", body)
+
+		if status := resp.StatusCode; status != http.StatusOK {
+			t.Errorf("Unexpected status-code: %v", status)
+		}
+		if content != test.Response {
+			t.Fatalf("Unexpected body: '%s'", body)
+		}
 	}
 
 	//
