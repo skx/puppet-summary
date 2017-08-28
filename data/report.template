@@ -59,9 +59,9 @@
           <div class="col-sm-1 col-md-1">
           </div>
           <div class="col-sm-11 col-md-11">
-            <ul>
+            <ul style="list-style:none">
               {{range .ResourcesFailed}}
-              <li>{{.Name}}
+              <li>{{.Type}}: {{.Name}}
                 <ul>
                   <li><small><code>{{.File}}:{{.Line}}</code></small></li>
               </ul></li>
@@ -79,9 +79,9 @@
           <div class="col-sm-1 col-md-1">
           </div>
           <div class="col-sm-11 col-md-11">
-            <ul>
+            <ul style="list-style:none">
               {{range .ResourcesChanged}}
-              <li>{{.Name}}
+              <li>{{.Type}}: {{.Name}}
                 <ul>
                   <li><small><code>{{.File}}:{{.Line}}</code></small></li>
               </ul></li>
@@ -99,9 +99,9 @@
           <div class="col-sm-1 col-md-1">
           </div>
           <div class="col-sm-11 col-md-11">
-            <ul>
+            <ul style="list-style:none">
               {{range .ResourcesSkipped}}
-              <li>{{.Name}}
+              <li>{{.Type}}: {{.Name}}
                 <ul>
                   <li><small><code>{{.File}}:{{.Line}}</code></small></li>
               </ul></li>
@@ -111,6 +111,28 @@
         </div>
       </div>
       {{end}}
+
+
+      {{if .ResourcesOK }}
+      <h3 style="border-bottom: 1px solid #d3d3d3; width:100%">Unchanged</h3>
+      <div class="container-fluid" style="display:none;">
+        <div class="row">
+          <div class="col-sm-1 col-md-1">
+          </div>
+          <div class="col-sm-11 col-md-11">
+            <ul style="list-style:none">
+              {{range .ResourcesOK}}
+              <li>{{.Type}}: {{.Name}}
+                <ul>
+                  <li><small><code>{{.File}}:{{.Line}}</code></small></li>
+              </ul></li>
+              {{end}}
+            </ul>
+          </div>
+        </div>
+      </div>
+      {{end}}
+
     </div>
     <p>&nbsp;</p>
     <p>&nbsp;</p>
@@ -133,6 +155,19 @@
             </ul>
           </div>
         </div>
-      </footer>
+    </footer>
+    <script type="text/javascript">
+     $(function(){
+       $('h3').bind('click', function (event) {
+         event.stopPropagation();
+         $(this).next('div').toggle();
+       });
+       $("h3").hover(function() {
+         $(this).css('cursor','pointer');
+       }, function() {
+         $(this).css('cursor','auto');
+       });
+     });
+    </script>
   </body>
 </html>

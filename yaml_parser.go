@@ -29,6 +29,7 @@ import (
 //
 type Resource struct {
 	Name string
+	Type string
 	File string
 	Line string
 }
@@ -88,6 +89,7 @@ type PuppetReport struct {
 	ResourcesFailed  []Resource
 	ResourcesChanged []Resource
 	ResourcesSkipped []Resource
+	ResourcesOK      []Resource
 
 	//
 	// Hash of the report-body.
@@ -328,6 +330,7 @@ func parseResults(y *simpleyaml.Yaml, out *PuppetReport) error {
 	var failed []Resource
 	var changed []Resource
 	var skipped []Resource
+	var ok []Resource
 
 	for _, v2 := range rs {
 
@@ -349,6 +352,7 @@ func parseResults(y *simpleyaml.Yaml, out *PuppetReport) error {
 		if m["skipped"] == "true" {
 			skipped = append(skipped,
 				Resource{Name: m["title"],
+					Type: m["resource_type"],
 					File: m["file"],
 					Line: m["line"]})
 		}
@@ -357,6 +361,7 @@ func parseResults(y *simpleyaml.Yaml, out *PuppetReport) error {
 		if m["changed"] == "true" {
 			changed = append(changed,
 				Resource{Name: m["title"],
+					Type: m["resource_type"],
 					File: m["file"],
 					Line: m["line"]})
 		}
@@ -365,14 +370,27 @@ func parseResults(y *simpleyaml.Yaml, out *PuppetReport) error {
 		if m["failed"] == "true" {
 			failed = append(failed,
 				Resource{Name: m["title"],
+					Type: m["resource_type"],
 					File: m["file"],
 					Line: m["line"]})
 		}
+
+		if m["failed"] == "false" &&
+			m["skipped"] == "false" &&
+			m["changed"] == "false" {
+			ok = append(ok,
+				Resource{Name: m["title"],
+					Type: m["resource_type"],
+					File: m["file"],
+					Line: m["line"]})
+		}
+
 	}
 
 	out.ResourcesSkipped = skipped
 	out.ResourcesFailed = failed
 	out.ResourcesChanged = changed
+	out.ResourcesOK = ok
 
 	return nil
 
