@@ -30,6 +30,7 @@ type PuppetRuns struct {
 	Fqdn    string
 	State   string
 	At      string
+	Ago     string
 	Runtime string
 }
 
@@ -42,6 +43,7 @@ type PuppetReportSummary struct {
 	Fqdn    string
 	State   string
 	At      string
+	Ago     string
 	Runtime string
 	Failed  int
 	Changed int
@@ -155,7 +157,7 @@ func addDB(data PuppetReport, path string) error {
 	stmt.Exec(data.Fqdn,
 		data.State,
 		path,
-		data.AtUnix,
+		time.Now().Unix(),
 		data.Runtime,
 		data.Failed,
 		data.Changed,
@@ -266,20 +268,24 @@ func getIndexNodes() ([]PuppetRuns, error) {
 	//
 	for rows.Next() {
 		var tmp PuppetRuns
-		err := rows.Scan(&tmp.Fqdn, &tmp.State, &tmp.Runtime, &tmp.At)
+		var at string
+		err := rows.Scan(&tmp.Fqdn, &tmp.State, &tmp.Runtime, &at)
 		if err != nil {
 			return nil, err
 		}
 
 		//
-		// At this point tmp.At is a string containing
-		// seconds-past-the-epoch.
+		// At this point `at` is a string containing seconds past
+		// the epoch.
 		//
-		// We want that to contain a human-readable
-		// string so we first convert to an integer, then
-		// parse as a Unix-timestamp
+		// We want to parse that into a string `At` which will
+		// contain the literal time, and also the relative
+		// time "Ago"
 		//
-		i, _ := strconv.ParseInt(tmp.At, 10, 64)
+		tmp.Ago = timeRelative( at )
+
+		//
+		i, _ := strconv.ParseInt(at, 10, 64)
 		tmp.At = time.Unix(i, 0).Format("2006-01-02 15:04:05")
 
 		//
@@ -458,22 +464,28 @@ func getReports(fqdn string) ([]PuppetReportSummary, error) {
 	//
 	for rows.Next() {
 		var tmp PuppetReportSummary
-		err := rows.Scan(&tmp.ID, &tmp.Fqdn, &tmp.State, &tmp.At, &tmp.Runtime, &tmp.Failed, &tmp.Changed, &tmp.Total)
-		if err == nil {
-			//
-			// At this point tmp.At is a string containing
-			// seconds-past-the-epoch.
-			//
-			// We want that to contain a human-readable
-			// string so we first convert to an integer, then
-			// parse as a Unix-timestamp
-			//
-			i, _ := strconv.ParseInt(tmp.At, 10, 64)
-			tmp.At = time.Unix(i, 0).Format("2006-01-02 15:04:05")
-
-			// Add the result of this fetch to our list.
-			NodeList = append(NodeList, tmp)
+		var at string
+		err := rows.Scan(&tmp.ID, &tmp.Fqdn, &tmp.State, &at, &tmp.Runtime, &tmp.Failed, &tmp.Changed, &tmp.Total)
+		if err != nil {
+			return nil, err
 		}
+
+
+		//
+		// At this point `at` is a string containing seconds past
+		// the epoch.
+		//
+		// We want to parse that into a string `At` which will
+		// contain the literal time, and also the relative
+		// time "Ago"
+		//
+		tmp.Ago = timeRelative( at )
+
+		i, _ := strconv.ParseInt(at, 10, 64)
+		tmp.At = time.Unix(i, 0).Format("2006-01-02 15:04:05")
+
+		// Add the result of this fetch to our list.
+		NodeList = append(NodeList, tmp)
 	}
 	err = rows.Err()
 	if err != nil {

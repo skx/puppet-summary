@@ -325,7 +325,7 @@ func ReportSubmissionHandler(res http.ResponseWriter, req *http.Request) {
 	//
 	// Record that report in our SQLite database
 	//
-	relativePath := filepath.Join(report.Fqdn, fmt.Sprintf("%d", report.AtUnix))
+	relativePath := filepath.Join(report.Fqdn, fmt.Sprintf("%s", report.Hash))
 
 	addDB(report, relativePath)
 

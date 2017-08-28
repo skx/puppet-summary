@@ -82,7 +82,7 @@
         <tr>
           <th>Node</th>
           <th>Status</th>
-          <th>Time</th>
+          <th>Seen</th>
           <th>Failed</th>
           <th>Changed</th>
           <th>Total</th>
@@ -94,7 +94,7 @@
             data-href="/report/{{.ID}}">
           <td>{{.Fqdn}}</td>
           <td>{{.State}}</td>
-          <td>{{.At}}</td>
+          <td title="{{.At}}">{{.Ago}}</td>
           <td>{{.Failed}}</td>
           <td>{{.Changed}}</td>
           <td>{{.Total}}</td>

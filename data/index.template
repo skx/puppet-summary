@@ -131,7 +131,7 @@
                 data-href="/node/{{.Fqdn}}">
               <td>{{.Fqdn}}</td>
               <td>{{.State}}</td>
-              <td>{{.At}}</td>
+              <td title="{{.At}}">{{.Ago}}</td>
             </tr>
             {{end}}
           </table>
@@ -150,7 +150,7 @@
             <tr class="danger" data-href="/node/{{.Fqdn}}">
               <td>{{.Fqdn}}</td>
               <td>{{.State}}</td>
-              <td>{{.At}}</td>
+              <td title="{{.At}}">{{.Ago}}</td>
             </tr>
             {{end}}
             {{end}}
@@ -170,7 +170,7 @@
             <tr class="info" data-href="/node/{{.Fqdn}}">
               <td>{{.Fqdn}}</td>
               <td>{{.State}}</td>
-              <td>{{.At}}</td>
+              <td title="{{.At}}">{{.Ago}}</td>
             </tr>
             {{end}}
             {{end}}
@@ -190,7 +190,7 @@
             <tr data-href="/node/{{.Fqdn}}">
               <td>{{.Fqdn}}</td>
               <td>{{.State}}</td>
-              <td>{{.At}}</td>
+              <td title="{{.At}}">{{.Ago}}</td>
             </tr>
             {{end}}
             {{end}}
@@ -210,7 +210,7 @@
             <tr class="warning" data-href="/node/{{.Fqdn}}">
               <td>{{.Fqdn}}</td>
               <td>{{.State}}</td>
-              <td>{{.At}}</td>
+              <td title="{{.At}}">{{.Ago}}</td>
             </tr>
             {{end}}
             {{end}}
