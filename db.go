@@ -282,7 +282,7 @@ func getIndexNodes() ([]PuppetRuns, error) {
 		// contain the literal time, and also the relative
 		// time "Ago"
 		//
-		tmp.Ago = timeRelative( at )
+		tmp.Ago = timeRelative(at)
 
 		//
 		i, _ := strconv.ParseInt(at, 10, 64)
@@ -470,7 +470,6 @@ func getReports(fqdn string) ([]PuppetReportSummary, error) {
 			return nil, err
 		}
 
-
 		//
 		// At this point `at` is a string containing seconds past
 		// the epoch.
@@ -479,7 +478,7 @@ func getReports(fqdn string) ([]PuppetReportSummary, error) {
 		// contain the literal time, and also the relative
 		// time "Ago"
 		//
-		tmp.Ago = timeRelative( at )
+		tmp.Ago = timeRelative(at)
 
 		i, _ := strconv.ParseInt(at, 10, 64)
 		tmp.At = time.Unix(i, 0).Format("2006-01-02 15:04:05")
