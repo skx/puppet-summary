@@ -72,7 +72,7 @@ type PuppetState struct {
 //
 // SetupDB opens our SQLite database, creating it if necessary.
 //
-func SetupDB(path string) {
+func SetupDB(path string) error {
 
 	var err error
 
@@ -81,8 +81,7 @@ func SetupDB(path string) {
 	//
 	db, err = sql.Open("sqlite3", path)
 	if err != nil {
-		fmt.Printf("Failed to setup database at %s\n", path)
-		os.Exit(1)
+		return err
 	}
 
 	//
@@ -120,8 +119,10 @@ func SetupDB(path string) {
 	//
 	_, err = db.Exec(sqlStmt)
 	if err != nil {
-		panic(err)
+		return err
 	}
+
+	return nil
 }
 
 //
@@ -266,29 +267,31 @@ func getIndexNodes() ([]PuppetRuns, error) {
 	for rows.Next() {
 		var tmp PuppetRuns
 		err := rows.Scan(&tmp.Fqdn, &tmp.State, &tmp.Runtime, &tmp.At)
-		if err == nil {
-
-			//
-			// At this point tmp.At is a string containing
-			// seconds-past-the-epoch.
-			//
-			// We want that to contain a human-readable
-			// string so we first convert to an integer, then
-			// parse as a Unix-timestamp
-			//
-			i, _ := strconv.ParseInt(tmp.At, 10, 64)
-			tmp.At = time.Unix(i, 0).Format("2006-01-02 15:04:05")
-
-			//
-			// Mark this node as non-orphaned.
-			//
-			seen[tmp.Fqdn] = 1
-
-			//
-			// Add the new record.
-			//
-			NodeList = append(NodeList, tmp)
+		if err != nil {
+			return nil, err
 		}
+
+		//
+		// At this point tmp.At is a string containing
+		// seconds-past-the-epoch.
+		//
+		// We want that to contain a human-readable
+		// string so we first convert to an integer, then
+		// parse as a Unix-timestamp
+		//
+		i, _ := strconv.ParseInt(tmp.At, 10, 64)
+		tmp.At = time.Unix(i, 0).Format("2006-01-02 15:04:05")
+
+		//
+		// Mark this node as non-orphaned.
+		//
+		seen[tmp.Fqdn] = 1
+
+		//
+		// Add the new record.
+		//
+		NodeList = append(NodeList, tmp)
+
 	}
 	err = rows.Err()
 	if err != nil {
