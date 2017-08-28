@@ -11,7 +11,7 @@ import (
 )
 
 //
-// Given a string containing teh seconds past the epoch return
+// Given a string containing the seconds past the epoch return
 // a human-friendly description of how long ago that was.
 //
 func timeRelative(epoch string) string {
