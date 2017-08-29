@@ -11,11 +11,20 @@ import (
 )
 
 //
-// Describe the given number of seconds
+// Describe the given number of seconds.  Negative values are treated
+// identically to positive ones.
 //
 func timeDescr(seconds int64) string {
+
 	//
-	// Hacky code to divide that up into human-readable periods.
+	// We don't deal with future-time
+	//
+	if seconds < 0 {
+		seconds *= -1
+	}
+
+	//
+	// Divide up, from most recent to most distant.
 	//
 	switch {
 	case seconds < 1:
@@ -41,10 +50,12 @@ func timeDescr(seconds int64) string {
 // Given a string containing the seconds past the epoch return
 // a human-friendly description of how long ago that was.
 //
+// (Using a string is weird.  I blame SQLite :)
+//
 func timeRelative(epoch string) string {
 
 	//
-	// Get now.
+	// Get the current time.
 	//
 	var now = time.Now().Unix()
 
