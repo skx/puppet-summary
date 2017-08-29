@@ -160,6 +160,29 @@ func TestMissingInit(t *testing.T) {
 }
 
 //
+// Test creating a new DB fails when given a directory.
+//
+func TestBogusInit(t *testing.T) {
+
+	// Create a fake database
+	FakeDB()
+
+	err := SetupDB(path)
+
+	if err == nil {
+		t.Errorf("We should have seen a create-error")
+	}
+
+	//
+	// Cleanup here because otherwise later tests will
+	// see an active/valid DB-handle.
+	//
+	db.Close()
+	db = nil
+	os.RemoveAll(path)
+}
+
+//
 // Add some nodes and verify they are reaped.
 //
 func TestPrune(t *testing.T) {
