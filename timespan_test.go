@@ -32,8 +32,6 @@ func TestDescriptions(t *testing.T) {
 	}
 }
 
-
-
 //
 // Test the wrapping method accepts sane values.
 //
@@ -43,9 +41,9 @@ func TestString(t *testing.T) {
 	// Test "just now".
 	//
 	str := fmt.Sprintf("%d", time.Now().Unix())
-	out := timeRelative( str )
+	out := timeRelative(str)
 
-	if ( out != "just now" ) {
+	if out != "just now" {
 		t.Errorf("Invalid time-value - got %s", out)
 	}
 
@@ -54,9 +52,9 @@ func TestString(t *testing.T) {
 	// (Since "now + 1" will become negative when the test is run.)
 	//
 	str = fmt.Sprintf("%d", time.Now().Unix()+1)
-	out = timeRelative( str )
+	out = timeRelative(str)
 
-	if ( out != "1 second ago" ) {
+	if out != "1 second ago" {
 		t.Errorf("Invalid time-value - got %s", out)
 	}
 
