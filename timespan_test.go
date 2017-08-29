@@ -17,6 +17,7 @@ func TestDescriptions(t *testing.T) {
 		{-43, "43 seconds ago"},
 		{64, "1 minute ago"},
 		{300, "5 minutes ago"},
+		{7000, "1 hour ago"},
 		{60 * 60 * 2.4, "2 hours ago"},
 		{60 * 60 * 24, "24 hours ago"},
 		{60 * 60 * 24 * 3, "3 days ago"},
