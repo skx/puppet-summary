@@ -320,21 +320,29 @@ func getIndexNodes() ([]PuppetRuns, error) {
 	//
 	for rows2.Next() {
 		var tmp PuppetRuns
-		err := rows2.Scan(&tmp.Fqdn, &tmp.State, &tmp.Runtime, &tmp.At)
+		var at string
+		err := rows2.Scan(&tmp.Fqdn, &tmp.State, &tmp.Runtime, &at)
 		if err != nil {
 			return nil, err
 		}
 
 		//
-		// At this point tmp.At is a string containing
+		// At this point `at` is a string containing
 		// seconds-past-the-epoch.
 		//
 		// We want that to contain a human-readable
 		// string so we first convert to an integer, then
 		// parse as a Unix-timestamp
 		//
-		i, _ := strconv.ParseInt(tmp.At, 10, 64)
+		tmp.Ago = timeRelative(at)
+
+		//
+		i, _ := strconv.ParseInt(at, 10, 64)
 		tmp.At = time.Unix(i, 0).Format("2006-01-02 15:04:05")
+
+		//
+		// Force the state to be `orphaned`.
+		//
 		tmp.State = "orphaned"
 
 		//
