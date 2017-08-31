@@ -19,7 +19,7 @@ binary to make your changes:
     go build .
 
 
-## Code Quality
+## Test Coverage
 
 To test the coverage of the test-suite you can use the `cover` tool:
 
@@ -30,10 +30,13 @@ Once you've done that you can view the coverage of various functions via:
 
      go tool cover -func=fmt
 
-If you're looking for suggestions on code-quality you can use the `go vet`
-tool:
+To view the coverage report in HTML, via your browser this is good:
 
-     go vet .
+     go test -coverprofile=cover.out
+     go tool cover -html=cover.out -o foo.html
+     firefox foo.html
+
+
 
 # Cross compiling puppet-summary
 
