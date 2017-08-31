@@ -19,7 +19,6 @@ import (
 	"reflect"
 	"regexp"
 	"strings"
-	"time"
 )
 
 //
@@ -52,12 +51,9 @@ type PuppetReport struct {
 	//
 	// The time the puppet-run was completed.
 	//
+	// This is self-reported by the node, and copied almost literally.
+	//
 	At string
-
-	//
-	// The time the puppet-run was completed, as seconds past epoch
-	//
-	AtUnix int64
 
 	//
 	// The time puppet took to run, in seconds.
@@ -65,9 +61,9 @@ type PuppetReport struct {
 	Runtime string
 
 	//
-	// Resources now.  These are counts.
-	//
-	// NOTE: These are actually numbers.
+	// A count of resources that failed, changed, were unchanged,
+	// etc.  Strings for simplicity even though they are clearly
+	// integers.
 	//
 	Failed  string
 	Changed string
@@ -75,7 +71,7 @@ type PuppetReport struct {
 	Skipped string
 
 	//
-	// Logs messages.
+	// Log messages.
 	//
 	LogMessages []string
 
@@ -156,15 +152,8 @@ func parseTime(y *simpleyaml.Yaml, out *PuppetReport) error {
 	// strip the time at the first period.
 	parts := strings.Split(at, ".")
 	at = parts[0]
-	layout := "2006-01-02 15:04:05"
-
-	t, err := time.Parse(layout, at)
-	if err != nil {
-		return errors.New("Failed to parse 'time' from YAML")
-	}
 
 	// update the struct
-	out.AtUnix = t.Unix()
 	out.At = at
 
 	return nil

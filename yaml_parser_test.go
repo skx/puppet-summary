@@ -33,25 +33,6 @@ func TestBogusYaml(t *testing.T) {
 }
 
 //
-// Ensure that bogus time is caught.
-//
-func TestBogusTime(t *testing.T) {
-	//
-	// This time is clearly wrong :)
-	//
-	input := "---\ntime: '.T'\nhost: foo\n"
-	_, err := ParsePuppetReport([]byte(input))
-
-	//
-	// Ensure the error is what we expect.
-	//
-	reg, _ := regexp.Compile("Failed to parse 'time' from YAML")
-	if !reg.MatchString(err.Error()) {
-		t.Errorf("Got wrong error: %v", err)
-	}
-}
-
-//
 // Test that we can handle dates of various forms.
 //
 func TestYamlDates(t *testing.T) {
@@ -72,10 +53,6 @@ func TestYamlDates(t *testing.T) {
 		if node.At != "2017-03-10 10:22:33" {
 			t.Errorf("Invalid time result, got '%s'", node.At)
 		}
-		if node.AtUnix != 1489141353 {
-			t.Errorf("Time was wrong number of epoch seconds %d", node.AtUnix)
-		}
-
 	}
 
 }
