@@ -11,6 +11,7 @@ package main
 
 import (
 	"regexp"
+	"strings"
 	"testing"
 )
 
@@ -239,5 +240,63 @@ func TestValidYaml(t *testing.T) {
 	}
 	if report.Skipped != "2" {
 		t.Errorf("Incorrect skipped: %v", report.Skipped)
+	}
+}
+
+//
+// Test a valid report which has been modified to remove fields of
+// interest raises errors as expected.
+//
+func TestMissingResources(t *testing.T) {
+
+	//
+	// Various fields we remove.
+	//
+	tests := []string{"resource_statuses",
+		"logs",
+		"metrics",
+		"resources",
+		"values"}
+
+	//
+	// Read the YAML file.
+	//
+	tmpl, err := Asset("data/valid.yaml")
+	if err != nil {
+		t.Fatal("Failed to load YAML asset data/valid.yaml")
+	}
+
+	//
+	// For each field-test
+	//
+	for _, field := range tests {
+
+		//
+		// Conver the template to a string, and remove
+		// the bit that we should.
+		//
+		str := string(tmpl)
+		str = strings.Replace(str, field, "blah", -1)
+
+		//
+		// Now parse, which we expect to fail.
+		//
+		var b = []byte(str)
+		_, err = ParsePuppetReport(b)
+
+		//
+		// We expect an error.
+		//
+		if err == nil {
+			t.Fatal("We expected an error from the report!")
+		}
+
+		//
+		// The error will relate to our string, or an interface
+		// violation
+		//
+		if !strings.Contains(err.Error(), field) && !strings.Contains(err.Error(), "type assertion") {
+			t.Fatal("No reference to '%s' in our error '%s'\n", field, err.Error())
+		}
 	}
 }
