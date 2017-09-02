@@ -296,7 +296,7 @@ func TestMissingResources(t *testing.T) {
 		// violation
 		//
 		if !strings.Contains(err.Error(), field) && !strings.Contains(err.Error(), "type assertion") {
-			t.Fatal("No reference to '%s' in our error '%s'\n", field, err.Error())
+			t.Fatal("No reference to field/type in our error")
 		}
 	}
 }
