@@ -162,7 +162,7 @@ func RadiatorView(res http.ResponseWriter, req *http.Request) {
 	// Add in the total count of nodes.
 	//
 	var tmp PuppetState
-	tmp.State = "All"
+	tmp.State = "Total"
 	tmp.Count = total
 	tmp.Percentage = 0
 	data = append(data, tmp)
