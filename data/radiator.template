@@ -68,17 +68,6 @@
      table tr:last-child td .label {
        border-left: 0px #000 solid
      }
-     table tr.unresponsive .percent {
-       background-color: #888;
-       border-radius: 0 3px 3px 0
-     }
-     table tr.unresponsive .label,
-     table tr.unresponsive .count {
-       color: #888
-     }
-     table tr.unresponsive .label {
-       border-left: 1px #333 dashed
-     }
      table tr.failed .percent {
        background-color: #c21;
        border-radius: 0 3px 3px 0
@@ -127,28 +116,28 @@
      table tr.orphaned .label {
        border-left: 1px #333 dashed
      }
-     table tr.total,
-     table tr.total .label span a,
+     table tr.Total,
+     table tr.Total .label span a,
      {
        color: #fff;
        background-color: #181818
      }
-     table tr.total .percent {
+     table tr.Total .percent {
        background-color: #fff;
        border-radius: 0 3px 3px 0
      }
-     table tr.total .label,
-     table tr.All .label span a,
-     table tr.total .count {
+     table tr.Total .label,
+     table tr.Total .label span a,
+     table tr.Total .count {
        color: #fff
      }
-     table tr.total .label {
+     table tr.Total .label {
        border-left: 1px #333 dashed
      }
-     table tr.total .percent {
+     table tr.Total .percent {
        display: none
      }
-     table tr.total td {
+     table tr.Total td {
        border-top: 1px solid #fff
      }
      table tr td {
