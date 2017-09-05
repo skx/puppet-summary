@@ -84,6 +84,7 @@
        border-radius: 0 3px 3px 0
      }
      table tr.failed .label,
+     table tr.failed .label span a,
      table tr.failed .count {
        color: #c21
      }
@@ -95,6 +96,7 @@
        border-radius: 0 3px 3px 0
      }
      table tr.changed .label,
+     table tr.changed .label span a,
      table tr.changed .count {
        color: #069
      }
@@ -106,6 +108,7 @@
        border-radius: 0 3px 3px 0
      }
      table tr.unchanged .label,
+     table tr.unchanged .label span a,
      table tr.unchanged .count {
        color: #093
      }
@@ -117,13 +120,16 @@
        border-radius: 0 3px 3px 0
      }
      table tr.orphaned .label,
+     table tr.orphaned .label span a,
      table tr.orphaned .count {
        color: #aaa
      }
      table tr.orphaned .label {
        border-left: 1px #333 dashed
      }
-     table tr.total {
+     table tr.total,
+     table tr.total .label span a,
+     {
        color: #fff;
        background-color: #181818
      }
@@ -132,6 +138,7 @@
        border-radius: 0 3px 3px 0
      }
      table tr.total .label,
+     table tr.All .label span a,
      table tr.total .count {
        color: #fff
      }
@@ -181,6 +188,9 @@
        font-weight: bold;
        margin-top: -0.12em
      }
+     span a {
+     text-decoration: none;
+     }
     </style>
   </head>
   <body class="radiator_controller">
@@ -195,7 +205,7 @@
           <div>
             <p class="label">
               <span>
-                {{.State}}
+                <a href="/#{{.State}}">{{.State}}</a>
               </span>
             </p>
             <p class="percent" style="width: {{.Percentage}}%"><span>{{.State}}</span></p>
