@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <link href="/favicon.ico" rel="shortcut icon" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ" crossorigin="anonymous"></script>
     <meta http-equiv="refresh" content="30; url=/radiator/">
     <style>
      html,
@@ -73,7 +74,6 @@
        border-radius: 0 3px 3px 0
      }
      table tr.failed .label,
-     table tr.failed .label span a,
      table tr.failed .count {
        color: #c21
      }
@@ -85,7 +85,6 @@
        border-radius: 0 3px 3px 0
      }
      table tr.changed .label,
-     table tr.changed .label span a,
      table tr.changed .count {
        color: #069
      }
@@ -97,7 +96,6 @@
        border-radius: 0 3px 3px 0
      }
      table tr.unchanged .label,
-     table tr.unchanged .label span a,
      table tr.unchanged .count {
        color: #093
      }
@@ -109,7 +107,6 @@
        border-radius: 0 3px 3px 0
      }
      table tr.orphaned .label,
-     table tr.orphaned .label span a,
      table tr.orphaned .count {
        color: #aaa
      }
@@ -117,7 +114,6 @@
        border-left: 1px #333 dashed
      }
      table tr.Total,
-     table tr.Total .label span a,
      {
        color: #fff;
        background-color: #181818
@@ -127,7 +123,6 @@
        border-radius: 0 3px 3px 0
      }
      table tr.Total .label,
-     table tr.Total .label span a,
      table tr.Total .count {
        color: #fff
      }
@@ -177,24 +172,21 @@
        font-weight: bold;
        margin-top: -0.12em
      }
-     span a {
-     text-decoration: none;
-     }
     </style>
   </head>
   <body class="radiator_controller">
-    <table>
+    <table class="table">
       <tr style="text-color: white;">
         <td colspan="2">Puppet Summary <span id="status">✓</span></td>
       </tr>
       {{range . }}
-      <tr class="{{.State}}">
+      <tr class="{{.State}}" data-href="/#{{.State}}">
         <td class="count_column"><p class="count"><span>{{.Count}}</span></p></td>
         <td>
           <div>
             <p class="label">
               <span>
-                <a href="/#{{.State}}">{{.State}}</a>
+                {{.State}}
               </span>
             </p>
             <p class="percent" style="width: {{.Percentage}}%"><span>{{.State}}</span></p>
@@ -203,5 +195,34 @@
       </tr>
       {{end}}
     </table>
+    <script type="text/javascript">
+     $(function(){
+       $('.table tr[data-href]').each(function(){
+         $(this).css('cursor','pointer').hover(
+           function(){
+             $(this).addClass('active');
+           },
+           function(){
+             $(this).removeClass('active');
+           }).on('mouseup', function (e) {
+             switch (e.which)
+             {
+               // Left Click.
+               case 1:
+               document.location = $(this).attr('data-href');
+               break;
+
+               // Middle click.
+               case 2:
+               var newWindow = $(this).attr('data-href');
+               window.open(newWindow, '_blank');
+               e.preventDefault();
+               break;
+             }
+           })
+       });
+     });
+    </script>
+
   </body>
 </html>
