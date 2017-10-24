@@ -344,8 +344,8 @@ func ReportSubmissionHandler(res http.ResponseWriter, req *http.Request) {
 //
 //    POST /search
 //
-// We perform a search for nodes matching a given regular expression.
-//
+// We perform a search for nodes matching a given pattern.  The comparison
+// is a regular substring-match, rather than a regular expression.
 //
 func SearchHandler(res http.ResponseWriter, req *http.Request) {
 	var (
