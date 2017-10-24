@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Search Results</title>
+    <meta charset="utf-8">
+    <link href="/favicon.ico" rel="shortcut icon" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+  </head>
+  <body>
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <div class="pull-left">
+            <ul class="nav navbar-nav">
+              <li class="breadcrumb-item"><a href="/"><b>Puppet-Summary</b></a></li>
+            </ul>
+          </div>
+          <div class="pull-right">
+            <form class="navbar-form" action="/search" method="POST" role="search">
+              <div class="input-group">
+                <input type="text" class="form-control" placeholder="Search" name="term">
+                <div class="input-group-btn">
+                  <button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </nav>
+    <div class="container">
+
+      <h1>Search Results</h1>
+      <p>&nbsp;</p>
+
+      {{if .Nodes }}
+      <ul class="nav nav-tabs">
+        <li class="active"><a data-toggle="tab" href="#all">Results</a></li>
+      </ul>
+
+      <div class="tab-content">
+        <!-- Results -->
+        <div id="all" class="tab-pane fade in active">
+          <table id="all_table" class="table table-bordered table-striped table-condensed table-hover">
+            <tr>
+              <th>Node</th>
+              <th>State</th>
+              <th>Seen</th>
+            </tr>
+            {{range .Nodes }}
+            <tr
+                {{if eq .State "failed" }} class="danger" {{ end }}
+                {{if eq .State "changed" }} class="info"  {{ end }}
+                {{if eq .State "orphaned" }} class="warning"  {{ end }}
+                data-href="/node/{{.Fqdn}}">
+              <td>{{.Fqdn}}</td>
+              <td>{{.State}}</td>
+              <td title="{{.At}}">{{.Ago}}</td>
+            </tr>
+            {{end}}
+          </table>
+        </div>
+      </div>
+      {{else}}
+      <p>No nodes were found, matching the pattern <code>{{.Term}}</code>.</p>
+      {{end}}
+    </div>
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+    <hr />
+    <footer id="footer">
+      <div class="container">
+        <div class="col-md-4">
+          <ul class="nav">
+            <li><a href="/radiator/">Radiator View</a></li>
+          </ul>
+        </div>
+        <div class="col-md-4">
+          <ul class="nav">
+            <li><a href="https://github.com/skx/puppet-summary">GitHub Project</a></li>
+          </ul>
+        </div>
+        <div class="col-md-4">
+          <ul class="nav">
+            <li><a href="https://steve.kemp.fi/">© 2017 - Steve Kemp</a></li>
+          </ul>
+        </div>
+      </div>
+    </footer>
+    <script type="text/javascript">
+     $(function(){
+       $('.table tr[data-href]').each(function(){
+         $(this).css('cursor','pointer').hover(
+           function(){
+             $(this).addClass('active');
+           },
+           function(){
+             $(this).removeClass('active');
+           }).on('mouseup', function (e) {
+             switch (e.which)
+             {
+               // Left Click.
+               case 1:
+               document.location = $(this).attr('data-href');
+               break;
+
+               // Middle click.
+               case 2:
+               var newWindow = $(this).attr('data-href');
+               window.open(newWindow, '_blank');
+               e.preventDefault();
+               break;
+             }
+           })
+       });
+
+       // Reselect TAB based on hash in URL.
+       var url = document.location.toString();
+       if (url.match('#')) {
+         $('.nav-tabs a[href="#' + url.split('#')[1] + '"]').tab('show');
+       }
+
+       // Change hash when tabs are selected.
+       $('.nav-tabs a').on('shown.bs.tab', function (e) {
+         window.location.hash = e.target.hash;
+       })
+
+     });
+    </script>
+  </body>
+</html>
