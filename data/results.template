@@ -29,7 +29,7 @@
           <div class="pull-right">
             <form class="navbar-form" action="/search" method="POST" role="search">
               <div class="input-group">
-                <input type="text" class="form-control" placeholder="Search" name="term">
+                <input type="text" class="form-control" placeholder="Search" name="term" value="{{.Term}}">
                 <div class="input-group-btn">
                   <button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
                 </div>
