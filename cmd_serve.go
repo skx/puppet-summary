@@ -20,7 +20,8 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"text/template"
+	"strings"
+	"html/template"
 )
 
 //
@@ -336,6 +337,124 @@ func ReportSubmissionHandler(res http.ResponseWriter, req *http.Request) {
 	fmt.Fprintf(res, string(out))
 
 }
+
+
+//
+// SearchHandler is the handler for the HTTP end-point:
+//
+//    POST /search
+//
+// We perform a search for nodes matching a given pattern.  The comparison
+// is a regular substring-match, rather than a regular expression.
+//
+func SearchHandler(res http.ResponseWriter, req *http.Request) {
+	var (
+		status int
+		err    error
+	)
+	defer func() {
+		if nil != err {
+			http.Error(res, err.Error(), status)
+
+			// Don't spam stdout when running test-cases.
+			if flag.Lookup("test.v") == nil {
+				fmt.Printf("Error: %s\n", err.Error())
+			}
+		}
+	}()
+
+	//
+	// Ensure this was a POST-request
+	//
+	if req.Method != "POST" {
+		err = errors.New("Must be called via HTTP-POST")
+		status = http.StatusInternalServerError
+		return
+	}
+
+	//
+	// Get the term from the form.
+	//
+	req.ParseForm()
+	term := req.FormValue("term")
+
+	//
+	// Ensure we have a term.
+	//
+	if len(term) < 1 {
+		err = errors.New("Missing search term")
+		status = http.StatusInternalServerError
+		return
+	}
+
+ 	//
+	// Annoying struct to allow us to populate our template
+	// with both the matching nodes, and the term used for the search
+	//
+	type Pagedata struct {
+		Nodes []PuppetRuns
+		Term string
+	}
+
+	//
+	// Get all known nodes.
+	//
+	NodeList, err := getIndexNodes()
+	if err != nil {
+		status = http.StatusInternalServerError
+		return
+	}
+
+	//
+	// Populate this structure with the search-term
+	//
+	var x Pagedata
+	x.Term = term
+
+	//
+	// Add in any nodes which match our term.
+	//
+	for _, o := range NodeList {
+		if ( strings.Contains(o.Fqdn, term ) ) {
+			x.Nodes = append(x.Nodes, o)
+		}
+	}
+
+
+	//
+	// Load our template source.
+	//
+	tmpl, err := Asset("data/results.template")
+	if err != nil {
+		fmt.Fprintf(res, err.Error())
+		return
+	}
+
+	//
+	//  Load our template, from the resource.
+	//
+	src := string(tmpl)
+	t := template.Must(template.New("tmpl").Parse(src))
+
+	//
+	// Execute the template into our buffer.
+	//
+	buf := &bytes.Buffer{}
+	err = t.Execute(buf, x)
+
+	//
+	// If there were errors, then show them.
+	if err != nil {
+		fmt.Fprintf(res, err.Error())
+		return
+	}
+
+	//
+	// Otherwise write the result.
+	//
+	buf.WriteTo(res)
+}
+
 
 //
 // ReportHandler is the handler for the HTTP end-point
@@ -804,6 +923,12 @@ func serve(settings serveCmd) {
 	//
 	router.HandleFunc("/upload/", ReportSubmissionHandler).Methods("POST")
 	router.HandleFunc("/upload", ReportSubmissionHandler).Methods("POST")
+
+	//
+	// Search nodes.
+	//
+	router.HandleFunc("/search/", SearchHandler).Methods("POST")
+	router.HandleFunc("/search", SearchHandler).Methods("POST")
 
 	//
 	// Show the recent state of a node.

@@ -12,6 +12,8 @@ The following HTTP end-points are implemented by the server:
    * This shows a simple dashboard/radiator view.
 * `GET /report/${n}`
    * This shows useful output of a given run.
+* `POST /search`
+   * This allows you to search against node-names.
 * `POST /upload`
    * Store a report, this is expected to be invoked solely by the puppet-master.
 
@@ -19,7 +21,7 @@ The following HTTP end-points are implemented by the server:
 Scripting End-Points
 --------------------
 
-Each of the HTTP end-points can be used for automation, and scripting, with the exception of the `POST /upload` route.
+Each of the HTTP end-points can be used for automation, and scripting, with the exception of the `POST /upload` route, and the `POST /search` handler.
 
 By default the various handlers return HTML-responses, but they can each be configured to return:
 
