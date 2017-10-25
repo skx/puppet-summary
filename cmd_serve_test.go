@@ -13,8 +13,10 @@ import (
 	"net/http/httptest"
 	"os"
 	"strings"
+	"strconv"
 	"testing"
 	"unicode"
+	"net/url"
 )
 
 //
@@ -266,6 +268,122 @@ func TestKnownAPIState(t *testing.T) {
 	os.RemoveAll(path)
 
 }
+
+//
+// Searching must be done via a POST.
+//
+func TestSearchMethod(t *testing.T) {
+
+	req, err := http.NewRequest("GET", "/search", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(SearchHandler)
+
+	handler.ServeHTTP(rr, req)
+
+	// Check the status code is what we expect.
+	if status := rr.Code; status != http.StatusInternalServerError {
+		t.Errorf("Unexpected status-code: %v", status)
+	}
+
+	// Check the response body is what we expect.
+	expected := "Must be called via HTTP-POST\n"
+	if rr.Body.String() != expected {
+		t.Errorf("handler returned unexpected body: got '%v' want '%v'",
+			rr.Body.String(), expected)
+	}
+
+}
+
+//
+// The search handler must have a term-parameter.
+//
+func TestSearchEmpty(t *testing.T) {
+
+	req, err := http.NewRequest("POST", "/search" , bytes.NewReader(nil))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(SearchHandler)
+
+	// Our handlers satisfy http.Handler, so we can call
+	// their ServeHTTP method directly and pass in our
+	// Request and ResponseRecorder.
+	handler.ServeHTTP(rr, req)
+
+	// Check the status code is what we expect.
+	if status := rr.Code; status != http.StatusInternalServerError {
+		t.Errorf("Unexpected status-code: %v", status)
+	}
+
+	// Check the response body is what we expect.
+	expected := "Missing search term\n"
+	if rr.Body.String() != expected {
+		t.Errorf("handler returned unexpected body: got '%v' want '%v'",
+			rr.Body.String(), expected)
+	}
+}
+
+
+//
+// The search handler should run a search
+//
+func TestSearch(t *testing.T) {
+
+	// Create a fake database
+	FakeDB()
+
+	// Add some data.
+	addFakeNodes()
+
+	// The term we're going to search for: "example"
+	data := url.Values{}
+	data.Set("term", "example")
+
+	req, err := http.NewRequest("POST", "/search",bytes.NewBufferString(data.Encode()))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	//
+	// Ensure we're POSTing a FORM
+	//
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Add("Content-Length", strconv.Itoa(len(data.Encode())))
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(SearchHandler)
+
+	// Our handlers satisfy http.Handler, so we can call
+	// their ServeHTTP method directly and pass in our
+	// Request and ResponseRecorder.
+	handler.ServeHTTP(rr, req)
+
+	// Check the status code is what we expect.
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("Unexpected status-code: %v", status)
+	}
+
+	// Check the response body is what we expect.
+	expected := "/node/bar.example.com"
+	if !strings.Contains(rr.Body.String(), expected) {
+		t.Fatalf("Unexpected body: '%s'", rr.Body.String())
+	}
+
+	//
+	// Cleanup here because otherwise later tests will
+	// see an active/valid DB-handle.
+	//
+	db.Close()
+	db = nil
+	os.RemoveAll(path)
+}
+
 
 //
 // Submitting reports must be done via a POST.
