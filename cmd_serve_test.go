@@ -11,12 +11,12 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"os"
-	"strings"
 	"strconv"
+	"strings"
 	"testing"
 	"unicode"
-	"net/url"
 )
 
 //
@@ -303,7 +303,7 @@ func TestSearchMethod(t *testing.T) {
 //
 func TestSearchEmpty(t *testing.T) {
 
-	req, err := http.NewRequest("POST", "/search" , bytes.NewReader(nil))
+	req, err := http.NewRequest("POST", "/search", bytes.NewReader(nil))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -329,7 +329,6 @@ func TestSearchEmpty(t *testing.T) {
 	}
 }
 
-
 //
 // The search handler should run a search
 //
@@ -345,7 +344,7 @@ func TestSearch(t *testing.T) {
 	data := url.Values{}
 	data.Set("term", "example")
 
-	req, err := http.NewRequest("POST", "/search",bytes.NewBufferString(data.Encode()))
+	req, err := http.NewRequest("POST", "/search", bytes.NewBufferString(data.Encode()))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -383,7 +382,6 @@ func TestSearch(t *testing.T) {
 	db = nil
 	os.RemoveAll(path)
 }
-
 
 //
 // Submitting reports must be done via a POST.

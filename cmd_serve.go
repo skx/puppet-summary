@@ -15,13 +15,13 @@ import (
 	"github.com/google/subcommands"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
+	"html/template"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
-	"html/template"
 )
 
 //
@@ -338,7 +338,6 @@ func ReportSubmissionHandler(res http.ResponseWriter, req *http.Request) {
 
 }
 
-
 //
 // SearchHandler is the handler for the HTTP end-point:
 //
@@ -387,13 +386,13 @@ func SearchHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
- 	//
+	//
 	// Annoying struct to allow us to populate our template
 	// with both the matching nodes, and the term used for the search
 	//
 	type Pagedata struct {
 		Nodes []PuppetRuns
-		Term string
+		Term  string
 	}
 
 	//
@@ -415,11 +414,10 @@ func SearchHandler(res http.ResponseWriter, req *http.Request) {
 	// Add in any nodes which match our term.
 	//
 	for _, o := range NodeList {
-		if ( strings.Contains(o.Fqdn, term ) ) {
+		if strings.Contains(o.Fqdn, term) {
 			x.Nodes = append(x.Nodes, o)
 		}
 	}
-
 
 	//
 	// Load our template source.
@@ -454,7 +452,6 @@ func SearchHandler(res http.ResponseWriter, req *http.Request) {
 	//
 	buf.WriteTo(res)
 }
-
 
 //
 // ReportHandler is the handler for the HTTP end-point
