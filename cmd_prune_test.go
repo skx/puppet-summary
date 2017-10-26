@@ -21,8 +21,8 @@ func TestPruneCommand(t *testing.T) {
 	if err != nil {
 		t.Errorf("Error counting reports")
 	}
-	if old != 10 {
-		t.Errorf("We have %d reports, not 10", old)
+	if old != 30 {
+		t.Errorf("We have %d reports, not 30", old)
 	}
 
 	tmp := pruneCmd{days: 5, verbose: false}

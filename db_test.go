@@ -5,6 +5,8 @@
 package main
 
 import (
+	"database/sql"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"regexp"
@@ -44,7 +46,7 @@ func addFakeReports() {
 
 	//
 	// Add some records
-	stmt, err := tx.Prepare("INSERT INTO reports(yaml_file,executed_at) values(?,?)")
+	stmt, err := tx.Prepare("INSERT INTO reports(fqdn,yaml_file,executed_at) values(?,?,?)")
 	if err != nil {
 		panic(err)
 	}
@@ -52,12 +54,13 @@ func addFakeReports() {
 
 	count := 0
 
-	for count < 10 {
+	for count < 30 {
 		now := time.Now().Unix()
 		days := int64(60 * 60 * 24 * count)
 
+		fqdn := fmt.Sprintf("node%d.example.com", count)
 		now -= days
-		stmt.Exec("/../data/valid.yaml", now)
+		stmt.Exec(fqdn, "/../data/valid.yaml", now)
 		count++
 	}
 	tx.Commit()
@@ -95,6 +98,38 @@ func addFakeNodes() {
 	n.Changed = "2"
 	n.Skipped = "3"
 	addDB(n, "")
+
+	//
+	// Here we're trying to fake an orphaned node.
+	//
+	// When a report is added the exected_at field is set to
+	// "time.Now().Unix()".  To make an orphaned record we need
+	// to change that to some time >24 days ago.
+	//
+	// We do that by finding the last report-ID, and then editing
+	// the field.
+	//
+	var max_id string
+	row := db.QueryRow("SELECT MAX(id) FROM reports")
+	err := row.Scan(&max_id)
+
+	switch {
+	case err == sql.ErrNoRows:
+	case err != nil:
+		panic("failed to find max report ID")
+	default:
+	}
+
+	//
+	// Now we can change the executed_at field of that last
+	// addition
+	//
+	sqlStmt := fmt.Sprintf("UPDATE reports SET executed_at=300 WHERE id=%s",
+		max_id)
+	_, err = db.Exec(sqlStmt)
+	if err != nil {
+		panic("Failed to change report ")
+	}
 
 }
 
@@ -198,8 +233,8 @@ func TestPrune(t *testing.T) {
 	if err != nil {
 		t.Errorf("Error counting reports")
 	}
-	if old != 10 {
-		t.Errorf("We have %d reports, not 10", old)
+	if old != 30 {
+		t.Errorf("We have %d reports, not 30", old)
 	}
 
 	//
@@ -356,9 +391,9 @@ func TestHistory(t *testing.T) {
 	}
 
 	//
-	// Should have 1 run, becase we have only one unique date..
+	// Should have 2 runs, becase we have only one unique date..
 	//
-	if len(runs) != 1 {
+	if len(runs) != 2 {
 		t.Errorf("getReports returned wrong number of results: %d", len(runs))
 	}
 
