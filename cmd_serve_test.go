@@ -270,6 +270,86 @@ func TestKnownAPIState(t *testing.T) {
 }
 
 //
+// API state should accept XML, JSON, and plain-text
+//
+func TestAPITypes(t *testing.T) {
+
+	// Create a fake database
+	FakeDB()
+
+	// Add some data.
+	addFakeNodes()
+
+	// Wire up the router.
+	r := mux.NewRouter()
+	r.HandleFunc("/api/state/{state}", APIState).Methods("GET")
+	r.HandleFunc("/api/state/{state}/", APIState).Methods("GET")
+
+	// Get the test-server
+	ts := httptest.NewServer(r)
+	defer ts.Close()
+
+	//
+	// We'll make one test for each known-state
+	//
+	type TestCase struct {
+		Type     string
+		Response string
+	}
+
+	tests := []TestCase{
+		{"application/json", "[\"foo.example.com\"]"},
+		{"application/xml", "<string>foo.example.com</string>"},
+		{"text/plain", "foo.example.com\n"},
+		{"", "[\"foo.example.com\"]"},
+	}
+
+	//
+	// Run each one.
+	//
+	for _, test := range tests {
+
+		//
+		// Make the request
+		//
+		url := ts.URL + "/api/state/changed?accept=" + test.Type
+
+		resp, err := http.Get(url)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		//
+		// Get the body
+		//
+		defer resp.Body.Close()
+		body, err := ioutil.ReadAll(resp.Body)
+
+		if err != nil {
+			t.Errorf("Failed to read response-body %v\n", err)
+		}
+
+		content := fmt.Sprintf("%s", body)
+
+		if status := resp.StatusCode; status != http.StatusOK {
+			t.Errorf("Unexpected status-code: %v", status)
+		}
+		if content != test.Response {
+			t.Fatalf("Unexpected body for %s: '%s'", test.Type, body)
+		}
+	}
+
+	//
+	// Cleanup here because otherwise later tests will
+	// see an active/valid DB-handle.
+	//
+	db.Close()
+	db = nil
+	os.RemoveAll(path)
+
+}
+
+//
 // Searching must be done via a POST.
 //
 func TestSearchMethod(t *testing.T) {
