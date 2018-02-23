@@ -23,7 +23,9 @@ This project is directly inspired by the [puppet-dashboard](https://github.com/s
 * The output can be used for scripting, and automation.
    * All output is available as [JSON/XML](API.md) in addition to human-viewable HTML.
 
-There are [screenshots included within this repository](screenshots/), and you can view a [sample installation here](https://master.steve.org.uk/).
+You can get a good idea of what the project does by looking at the online demo, which is available here:
+
+* [https://master.steve.org.uk/](https://master.steve.org.uk/)
 
 
 ## Puppet Reporting
