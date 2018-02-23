@@ -42,7 +42,8 @@ func Exists(name string) bool {
 //
 //     GET /api/state/$state
 //
-// This only returns JSON, which is perhaps a mistake.
+// This only will return plain-text by default, but JSON and XML are both
+// possible via the `Accept:` header or `?accept=XX` parameter.
 //
 func APIState(res http.ResponseWriter, req *http.Request) {
 
@@ -109,15 +110,46 @@ func APIState(res http.ResponseWriter, req *http.Request) {
 	}
 
 	//
-	// Convert the string-array to JSON, and return it.
+	// What kind of reply should we send?
 	//
-	res.Header().Set("Content-Type", "application/json")
+	// Accept either a "?accept=XXX" URL-parameter, or
+	// the Accept HEADER in the HTTP request
+	//
+	accept := req.FormValue("accept")
+	if len(accept) < 1 {
+		accept = req.Header.Get("Accept")
+	}
 
-	if len(result) > 0 {
-		out, _ := json.Marshal(result)
-		fmt.Fprintf(res, "%s", out)
-	} else {
-		fmt.Fprintf(res, "[]")
+	switch accept {
+	case "text/plain":
+		res.Header().Set("Content-Type", "text/plain")
+
+		for _, o := range result {
+			fmt.Fprintf(res, "%s\n", o)
+		}
+	case "application/xml":
+		x, err := xml.MarshalIndent(result, "", "  ")
+		if err != nil {
+			status = http.StatusInternalServerError
+			return
+		}
+
+		res.Header().Set("Content-Type", "application/xml")
+		res.Write(x)
+	default:
+
+		//
+		// Convert the string-array to JSON, and return it.
+		//
+		res.Header().Set("Content-Type", "application/json")
+
+		if len(result) > 0 {
+			out, _ := json.Marshal(result)
+			fmt.Fprintf(res, "%s", out)
+		} else {
+			fmt.Fprintf(res, "[]")
+		}
+
 	}
 
 }

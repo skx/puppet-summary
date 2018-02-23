@@ -63,7 +63,16 @@ API Endpoints
 -------------
 
 In addition to the scripting posibilities available with the multi-format
-responses there is also  a simple end-point which is designed to return a
+responses there is also a simple end-point which is designed to return a
 list of all the nodes in the given state:
 
 * `GET /api/state/$state`
+
+This will default to JSON, but you can choose JSON, XML, or pain-text, via the
+Accept: header or `?accept=application/json` parameter, for example:
+
+
+    $ curl -H Accept:text/plain      http://localhost:3001/api/state/unchanged
+    $ curl -H Accept:application/xml http://localhost:3001/api/state/unchanged
+    $ curl http://localhost:3001/api/state/unchanged?accept=text/plain
+    $ curl http://localhost:3001/api/state/unchanged?accept=application/xml
