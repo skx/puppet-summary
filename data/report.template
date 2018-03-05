@@ -64,7 +64,7 @@
           </div>
           <div class="col-sm-11 col-md-11">
             {{range .LogMessages}}
-            <p>{{.}}</p>
+            <pre style="padding: 5px 9px;"><p style="margin: 0;">{{.}}</p></pre>
             {{else}}
             <p>Nothing reported.</p>
             {{end}}
