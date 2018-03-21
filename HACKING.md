@@ -36,20 +36,23 @@ To view the coverage report in HTML, via your browser this is good:
      go tool cover -html=cover.out -o foo.html
      firefox foo.html
 
+
 # Running a container
 
-This project now ships a Dockerfile. The goal is to build a small image with
-puppet-summary installed on it. This uses multi-stage builds for docker and
+This project now ships a `Dockerfile`. The goal is to build a small image with
+`puppet-summary` installed on it. This uses multi-stage builds for docker and
 thus requires docker version 17.05 or higher. The container is based on alpine
-linux and should be around 20MB. 
+linux and should be around 20MB.
 
 To build:
 
     docker build -t puppet-summary:<current version> .
-  
+
 To run:
-   
+
     docker run -d -v app:/app -p 3001:3001 puppet-summary
+
+**NOTE**: When running in a container the `-auto-prune` flag is applied, with the intention that reports will be pruned on a weekly basis.
 
 
 # Cross compiling puppet-summary
