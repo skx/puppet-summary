@@ -39,15 +39,16 @@ type PuppetRuns struct {
 // of puppet-runs against a particular node.
 //
 type PuppetReportSummary struct {
-	ID      string
-	Fqdn    string
-	State   string
-	At      string
-	Ago     string
-	Runtime string
-	Failed  int
-	Changed int
-	Total   int
+	ID       string
+	Fqdn     string
+	State    string
+	At       string
+	Ago      string
+	Runtime  string
+	Failed   int
+	Changed  int
+	Total    int
+	YamlFile string
 }
 
 //
@@ -470,7 +471,7 @@ func getReports(fqdn string) ([]PuppetReportSummary, error) {
 	//
 	// Select the status.
 	//
-	stmt, err := db.Prepare("SELECT id, fqdn, state, executed_at, runtime, failed, changed, total FROM reports WHERE fqdn=? ORDER by executed_at DESC LIMIT 50")
+	stmt, err := db.Prepare("SELECT id, fqdn, state, executed_at, runtime, failed, changed, total, yaml_file FROM reports WHERE fqdn=? ORDER by executed_at DESC LIMIT 50")
 	rows, err := stmt.Query(fqdn)
 	if err != nil {
 		return nil, err
@@ -491,7 +492,7 @@ func getReports(fqdn string) ([]PuppetReportSummary, error) {
 	for rows.Next() {
 		var tmp PuppetReportSummary
 		var at string
-		err := rows.Scan(&tmp.ID, &tmp.Fqdn, &tmp.State, &at, &tmp.Runtime, &tmp.Failed, &tmp.Changed, &tmp.Total)
+		err := rows.Scan(&tmp.ID, &tmp.Fqdn, &tmp.State, &at, &tmp.Runtime, &tmp.Failed, &tmp.Changed, &tmp.Total, &tmp.YamlFile)
 		if err != nil {
 			return nil, err
 		}
