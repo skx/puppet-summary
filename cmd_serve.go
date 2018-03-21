@@ -15,6 +15,7 @@ import (
 	"github.com/google/subcommands"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
+	"github.com/robfig/cron"
 	"html/template"
 	"io/ioutil"
 	"net/http"
@@ -1010,10 +1011,11 @@ func serve(settings serveCmd) {
 // The options set by our command-line flags.
 //
 type serveCmd struct {
-	bindHost string
-	bindPort int
-	dbFile   string
-	prefix   string
+	autoPrune bool
+	bindHost  string
+	bindPort  int
+	dbFile    string
+	prefix    string
 }
 
 //
@@ -1032,6 +1034,7 @@ func (*serveCmd) Usage() string {
 //
 func (p *serveCmd) SetFlags(f *flag.FlagSet) {
 	f.IntVar(&p.bindPort, "port", 3001, "The port to bind upon.")
+	f.BoolVar(&p.autoPrune, "auto-prune", false, "Prune reports automatically, once per week.")
 	f.StringVar(&p.bindHost, "host", "127.0.0.1", "The IP to listen upon.")
 	f.StringVar(&p.dbFile, "db-file", "ps.db", "The SQLite database to use.")
 	f.StringVar(&p.prefix, "prefix", "./reports/", "The prefix to the local YAML hierarchy.")
@@ -1047,6 +1050,30 @@ func (p *serveCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{})
 	// missing.
 	//
 	SetupDB(p.dbFile)
+
+	//
+	// If autoprune
+	//
+	if p.autoPrune {
+
+		//
+		// Create a cron scheduler
+		//
+		c := cron.New()
+
+		//
+		//  Every seven days prune the reports.
+		//
+		c.AddFunc("@weekly", func() {
+			fmt.Printf("Automatically pruning old reports")
+			pruneReports(p.prefix, 7, false)
+		})
+
+		//
+		// Launch the cron-scheduler.
+		//
+		c.Start()
+	}
 
 	//
 	// Start the server
