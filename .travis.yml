@@ -1,7 +1,3 @@
-os:
-  - linux
-  - osx
-
 language: go
 sudo: false
 
@@ -12,11 +8,10 @@ matrix:
     - go: tip
 
 script:
-    - go get -t -v -d $(go list ./...)
-    - go build -ldflags "-X main.version=$(git describe --tags)" -o puppet-summary-${TRAVIS_OS_NAME} .
+    - ./build-all.sh
+    - ls -l puppet-summary-*
     - go get golang.org/x/tools/cmd/cover
     - go test -coverprofile fmt
-    - ls -l puppet-summary-*
 
 deploy:
   provider: releases
