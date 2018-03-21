@@ -116,7 +116,7 @@ That will remove the saved YAML files from disk which are > 15 days old, and
 also remove the associated database entries that refer to them.
 
 If you're happy with the default behaviour you can automate this by allowing
-reports to be repead once per week - via the `-auto-prune` flag:
+reports to be reaped once per week - via the `-auto-prune` flag:
 
     puppet-summary prune  -auto-prune [options..]
 
