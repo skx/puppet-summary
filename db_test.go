@@ -109,9 +109,9 @@ func addFakeNodes() {
 	// We do that by finding the last report-ID, and then editing
 	// the field.
 	//
-	var max_id string
+	var maxID string
 	row := db.QueryRow("SELECT MAX(id) FROM reports")
-	err := row.Scan(&max_id)
+	err := row.Scan(&maxID)
 
 	switch {
 	case err == sql.ErrNoRows:
@@ -125,7 +125,7 @@ func addFakeNodes() {
 	// addition
 	//
 	sqlStmt := fmt.Sprintf("UPDATE reports SET executed_at=300 WHERE id=%s",
-		max_id)
+		maxID)
 	_, err = db.Exec(sqlStmt)
 	if err != nil {
 		panic("Failed to change report ")
