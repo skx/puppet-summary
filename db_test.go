@@ -264,6 +264,71 @@ func TestPrune(t *testing.T) {
 }
 
 //
+// Add some nodes and verify they are reaped, if unchanged.
+//
+func TestPruneUnchanged(t *testing.T) {
+
+	// Create a fake database
+	FakeDB()
+
+	// With some reports.
+	addFakeNodes()
+
+	//
+	// Count records and assume we have some.
+	//
+	old, err := countReports()
+
+	if err != nil {
+		t.Errorf("Error counting reports")
+	}
+	if old != 3 {
+		t.Errorf("We have %d reports, not 3", old)
+	}
+
+	//
+	// Run the prune
+	//
+	pruneUnchanged("", false)
+
+	//
+	// Count them again
+	//
+	new, err := countReports()
+	if err != nil {
+		t.Errorf("Error counting reports")
+	}
+
+	//
+	// The value won't have changed.
+	//
+	if new != old {
+		t.Errorf("We have %d reports, not %d", new, old)
+	}
+
+	//
+	// But we'll expect that several will have updated
+	// to show that their paths have been changed to 'reaped'
+	//
+	pruned, err := countUnchangedAndReapedReports()
+	if err != nil {
+		t.Errorf("Error counting reaped reports")
+	}
+
+	if pruned != 1 {
+		t.Errorf("We have %d pruned reports, not 1", pruned)
+	}
+
+	//
+	// Cleanup here because otherwise later tests will
+	// see an active/valid DB-handle.
+	//
+	db.Close()
+	db = nil
+	os.RemoveAll(path)
+}
+
+//
 //  Test the index nodes are valid
 //
 func TestIndex(t *testing.T) {

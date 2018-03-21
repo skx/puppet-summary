@@ -64,7 +64,7 @@
           </div>
           <div class="col-sm-11 col-md-11">
             {{range .LogMessages}}
-            <p>{{.}}</p>
+            <pre style="padding: 5px 9px;"><p style="margin: 0;">{{.}}</p></pre>
             {{else}}
             <p>Nothing reported.</p>
             {{end}}
@@ -171,7 +171,7 @@
           </div>
           <div class="col-md-4">
             <ul class="nav">
-              <li><a href="https://steve.kemp.fi/">© 2017 - Steve Kemp</a></li>
+              <li><a href="https://steve.kemp.fi/">© 2017-2018 - Steve Kemp</a></li>
             </ul>
           </div>
         </div>

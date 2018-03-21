@@ -187,6 +187,24 @@ func countReports() (int, error) {
 }
 
 //
+// Count the number of reports we have reaped.
+//
+func countUnchangedAndReapedReports() (int, error) {
+
+	//
+	// Ensure we have a DB-handle
+	//
+	if db == nil {
+		return 0, errors.New("SetupDB not called")
+	}
+
+	var count int
+	row := db.QueryRow("SELECT COUNT(*) FROM reports WHERE yaml_file='pruned'")
+	err := row.Scan(&count)
+	return count, err
+}
+
+//
 // Return the contents of the YAML file which was associated
 // with the given report-ID.
 //
@@ -703,6 +721,96 @@ func pruneReports(prefix string, days int, verbose bool) error {
 	//  Now cleanup the old records
 	//
 	_, err = clean.Exec(time)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+//
+// Prune reports from nodes which are unchanged.
+//
+// We have to find the old reports, individually, so we can unlink the
+// copy of the on-disk YAML, but once we've done that we can delete them
+// as a group.
+//
+func pruneUnchanged(prefix string, verbose bool) error {
+
+	//
+	// Ensure we have a DB-handle
+	//
+	if db == nil {
+		return errors.New("SetupDB not called")
+	}
+
+	//
+	// Find unchanged reports.
+	//
+	find, err := db.Prepare("SELECT id,yaml_file FROM reports WHERE state='unchanged'")
+	if err != nil {
+		return err
+	}
+
+	//
+	// Prepare to update them all.
+	//
+	clean, err := db.Prepare("UPDATE reports SET yaml_file='pruned' WHERE state='unchanged'")
+	if err != nil {
+		return err
+	}
+
+	//
+	// Find the reports.
+	//
+	rows, err := find.Query()
+	if err != nil {
+		return err
+	}
+	defer find.Close()
+	defer clean.Close()
+	defer rows.Close()
+
+	//
+	// For each row in the result-set
+	//
+	// Parse into "id" + "path", then remove the path from disk.
+	//
+	for rows.Next() {
+		var id string
+		var path string
+
+		err := rows.Scan(&id, &path)
+		if err == nil {
+
+			//
+			// Convert the path to a qualified one,
+			// rather than one relative to our report-dir.
+			//
+			path = filepath.Join(prefix, path)
+			if verbose {
+				fmt.Printf("Removing ID:%s - %s\n", id, path)
+			}
+
+			//
+			//  Remove the file from-disk
+			//
+			//  We won't care if this fails, it might have
+			// been removed behind our back or failed to
+			// be uploaded in the first place.
+			//
+			os.Remove(path)
+		}
+	}
+	err = rows.Err()
+	if err != nil {
+		return err
+	}
+
+	//
+	//  Now cleanup the old records
+	//
+	_, err = clean.Exec()
 	if err != nil {
 		return err
 	}
