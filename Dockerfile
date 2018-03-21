@@ -10,4 +10,4 @@ COPY --from=0 /root/go/bin/puppet-summary .
 ENV PORT=3001
 EXPOSE 3001
 VOLUME /app
-ENTRYPOINT ["/root/puppet-summary", "serve", "-host","0.0.0.0", "-db-file", "/app/db1.sqlite" ]
+ENTRYPOINT ["/root/puppet-summary", "serve", "-host","0.0.0.0", "-db-file", "/app/db1.sqlite", "-auto-prune" ]
