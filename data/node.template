@@ -112,7 +112,7 @@
         <tr
             {{if eq .State "failed" }} class="danger" {{ end }}
             {{if eq .State "changed" }} class="info"  {{ end }}
-            data-href="/report/{{.ID}}">
+            {{if ne .YamlFile "pruned" }} data-href="/report/{{.ID}}" {{ end }}>
           <td>{{.Fqdn}}</td>
           <td>{{.State}}</td>
           <td title="{{.At}}">{{.Ago}}</td>
