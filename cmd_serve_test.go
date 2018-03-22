@@ -7,7 +7,6 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"github.com/gorilla/mux"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -17,6 +16,8 @@ import (
 	"strings"
 	"testing"
 	"unicode"
+
+	"github.com/gorilla/mux"
 )
 
 //

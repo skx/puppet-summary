@@ -12,10 +12,6 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"github.com/google/subcommands"
-	"github.com/gorilla/handlers"
-	"github.com/gorilla/mux"
-	"github.com/robfig/cron"
 	"html/template"
 	"io/ioutil"
 	"net/http"
@@ -23,6 +19,11 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"github.com/google/subcommands"
+	"github.com/gorilla/handlers"
+	"github.com/gorilla/mux"
+	"github.com/robfig/cron"
 )
 
 //

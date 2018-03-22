@@ -8,13 +8,14 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	_ "github.com/mattn/go-sqlite3"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"sort"
 	"strconv"
 	"time"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 //

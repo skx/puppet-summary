@@ -15,10 +15,11 @@ import (
 	"crypto/sha1"
 	"errors"
 	"fmt"
-	"github.com/smallfish/simpleyaml"
 	"reflect"
 	"regexp"
 	"strings"
+
+	"github.com/smallfish/simpleyaml"
 )
 
 //

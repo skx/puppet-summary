@@ -8,8 +8,9 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"github.com/google/subcommands"
 	"io/ioutil"
+
+	"github.com/google/subcommands"
 )
 
 //
