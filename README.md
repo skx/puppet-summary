@@ -1,7 +1,7 @@
 [![Travis CI](https://img.shields.io/travis/skx/puppet-summary/master.svg?style=flat-square)](https://travis-ci.org/skx/puppet-summary)
 [![Go Report Card](https://goreportcard.com/badge/github.com/skx/puppet-summary)](https://goreportcard.com/report/github.com/skx/puppet-summary)
 [![license](https://img.shields.io/github/license/skx/puppet-summary.svg)](https://github.com/skx/puppet-summary/blob/master/LICENSE)
-[![Release](https://github-release-version.herokuapp.com/github/skx/puppet-summary/release.svg?style=flat)](https://github.com/skx/puppet-summary/releases/latest)
+[![Release](https://img.shields.io/github/release/skx/puppet-summary.svg)](https://github.com/skx/puppet-summary/releases/latest)
 
 Puppet Summary
 ==============
@@ -43,7 +43,7 @@ a target for such submission:
 The reports are expected to be pruned over time, but as the SQLite database
 only contains a summary of the available data it will not grow excessively.
 
-> The current software has been tested with over 50,000 reports and performs well at that scale.
+> The software has [been reported](https://github.com/skx/puppet-summary/issues/42) to cope with 16k reports per day, archive approximately 27Gb of data over 14 days!
 
 
 ## Installation
