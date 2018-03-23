@@ -101,6 +101,7 @@
       <p>&nbsp;</p>
       <table class="table table-bordered table-striped table-condensed table-hover">
         <tr>
+          <th>ID</th>
           <th>Node</th>
           <th>Status</th>
           <th>Seen</th>
@@ -108,11 +109,12 @@
           <th>Changed</th>
           <th>Total</th>
         </tr>
-        {{range .Nodes}}
+        {{range $i, $e := .Nodes}}
         <tr
             {{if eq .State "failed" }} class="danger" {{ end }}
             {{if eq .State "changed" }} class="info"  {{ end }}
-            {{if ne .YamlFile "pruned" }} data-href="/report/{{.ID}}" {{ end }}>
+           {{if ne .YamlFile "pruned" }} data-href="/report/{{.ID}}" {{ end }}>
+          <td>{{incr $i}}</td>
           <td>{{.Fqdn}}</td>
           <td>{{.State}}</td>
           <td title="{{.At}}">{{.Ago}}</td>

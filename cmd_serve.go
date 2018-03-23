@@ -595,7 +595,6 @@ func ReportHandler(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-
 		//
 		// Helper to allow a float to be truncated
 		// to two/three digits.
@@ -607,7 +606,7 @@ func ReportHandler(res http.ResponseWriter, req *http.Request) {
 				//
 				// Parse as a float.
 				//
-				f,_ := strconv.ParseFloat(s, 64)
+				f, _ := strconv.ParseFloat(s, 64)
 
 				//
 				// Output to a truncated string
@@ -759,11 +758,23 @@ func NodeHandler(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 
+		funcMap := template.FuncMap{
+
+			"incr": func(d int) string {
+
+				//
+				// Return the incremented string.
+				//
+				s := fmt.Sprintf("%d", (d + 1))
+				return s
+			},
+		}
+
 		//
 		//  Load our template, from the resource.
 		//
 		src := string(tmpl)
-		t := template.Must(template.New("tmpl").Parse(src))
+		t := template.Must(template.New("tmpl").Funcs(funcMap).Parse(src))
 
 		//
 		// Execute the template into our buffer.
