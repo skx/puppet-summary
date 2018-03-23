@@ -18,6 +18,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/google/subcommands"
@@ -594,11 +595,33 @@ func ReportHandler(res http.ResponseWriter, req *http.Request) {
 			return
 		}
 
+
+		//
+		// Helper to allow a float to be truncated
+		// to two/three digits.
+		//
+		funcMap := template.FuncMap{
+
+			"truncate": func(s string) string {
+
+				//
+				// Parse as a float.
+				//
+				f,_ := strconv.ParseFloat(s, 64)
+
+				//
+				// Output to a truncated string
+				//
+				s = fmt.Sprintf("%.2f", f)
+				return s
+			},
+		}
+
 		//
 		//  Load our template, from the resource.
 		//
 		src := string(tmpl)
-		t := template.Must(template.New("tmpl").Parse(src))
+		t := template.Must(template.New("tmpl").Funcs(funcMap).Parse(src))
 
 		//
 		// Execute the template into our buffer.
