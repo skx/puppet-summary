@@ -62,6 +62,7 @@
 
        var ctx = document.getElementById("canvas").getContext("2d");
        window.myLine = new Chart(ctx, config);
+
      }
     </script>
   </head>
@@ -114,7 +115,7 @@
             {{if eq .State "failed" }} class="danger" {{ end }}
             {{if eq .State "changed" }} class="info"  {{ end }}
            {{if ne .YamlFile "pruned" }} data-href="/report/{{.ID}}" {{ end }}>
-          <td>{{incr $i}}</td>
+          <td id="data_{{incr $i}}">{{incr $i}}</td>
           <td>{{.Fqdn}}</td>
           <td>{{.State}}</td>
           <td title="{{.At}}">{{.Ago}}</td>
@@ -173,6 +174,49 @@
                }
              })
          });
+
+         //
+         // Add click-handler for graph-points.
+         //
+         //
+         // This is a little hacky.
+         //
+         document.getElementById("canvas").onclick = function(evt){
+
+           //
+           // Get the event that invoked us.
+           //
+           var activePoints = window.myLine.getElementsAtEvent(evt);
+           if ( activePoints && Array.isArray( activePoints ) )
+             {
+
+               //
+               // Find the point we've got.
+               //
+               var firstPoint = activePoints[0];
+               if ( firstPoint ) {
+
+                 // If we got a point then find the label.
+                 var label = window.myLine.data.labels[firstPoint._index];
+                 if ( label ) {
+
+                   //
+                   // Our label is something like "8" which means we
+                   // need to jump to the table row with ID "data_8".
+                   //
+                   tmp = "#data_" + label;
+
+                   //
+                   // Scroll there.
+                   //
+                   $('html, body').animate({
+                     scrollTop: $(tmp).offset().top
+                   }, 500);
+                 }
+               }
+             }
+         };
+
        });
       </script>
   </body>
