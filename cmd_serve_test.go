@@ -130,7 +130,7 @@ func TestReportView(t *testing.T) {
 	// The tests
 	//
 	tests := []TestCase{
-		{"text/html", "Report of www.steve.org.uk which ran 2017-07-29 23:17:01"},
+		{"text/html", "Report of execution against www.steve.org.uk, at 2017-07-29 23:17:01"},
 		{"application/json", "\"State\":\"unchanged\","},
 		{"application/xml", "<State>unchanged</State>"}}
 
