@@ -261,10 +261,14 @@ func getIndexNodes() ([]PuppetRuns, error) {
 	var NodeList []PuppetRuns
 
 	//
-	// The threshold which marks the differnece between
+	// The threshold which marks the difference between
 	// "current" and "orphaned"
 	//
-	threshold := 7 * (24 * 60 * 60)
+	// Here we set it to 4.5 days, which should be long
+	// enough to cover any hosts that were powered-off over
+	// a weekend.  (Friday + Saturday + Sunday + slack).
+	//
+	threshold := 3.5 * (24 * 60 * 60)
 
 	//
 	// Ensure we have a DB-handle
