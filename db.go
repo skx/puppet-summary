@@ -261,6 +261,12 @@ func getIndexNodes() ([]PuppetRuns, error) {
 	var NodeList []PuppetRuns
 
 	//
+	// The threshold which marks the differnece between
+	// "current" and "orphaned"
+	//
+	threshold := 7 * (24 * 60 * 60)
+
+	//
 	// Ensure we have a DB-handle
 	//
 	if db == nil {
@@ -270,7 +276,7 @@ func getIndexNodes() ([]PuppetRuns, error) {
 	//
 	// Select the status - for nodes seen in the past 24 hours.
 	//
-	rows, err := db.Query("SELECT fqdn, state, runtime, max(executed_at) FROM reports WHERE  ( ( strftime('%s','now') - executed_at ) < ( 24 * 60 * 60 ) ) GROUP by fqdn;")
+	rows, err := db.Query("SELECT fqdn, state, runtime, max(executed_at) FROM reports WHERE  ( ( strftime('%s','now') - executed_at ) < ? ) GROUP by fqdn;", threshold)
 	if err != nil {
 		return nil, err
 	}
@@ -327,7 +333,7 @@ func getIndexNodes() ([]PuppetRuns, error) {
 	//
 	// Now look for orphaned nodes.
 	//
-	rows2, err2 := db.Query("SELECT fqdn, state, runtime, max(executed_at) FROM reports WHERE ( ( strftime('%s','now') - executed_at ) > ( 24 * 60 * 60 ) ) GROUP by fqdn;")
+	rows2, err2 := db.Query("SELECT fqdn, state, runtime, max(executed_at) FROM reports WHERE ( ( strftime('%s','now') - executed_at ) > ? ) GROUP by fqdn;", threshold)
 	if err2 != nil {
 		return nil, err
 	}
