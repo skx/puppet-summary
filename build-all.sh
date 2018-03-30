@@ -6,12 +6,13 @@ BASE="puppet-summary"
 # Get the dependencies
 go get -t -v -d $(go list ./...)
 
-
 #
-# We build on multiple platforms/archs
+# We could build on multiple platforms/archs
 #
-BUILD_PLATFORMS="linux windows darwin freebsd"
-BUILD_ARCHS="amd64 386"
+# Except sqlite3 is a CGO binary, so we can't.
+#
+BUILD_PLATFORMS="linux"
+BUILD_ARCHS="amd64"
 
 # For each platform
 for OS in ${BUILD_PLATFORMS[@]}; do
@@ -39,7 +40,7 @@ for OS in ${BUILD_PLATFORMS[@]}; do
         # Run the build
         export GOARCH=${ARCH}
         export GOOS=${OS}
-        export CGO_ENABLED=0
+        export CGO_ENABLED=1
 
         go build -ldflags "-X main.version=$(git describe --tags)" -o "${BASE}-${SUFFIX}"
 
