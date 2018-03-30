@@ -261,6 +261,16 @@ func getIndexNodes() ([]PuppetRuns, error) {
 	var NodeList []PuppetRuns
 
 	//
+	// The threshold which marks the difference between
+	// "current" and "orphaned"
+	//
+	// Here we set it to 4.5 days, which should be long
+	// enough to cover any hosts that were powered-off over
+	// a weekend.  (Friday + Saturday + Sunday + slack).
+	//
+	threshold := 3.5 * (24 * 60 * 60)
+
+	//
 	// Ensure we have a DB-handle
 	//
 	if db == nil {
@@ -270,7 +280,7 @@ func getIndexNodes() ([]PuppetRuns, error) {
 	//
 	// Select the status - for nodes seen in the past 24 hours.
 	//
-	rows, err := db.Query("SELECT fqdn, state, runtime, max(executed_at) FROM reports WHERE  ( ( strftime('%s','now') - executed_at ) < ( 24 * 60 * 60 ) ) GROUP by fqdn;")
+	rows, err := db.Query("SELECT fqdn, state, runtime, max(executed_at) FROM reports WHERE  ( ( strftime('%s','now') - executed_at ) < ? ) GROUP by fqdn;", threshold)
 	if err != nil {
 		return nil, err
 	}
@@ -327,7 +337,7 @@ func getIndexNodes() ([]PuppetRuns, error) {
 	//
 	// Now look for orphaned nodes.
 	//
-	rows2, err2 := db.Query("SELECT fqdn, state, runtime, max(executed_at) FROM reports WHERE ( ( strftime('%s','now') - executed_at ) > ( 24 * 60 * 60 ) ) GROUP by fqdn;")
+	rows2, err2 := db.Query("SELECT fqdn, state, runtime, max(executed_at) FROM reports WHERE ( ( strftime('%s','now') - executed_at ) > ? ) GROUP by fqdn;", threshold)
 	if err2 != nil {
 		return nil, err
 	}
@@ -815,6 +825,75 @@ func pruneUnchanged(prefix string, verbose bool) error {
 	_, err = clean.Exec()
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func pruneOrphaned(prefix string, verbose bool) error {
+
+	NodeList, err := getIndexNodes()
+	if err != nil {
+		return err
+	}
+
+	for _, entry := range NodeList {
+
+		if entry.State == "orphaned" {
+			if verbose {
+				fmt.Printf("Orphaned host: %s\n", entry.Fqdn)
+			}
+
+			//
+			// Find all reports that refer to this host.
+			//
+			rows, err := db.Query("SELECT yaml_file FROM reports WHERE fqdn=?", entry.Fqdn)
+			if err != nil {
+				return err
+			}
+			defer rows.Close()
+
+			for rows.Next() {
+				var tmp string
+				err := rows.Scan(&tmp)
+				if err != nil {
+					return err
+				}
+
+				//
+				// Convert the path to a qualified one,
+				// rather than one relative to our report-dir.
+				//
+				path := filepath.Join(prefix, tmp)
+				if verbose {
+					fmt.Printf("\tRemoving: %s\n", path)
+				}
+
+				//
+				//  Remove the file from-disk
+				//
+				//  We won't care if this fails, it might have
+				// been removed behind our back or failed to
+				// be uploaded in the first place.
+				//
+				os.Remove(path)
+			}
+
+			//
+			// Now remove the report-entries
+			//
+			clean, err := db.Prepare("DELETE FROM reports WHERE fqdn=?")
+			if err != nil {
+				return err
+			}
+			defer clean.Close()
+			_, err = clean.Exec(entry.Fqdn)
+			if err != nil {
+				return err
+			}
+
+		}
+
 	}
 
 	return nil

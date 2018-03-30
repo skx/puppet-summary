@@ -238,7 +238,7 @@
             {{end}}
           </table>
           <p>&nbsp;</p>
-          <p>Orphaned nodes are those which have not submitted a report to the puppet-master within the past 24 hours, they will gradually fall off the display as reports are pruned.</p>
+          <p>Orphaned nodes are those which have not submitted a report to the puppet-master "recently", they will gradually fall off the display as reports are pruned.</p>
         </div>
 
       </div>

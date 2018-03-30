@@ -106,21 +106,22 @@ but that is a reasonable default.
 
 ## Maintenance
 
-Over time your reports will start to consuming ever-increasing amounts
-of disk-space so they should be pruned.  To prune (read: delete) old reports
-run:
+Over time your reports will start to consuming ever-increasing amounts of disk-space so they should be pruned.  To prune (read: delete) old reports run:
 
-    puppet-summary prune -days 15 -prefix ./reports/
+    puppet-summary prune -days 7 -prefix ./reports/
 
-That will remove the saved YAML files from disk which are > 15 days old, and
-also remove the associated database entries that refer to them.
+That will remove the saved YAML files from disk which are over 7 days old, and it will _also_ remove the associated database entries that refer to them.
 
-If you're happy with the default behaviour you can automate this by allowing
-reports to be reaped once per week - via the `-auto-prune` flag:
+If you're happy with the default pruning behaviour, which is particularly useful when you're running this software in a container, described in [HACKING.md](HACKING.md), you can prune old reports automatically once per week without the need to add a cron-job like so:
 
-    puppet-summary prune  -auto-prune [options..]
+    puppet-summary serve  -auto-prune [options..]
 
-This is particularly useful if you're running in a container, as documented in the [HACKING file](HACKING.md).
+If you don't do this you'll need to __add a cronjob__ to ensure that the prune-subcommand runs regularly.
+
+Nodes which had previously submitted updates to your puppet-master, and `puppet-summary` service, but which have failed to do so "recently", will be listed in the web-based user-interface, in the "orphaned" column.  Orphaned nodes will be reaped over time, via the `days` option just discussed.  If you explicitly wish to clean removed-hosts you can do so via:
+
+    puppet-summary prune -verbose -orphaned
+
 
 
 ## Metrics

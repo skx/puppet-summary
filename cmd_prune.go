@@ -19,6 +19,7 @@ type pruneCmd struct {
 	dbFile    string
 	days      int
 	unchanged bool
+	orphaned  bool
 	prefix    string
 	verbose   bool
 }
@@ -27,6 +28,16 @@ type pruneCmd struct {
 // Run a prune
 //
 func runPrune(x pruneCmd) error {
+
+	//
+	// Removing orphaned nodes?
+	//
+	if x.orphaned {
+		if x.verbose {
+			fmt.Printf("Pruning 'orphaned' reports from beneath %s\n", ReportPrefix)
+		}
+		return (pruneOrphaned(x.prefix, x.verbose))
+	}
 
 	//
 	// Removing unchanged reports?
@@ -68,6 +79,7 @@ func (p *pruneCmd) SetFlags(f *flag.FlagSet) {
 	f.BoolVar(&p.verbose, "verbose", false, "Be verbose in reporting output")
 	f.IntVar(&p.days, "days", 7, "Remove reports older than this many days.")
 	f.BoolVar(&p.unchanged, "unchanged", false, "Remove reports from hosts which had no changes.")
+	f.BoolVar(&p.orphaned, "orphaned", false, "Remove reports from hosts which are orphaned.")
 	f.StringVar(&p.dbFile, "db-file", "ps.db", "The SQLite database to use.")
 	f.StringVar(&p.prefix, "prefix", "./reports/", "The prefix to the local YAML hierarchy.")
 }
