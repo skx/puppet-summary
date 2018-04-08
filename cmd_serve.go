@@ -238,7 +238,7 @@ func RadiatorView(res http.ResponseWriter, req *http.Request) {
 		//
 		// Load our template resource.
 		//
-		tmpl, err := Asset("data/radiator.template")
+		tmpl, err := getResource("data/radiator.template")
 		if err != nil {
 			fmt.Fprintf(res, err.Error())
 			return
@@ -457,7 +457,7 @@ func SearchHandler(res http.ResponseWriter, req *http.Request) {
 	//
 	// Load our template source.
 	//
-	tmpl, err := Asset("data/results.template")
+	tmpl, err := getResource("data/results.template")
 	if err != nil {
 		fmt.Fprintf(res, err.Error())
 		return
@@ -589,7 +589,7 @@ func ReportHandler(res http.ResponseWriter, req *http.Request) {
 		//
 		// Load our template resource.
 		//
-		tmpl, err := Asset("data/report.template")
+		tmpl, err := getResource("data/report.template")
 		if err != nil {
 			fmt.Fprintf(res, err.Error())
 			return
@@ -752,7 +752,7 @@ func NodeHandler(res http.ResponseWriter, req *http.Request) {
 		//
 		// Load our template resource.
 		//
-		tmpl, err := Asset("data/node.template")
+		tmpl, err := getResource("data/node.template")
 		if err != nil {
 			fmt.Fprintf(res, err.Error())
 			return
@@ -822,7 +822,7 @@ func IconHandler(res http.ResponseWriter, req *http.Request) {
 	//
 	// Load the binary-asset.
 	//
-	data, err := Asset("data/favicon.ico")
+	data, err := getResource("data/favicon.ico")
 	if err != nil {
 		fmt.Fprintf(res, err.Error())
 		return
@@ -924,7 +924,7 @@ func IndexHandler(res http.ResponseWriter, req *http.Request) {
 		//
 		// Load our template source.
 		//
-		tmpl, err := Asset("data/index.template")
+		tmpl, err := getResource("data/index.template")
 		if err != nil {
 			fmt.Fprintf(res, err.Error())
 			return

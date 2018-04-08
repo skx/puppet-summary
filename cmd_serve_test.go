@@ -508,7 +508,7 @@ func TestUploadReport(t *testing.T) {
 	//
 	// Read the YAML file.
 	//
-	tmpl, err := Asset("data/valid.yaml")
+	tmpl, err := getResource("data/valid.yaml")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -573,7 +573,7 @@ func TestUploadBogusReport(t *testing.T) {
 	//
 	// Read the YAML file.
 	//
-	tmpl, err := Asset("data/valid.yaml")
+	tmpl, err := getResource("data/valid.yaml")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -893,7 +893,7 @@ func TestFavIcon(t *testing.T) {
 	//
 	// Load the resource
 	//
-	tmpl, err := Asset("data/favicon.ico")
+	tmpl, err := getResource("data/favicon.ico")
 	if err != nil {
 		t.Fatal(err)
 	}

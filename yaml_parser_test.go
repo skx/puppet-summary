@@ -209,7 +209,7 @@ func TestValidYaml(t *testing.T) {
 	//
 	// Read the YAML file.
 	//
-	tmpl, err := Asset("data/valid.yaml")
+	tmpl, err := getResource("data/valid.yaml")
 	if err != nil {
 		t.Fatal("Failed to load YAML asset data/valid.yaml")
 	}
@@ -261,7 +261,7 @@ func TestMissingResources(t *testing.T) {
 	//
 	// Read the YAML file.
 	//
-	tmpl, err := Asset("data/valid.yaml")
+	tmpl, err := getResource("data/valid.yaml")
 	if err != nil {
 		t.Fatal("Failed to load YAML asset data/valid.yaml")
 	}
