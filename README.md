@@ -2,6 +2,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/skx/puppet-summary)](https://goreportcard.com/report/github.com/skx/puppet-summary)
 [![license](https://img.shields.io/github/license/skx/puppet-summary.svg)](https://github.com/skx/puppet-summary/blob/master/LICENSE)
 [![Release](https://img.shields.io/github/release/skx/puppet-summary.svg)](https://github.com/skx/puppet-summary/releases/latest)
+[![gocover store](http://gocover.io/_badge/github.com/skx/puppet-summary)](http://gocover.io/github.com/skx/puppet-summary)
 
 Puppet Summary
 ==============
