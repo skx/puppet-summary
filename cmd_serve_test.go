@@ -21,7 +21,7 @@ import (
 )
 
 //
-// Report IDs must be alphanumeric.  Submit some bogus requests to
+// Report IDs must be numeric.  Submit some bogus requests to
 // ensure they fail with a suitable error-message.
 //
 func TestNonNumericReport(t *testing.T) {
