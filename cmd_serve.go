@@ -20,6 +20,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/google/subcommands"
 	"github.com/gorilla/handlers"
@@ -1034,9 +1035,20 @@ func serve(settings serveCmd) {
 	loggedRouter := handlers.LoggingHandler(os.Stdout, router)
 
 	//
+	// We want to make sure we handle timeouts effectively by using
+	// a non-default http-server
+	//
+	srv := &http.Server{
+		Addr:         bind,
+		Handler:      loggedRouter,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
+	}
+
+	//
 	// Launch the server.
 	//
-	err := http.ListenAndServe(bind, loggedRouter)
+	err := srv.ListenAndServe()
 	if err != nil {
 		fmt.Printf("\nError: %s\n", err.Error())
 	}
