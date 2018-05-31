@@ -26,6 +26,7 @@ import (
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/robfig/cron"
+	_ "github.com/skx/golang-metrics"
 )
 
 //
