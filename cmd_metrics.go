@@ -8,6 +8,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"os"
 
 	"github.com/google/subcommands"
 	"github.com/marpaia/graphite-golang"
@@ -24,7 +25,8 @@ func getMetrics() map[string]string {
 	// Get the node-states.
 	data, err := getStates()
 	if err != nil {
-		panic(err)
+		fmt.Printf("Error getting node states: %s\n", err.Error())
+		os.Exit(1)
 	}
 
 	// Now record the metrics we would send.
@@ -60,7 +62,8 @@ func SendMetrics(host string, port int, prefix string, nop bool) {
 	// providing we are running in `-nop`-mode.
 	//
 	if (err != nil) && (nop == false) {
-		panic(err)
+		fmt.Printf("Error creating metrics-helper: %s\n", err.Error())
+		return
 	}
 
 	//
