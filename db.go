@@ -15,6 +15,7 @@ import (
 	"strconv"
 	"time"
 
+	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -83,7 +84,7 @@ func SetupDB(path string) error {
 	//
 	// Return if the database already exists.
 	//
-	db, err = sql.Open("sqlite3", path)
+	db, err = sql.Open("mysql", "msandbox:msandbox@tcp(10.1.4.30:5552)/puppet")
 	if err != nil {
 		return err
 	}
@@ -280,7 +281,7 @@ func getIndexNodes() ([]PuppetRuns, error) {
 	//
 	// Select the status - for nodes seen in the past 24 hours.
 	//
-	rows, err := db.Query("SELECT fqdn, state, runtime, max(executed_at) FROM reports WHERE  ( ( strftime('%s','now') - executed_at ) < ? ) GROUP by fqdn;", threshold)
+	rows, err := db.Query("SELECT fqdn, state, runtime, max(executed_at) FROM reports WHERE  ( ( UNIX_TIMESTAMP() - executed_at ) < ? ) GROUP by fqdn;", threshold)
 	if err != nil {
 		return nil, err
 	}
@@ -337,7 +338,7 @@ func getIndexNodes() ([]PuppetRuns, error) {
 	//
 	// Now look for orphaned nodes.
 	//
-	rows2, err2 := db.Query("SELECT fqdn, state, runtime, max(executed_at) FROM reports WHERE ( ( strftime('%s','now') - executed_at ) > ? ) GROUP by fqdn;", threshold)
+	rows2, err2 := db.Query("SELECT fqdn, state, runtime, max(executed_at) FROM reports WHERE ( ( UNIX_TIMESTAMP() - executed_at ) > ? ) GROUP by fqdn;", threshold)
 	if err2 != nil {
 		return nil, err
 	}
@@ -561,7 +562,7 @@ func getHistory() ([]PuppetHistory, error) {
 	//
 	// Get all the distinct dates we have data for.
 	//
-	stmt, err := db.Prepare("SELECT DISTINCT(strftime('%d/%m/%Y', DATE(executed_at, 'unixepoch'))) FROM reports")
+	stmt, err := db.Prepare("SELECT DISTINCT(from_unixtime(executed_at, '%Y/%m/%d')) FROM reports")
 	rows, err := stmt.Query()
 	if err != nil {
 		return nil, err
@@ -600,7 +601,7 @@ func getHistory() ([]PuppetHistory, error) {
 		x.Failed = "0"
 		x.Date = known
 
-		stmt, err = db.Prepare("SELECT distinct state, COUNT(state) AS CountOf FROM reports WHERE strftime('%d/%m/%Y', DATE(executed_at, 'unixepoch'))=? GROUP by state")
+		stmt, err = db.Prepare("SELECT distinct state, COUNT(state) AS CountOf FROM reports WHERE from_unixtime(executed_at, '%Y/%m/%d')=? GROUP by state")
 		rows, err = stmt.Query(known)
 		if err != nil {
 			return nil, err
@@ -669,7 +670,7 @@ func pruneReports(prefix string, days int, verbose bool) error {
 	//
 	// Find things that are old.
 	//
-	find, err := db.Prepare("SELECT id,yaml_file FROM reports WHERE ( ( strftime('%s','now') - executed_at ) > ? )")
+	find, err := db.Prepare("SELECT id,yaml_file FROM reports WHERE ( ( UNIX_TIMESTAMP() - executed_at ) > ? )")
 	if err != nil {
 		return err
 	}
@@ -677,7 +678,7 @@ func pruneReports(prefix string, days int, verbose bool) error {
 	//
 	// Remove old reports, en mass.
 	//
-	clean, err := db.Prepare("DELETE FROM reports WHERE ( ( strftime('%s','now') - executed_at ) > ? )")
+	clean, err := db.Prepare("DELETE FROM reports WHERE ( ( UNIX_TIMESTAMP() - executed_at ) > ? )")
 	if err != nil {
 		return err
 	}
