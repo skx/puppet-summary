@@ -484,6 +484,9 @@ func getReports(fqdn string) ([]PuppetReportSummary, error) {
 	// Select the status.
 	//
 	stmt, err := db.Prepare("SELECT id, fqdn, state, executed_at, runtime, failed, changed, total, yaml_file FROM reports WHERE fqdn=? ORDER by executed_at DESC LIMIT 50")
+	if err != nil {
+		return nil, err
+	}
 	rows, err := stmt.Query(fqdn)
 	if err != nil {
 		return nil, err
@@ -563,6 +566,10 @@ func getHistory() ([]PuppetHistory, error) {
 	// Get all the distinct dates we have data for.
 	//
 	stmt, err := db.Prepare("SELECT DISTINCT(from_unixtime(executed_at, '%Y/%m/%d')) FROM reports")
+	if err != nil {
+		return nil, err
+	}
+
 	rows, err := stmt.Query()
 	if err != nil {
 		return nil, err
@@ -602,6 +609,10 @@ func getHistory() ([]PuppetHistory, error) {
 		x.Date = known
 
 		stmt, err = db.Prepare("SELECT distinct state, COUNT(state) AS CountOf FROM reports WHERE from_unixtime(executed_at, '%Y/%m/%d')=? GROUP by state")
+		if err != nil {
+			return nil, err
+		}
+
 		rows, err = stmt.Query(known)
 		if err != nil {
 			return nil, err

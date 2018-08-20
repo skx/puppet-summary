@@ -8,7 +8,7 @@ matrix:
     - go: tip
 
 script:
-    - ./build-all.sh
+    - ./.travis/build-all.sh
     - ls -l puppet-summary-*
     - go get golang.org/x/tools/cmd/cover
     - go test -coverprofile fmt
