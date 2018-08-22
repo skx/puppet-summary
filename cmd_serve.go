@@ -1042,8 +1042,8 @@ func serve(settings serveCmd) {
 	srv := &http.Server{
 		Addr:         bind,
 		Handler:      loggedRouter,
-		ReadTimeout:  5 * time.Second,
-		WriteTimeout: 10 * time.Second,
+		ReadTimeout:  time.Duration(settings.readTimeout) * time.Second,
+		WriteTimeout: time.Duration(settings.writeTimeout) * time.Second,
 	}
 
 	//
@@ -1059,12 +1059,14 @@ func serve(settings serveCmd) {
 // The options set by our command-line flags.
 //
 type serveCmd struct {
-	autoPrune bool
-	bindHost  string
-	bindPort  int
-	dbFile    string
+	autoPrune    bool
+	bindHost     string
+	bindPort     int
+	readTimeout  int
+	writeTimeout int
+	dbFile       string
 	dbType    string
-	prefix    string
+	prefix       string
 }
 
 //
@@ -1083,6 +1085,8 @@ func (*serveCmd) Usage() string {
 //
 func (p *serveCmd) SetFlags(f *flag.FlagSet) {
 	f.IntVar(&p.bindPort, "port", 3001, "The port to bind upon.")
+	f.IntVar(&p.readTimeout, "read-timeout", 5, "Timeout from when the connection is accepted to when the request body is fully read")
+	f.IntVar(&p.writeTimeout, "write-timeout", 10, "Timeout from the end of the request header read to the end of the response write")
 	f.BoolVar(&p.autoPrune, "auto-prune", false, "Prune reports automatically, once per week.")
 	f.StringVar(&p.bindHost, "host", "127.0.0.1", "The IP to listen upon.")
 	f.StringVar(&p.dbType, "db-type", "sqlite3", "The SQLite database to use.")
