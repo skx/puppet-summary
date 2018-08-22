@@ -14,6 +14,7 @@ import (
 	"sort"
 	"strconv"
 	"time"
+	"strings"
 
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/mattn/go-sqlite3"
@@ -23,6 +24,7 @@ import (
 // The global DB handle.
 //
 var db *sql.DB
+var db_type string
 
 //
 // PuppetRuns is the structure which is used to list a summary of puppet
@@ -77,45 +79,73 @@ type PuppetState struct {
 //
 // SetupDB opens our SQLite database, creating it if necessary.
 //
-func SetupDB(path string) error {
+func SetupDB(db_type_in string, path string) error {
 
 	var err error
+
+	if (strings.Compare(db_type_in, "sqlite3") != 0 && strings.Compare(db_type_in, "mysql") != 0) {
+		return errors.New(strings.Join([]string{"Invalid db type, sqlite3 or mysql supported:", "db_type_in"}, " "))
+	}
+
+	db_type = db_type_in
 
 	//
 	// Return if the database already exists.
 	//
-	db, err = sql.Open("mysql", "msandbox:msandbox@tcp(10.1.4.30:5552)/puppet")
+	db, err = sql.Open(db_type, path)
 	if err != nil {
 		return err
 	}
 
+	sqlStmt := ""
+
 	//
 	// Create the table.
 	//
-	sqlStmt := `
+	if strings.Compare(db_type_in, "sqlite3") == 0 {
+		sqlStmt = `
 
-        PRAGMA automatic_index = ON;
-        PRAGMA cache_size = 32768;
-        PRAGMA journal_size_limit = 67110000;
-        PRAGMA locking_mode = NORMAL;
-        PRAGMA synchronous = NORMAL;
-        PRAGMA temp_store = MEMORY;
-        PRAGMA journal_mode = WAL;
-        PRAGMA wal_autocheckpoint = 16384;
+	        PRAGMA automatic_index = ON;
+	        PRAGMA cache_size = 32768;
+	        PRAGMA journal_size_limit = 67110000;
+	        PRAGMA locking_mode = NORMAL;
+	        PRAGMA synchronous = NORMAL;
+	        PRAGMA temp_store = MEMORY;
+	        PRAGMA journal_mode = WAL;
+	        PRAGMA wal_autocheckpoint = 16384;
 
-        CREATE TABLE IF NOT EXISTS reports (
-          id          INTEGER PRIMARY KEY AUTOINCREMENT,
-          fqdn        text,
-          state       text,
-          yaml_file   text,
-          runtime     integer,
-          executed_at integer(4),
-          total       integer,
-          skipped     integer,
-          failed      integer,
-          changed     integer
-        )
-	`
+	        CREATE TABLE IF NOT EXISTS reports (
+	          id          INTEGER PRIMARY KEY AUTOINCREMENT,
+	          fqdn        text,
+	          state       text,
+	          yaml_file   text,
+	          runtime     integer,
+	          executed_at integer(4),
+	          total       integer,
+	          skipped     integer,
+	          failed      integer,
+	          changed     integer
+	        )
+			`
+	} else if strings.Compare(db_type_in, "mysql") == 0 {
+		sqlStmt = `
+			CREATE TABLE IF NOT EXISTS reports (
+			  id int(6) unsigned NOT NULL AUTO_INCREMENT,
+			  fqdn varchar(255) DEFAULT NULL,
+			  state varchar(255) DEFAULT NULL,
+			  yaml_file varchar(255) DEFAULT NULL,
+			  runtime int(11) DEFAULT NULL,
+			  executed_at int(4) DEFAULT NULL,
+			  total int(11) DEFAULT NULL,
+			  skipped int(11) DEFAULT NULL,
+			  failed int(11) DEFAULT NULL,
+			  changed int(11) DEFAULT NULL,
+			  PRIMARY KEY (id)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8
+			`
+	} else {
+		return errors.New("Invalid db type, sqlite3 or mysql supported")
+	}
 
 	//
 	// Create the table, if missing.
@@ -278,10 +308,17 @@ func getIndexNodes() ([]PuppetRuns, error) {
 		return nil, errors.New("SetupDB not called")
 	}
 
+	sql := ""
+	if strings.Compare(db_type, "sqlite3") == 0 {
+		sql = "SELECT fqdn, state, runtime, max(executed_at) FROM reports WHERE  ( ( strftime('%s','now') - executed_at ) < ? ) GROUP by fqdn;"
+	} else if strings.Compare(db_type, "mysql") == 0 {
+		sql = "SELECT fqdn, state, runtime, max(executed_at) FROM reports WHERE  ( ( UNIX_TIMESTAMP() - executed_at ) < ? ) GROUP by fqdn;"
+	}
+
 	//
 	// Select the status - for nodes seen in the past 24 hours.
 	//
-	rows, err := db.Query("SELECT fqdn, state, runtime, max(executed_at) FROM reports WHERE  ( ( UNIX_TIMESTAMP() - executed_at ) < ? ) GROUP by fqdn;", threshold)
+	rows, err := db.Query(sql, threshold)
 	if err != nil {
 		return nil, err
 	}
@@ -335,10 +372,16 @@ func getIndexNodes() ([]PuppetRuns, error) {
 		return nil, err
 	}
 
+	if strings.Compare(db_type, "sqlite3") == 0 {
+		sql = "SELECT fqdn, state, runtime, max(executed_at) FROM reports WHERE ( ( strftime('%s','now') - executed_at ) > ? ) GROUP by fqdn;"
+	} else if strings.Compare(db_type, "mysql") == 0 {
+		sql = "SELECT fqdn, state, runtime, max(executed_at) FROM reports WHERE ( ( UNIX_TIMESTAMP() - executed_at ) > ? ) GROUP by fqdn;"
+	}
+
 	//
 	// Now look for orphaned nodes.
 	//
-	rows2, err2 := db.Query("SELECT fqdn, state, runtime, max(executed_at) FROM reports WHERE ( ( UNIX_TIMESTAMP() - executed_at ) > ? ) GROUP by fqdn;", threshold)
+	rows2, err2 := db.Query(sql, threshold)
 	if err2 != nil {
 		return nil, err
 	}
@@ -562,10 +605,17 @@ func getHistory() ([]PuppetHistory, error) {
 	//
 	var dates []string
 
+	sql := ""
+	if strings.Compare(db_type, "sqlite3") == 0 {
+		sql = "SELECT DISTINCT(strftime('%d/%m/%Y', DATE(executed_at, 'unixepoch'))) FROM reports"
+	} else if strings.Compare(db_type, "mysql") == 0 {
+		sql = "SELECT DISTINCT(from_unixtime(executed_at, '%Y/%m/%d')) FROM reports"
+	}
+
 	//
 	// Get all the distinct dates we have data for.
 	//
-	stmt, err := db.Prepare("SELECT DISTINCT(from_unixtime(executed_at, '%Y/%m/%d')) FROM reports")
+	stmt, err := db.Prepare(sql)
 	if err != nil {
 		return nil, err
 	}
@@ -608,7 +658,15 @@ func getHistory() ([]PuppetHistory, error) {
 		x.Failed = "0"
 		x.Date = known
 
-		stmt, err = db.Prepare("SELECT distinct state, COUNT(state) AS CountOf FROM reports WHERE from_unixtime(executed_at, '%Y/%m/%d')=? GROUP by state")
+
+		sql := ""
+		if strings.Compare(db_type, "sqlite3") == 0 {
+			sql = "SELECT distinct state, COUNT(state) AS CountOf FROM reports WHERE strftime('%d/%m/%Y', DATE(executed_at, 'unixepoch'))=? GROUP by state"
+		} else if strings.Compare(db_type, "mysql") == 0 {
+			sql = "SELECT distinct state, COUNT(state) AS CountOf FROM reports WHERE from_unixtime(executed_at, '%Y/%m/%d')=? GROUP by state"
+		}
+
+		stmt, err = db.Prepare(sql)
 		if err != nil {
 			return nil, err
 		}
@@ -681,7 +739,14 @@ func pruneReports(prefix string, days int, verbose bool) error {
 	//
 	// Find things that are old.
 	//
-	find, err := db.Prepare("SELECT id,yaml_file FROM reports WHERE ( ( UNIX_TIMESTAMP() - executed_at ) > ? )")
+	sql := ""
+	if strings.Compare(db_type, "sqlite3") == 0 {
+		sql = "SELECT id,yaml_file FROM reports WHERE ( ( strftime('%s','now') - executed_at ) > ? )"
+	} else if strings.Compare(db_type, "mysql") == 0 {
+		sql = "SELECT id,yaml_file FROM reports WHERE ( ( UNIX_TIMESTAMP() - executed_at ) > ? )"
+	}
+
+	find, err := db.Prepare(sql)
 	if err != nil {
 		return err
 	}
@@ -689,7 +754,12 @@ func pruneReports(prefix string, days int, verbose bool) error {
 	//
 	// Remove old reports, en mass.
 	//
-	clean, err := db.Prepare("DELETE FROM reports WHERE ( ( UNIX_TIMESTAMP() - executed_at ) > ? )")
+	if strings.Compare(db_type, "sqlite3") == 0 {
+		sql = "DELETE FROM reports WHERE ( ( strftime('%s','now') - executed_at ) > ? )"
+	} else if strings.Compare(db_type, "mysql") == 0 {
+		sql = "DELETE FROM reports WHERE ( ( UNIX_TIMESTAMP() - executed_at ) > ? )"
+	}
+	clean, err := db.Prepare(sql)
 	if err != nil {
 		return err
 	}
@@ -910,3 +980,4 @@ func pruneOrphaned(prefix string, verbose bool) error {
 
 	return nil
 }
+

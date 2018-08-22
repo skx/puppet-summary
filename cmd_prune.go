@@ -17,6 +17,7 @@ import (
 //
 type pruneCmd struct {
 	dbFile    string
+	dbType    string
 	days      int
 	unchanged bool
 	orphaned  bool
@@ -80,7 +81,8 @@ func (p *pruneCmd) SetFlags(f *flag.FlagSet) {
 	f.IntVar(&p.days, "days", 7, "Remove reports older than this many days.")
 	f.BoolVar(&p.unchanged, "unchanged", false, "Remove reports from hosts which had no changes.")
 	f.BoolVar(&p.orphaned, "orphaned", false, "Remove reports from hosts which are orphaned.")
-	f.StringVar(&p.dbFile, "db-file", "ps.db", "The SQLite database to use.")
+	f.StringVar(&p.dbType, "db-type", "sqlite3", "The SQLite database to use.")
+	f.StringVar(&p.dbFile, "db-file", "ps.db", "The SQLite database to use or DSN for mysql (`db_user:db_password@tcp(db_hostname:db_port)/db_name`)")
 	f.StringVar(&p.prefix, "prefix", "./reports/", "The prefix to the local YAML hierarchy.")
 }
 
@@ -93,7 +95,7 @@ func (p *pruneCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{})
 	// Setup the database, by opening a handle, and creating it if
 	// missing.
 	//
-	SetupDB(p.dbFile)
+	SetupDB(p.dbType, p.dbFile)
 
 	//
 	// Invoke the prune

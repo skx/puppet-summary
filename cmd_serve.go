@@ -1063,6 +1063,7 @@ type serveCmd struct {
 	bindHost  string
 	bindPort  int
 	dbFile    string
+	dbType    string
 	prefix    string
 }
 
@@ -1084,7 +1085,8 @@ func (p *serveCmd) SetFlags(f *flag.FlagSet) {
 	f.IntVar(&p.bindPort, "port", 3001, "The port to bind upon.")
 	f.BoolVar(&p.autoPrune, "auto-prune", false, "Prune reports automatically, once per week.")
 	f.StringVar(&p.bindHost, "host", "127.0.0.1", "The IP to listen upon.")
-	f.StringVar(&p.dbFile, "db-file", "ps.db", "The SQLite database to use.")
+	f.StringVar(&p.dbType, "db-type", "sqlite3", "The SQLite database to use.")
+	f.StringVar(&p.dbFile, "db-file", "ps.db", "The SQLite database to use or DSN for mysql (`db_user:db_password@tcp(db_hostname:db_port)/db_name`)")
 	f.StringVar(&p.prefix, "prefix", "./reports/", "The prefix to the local YAML hierarchy.")
 }
 
@@ -1097,7 +1099,7 @@ func (p *serveCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{})
 	// Setup the database, by opening a handle, and creating it if
 	// missing.
 	//
-	SetupDB(p.dbFile)
+	SetupDB(p.dbType, p.dbFile)
 
 	//
 	// If autoprune

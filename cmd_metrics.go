@@ -93,6 +93,7 @@ func SendMetrics(host string, port int, prefix string, nop bool) {
 //
 type metricsCmd struct {
 	dbFile string
+	dbType string
 	host   string
 	port   int
 	prefix string
@@ -114,7 +115,8 @@ func (*metricsCmd) Usage() string {
 // Flag setup
 //
 func (p *metricsCmd) SetFlags(f *flag.FlagSet) {
-	f.StringVar(&p.dbFile, "db-file", "ps.db", "The SQLite database to use.")
+	f.StringVar(&p.dbType, "db-type", "sqlite3", "The SQLite database to use.")
+	f.StringVar(&p.dbFile, "db-file", "ps.db", "The SQLite database to use or DSN for mysql (`db_user:db_password@tcp(db_hostname:db_port)/db_name`)")
 	f.StringVar(&p.host, "host", "localhost", "The carbon host to send metrics to.")
 	f.IntVar(&p.port, "port", 2003, "The carbon port to use, when submitting metrics.")
 	f.StringVar(&p.prefix, "prefix", "puppet", "The prefix to use when submitting metrics.")
@@ -130,7 +132,7 @@ func (p *metricsCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{
 	// Setup the database, by opening a handle, and creating it if
 	// missing.
 	//
-	SetupDB(p.dbFile)
+	SetupDB(p.dbType, p.dbFile)
 
 	//
 	// Run metrics
