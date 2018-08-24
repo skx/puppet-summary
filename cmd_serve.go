@@ -1042,8 +1042,8 @@ func serve(settings serveCmd) {
 	srv := &http.Server{
 		Addr:         bind,
 		Handler:      loggedRouter,
-		ReadTimeout:  5 * time.Second,
-		WriteTimeout: 10 * time.Second,
+		ReadTimeout:  300 * time.Second,
+		WriteTimeout: 300 * time.Second,
 	}
 
 	//
