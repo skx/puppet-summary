@@ -140,7 +140,8 @@ func SetupDB(db_type_in string, path string) error {
 			  skipped int(11) DEFAULT NULL,
 			  failed int(11) DEFAULT NULL,
 			  changed int(11) DEFAULT NULL,
-			  PRIMARY KEY (id)
+			  PRIMARY KEY (id),
+			  KEY fqdn (fqdn)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8
 			`
 	} else {
@@ -312,7 +313,7 @@ func getIndexNodes() ([]PuppetRuns, error) {
 	if strings.Compare(db_type, "sqlite3") == 0 {
 		sql = "SELECT fqdn, state, runtime, max(executed_at) FROM reports WHERE  ( ( strftime('%s','now') - executed_at ) < ? ) GROUP by fqdn;"
 	} else if strings.Compare(db_type, "mysql") == 0 {
-		sql = "SELECT fqdn, state, runtime, max(executed_at) FROM reports WHERE  ( ( UNIX_TIMESTAMP() - executed_at ) < ? ) GROUP by fqdn;"
+		sql = "SELECT fqdn, (SELECT n.state FROM reports n WHERE n.fqdn = r.fqdn ORDER BY executed_at DESC LIMIT 1) as state, runtime, max(executed_at) FROM reports r WHERE  ( ( UNIX_TIMESTAMP() - executed_at ) < ? ) GROUP by fqdn;"
 	}
 
 	//
