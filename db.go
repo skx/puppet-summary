@@ -134,7 +134,7 @@ func SetupDB(path string) error {
 //
 // The entry contains most of the interesting data from the parsed YAML.
 //
-// But note that it odesn't contain changed resources, etc.
+// But note that it doesn't contain changed resources, etc.
 //
 //
 func addDB(data PuppetReport, path string) error {
