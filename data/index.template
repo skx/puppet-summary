@@ -9,6 +9,7 @@
     <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.bundle.min.js"></script>
+    <script src="/jquery.tablesorter.min.js"></script>
     <script type="text/javascript">
      window.onload = function () {
        //
@@ -86,6 +87,12 @@
          }
        });
 
+     $('#all_table').tablesorter();
+     $('#failed_table').tablesorter();
+     $('#changed_table').tablesorter();
+     $('#unchanged_table').tablesorter();
+     $('#orphaned_table').tablesorter();
+
      };
 
     </script>
@@ -140,11 +147,13 @@
         <!-- All -->
         <div id="all" class="tab-pane fade in active">
           <table id="all_table" class="table table-bordered table-striped table-condensed table-hover">
+            <thead>
             <tr>
               <th>Node</th>
               <th>State</th>
               <th>Seen</th>
             </tr>
+            </thead>
             {{range .Nodes }}
             <tr
                 {{if eq .State "failed" }} class="danger" {{ end }}
@@ -153,7 +162,7 @@
                 data-href="/node/{{.Fqdn}}">
               <td>{{.Fqdn}}</td>
               <td>{{.State}}</td>
-              <td title="{{.At}}">{{.Ago}}</td>
+              <td data-sort-value="{{.At}}" title="{{.At}}">{{.Ago}}</td>
             </tr>
             {{end}}
           </table>
@@ -162,17 +171,19 @@
         <!-- Failed -->
         <div id="failed" class="tab-pane fade">
           <table id="failed_table" class="table table-bordered table-striped table-condensed table-hover">
+            <thead>
             <tr>
               <th>Node</th>
               <th>State</th>
               <th>Seen</th>
             </tr>
+            </thead>
             {{range .Nodes }}
             {{if eq .State "failed" }}
             <tr class="danger" data-href="/node/{{.Fqdn}}">
               <td>{{.Fqdn}}</td>
               <td>{{.State}}</td>
-              <td title="{{.At}}">{{.Ago}}</td>
+              <td data-sort-value="{{.At}}" title="{{.At}}">{{.Ago}}</td>
             </tr>
             {{end}}
             {{end}}
@@ -182,17 +193,19 @@
         <!-- Changed -->
         <div id="changed" class="tab-pane fade">
           <table id="changed_table" class="table table-bordered table-striped table-condensed table-hover">
+            <thead>
             <tr>
               <th>Node</th>
               <th>State</th>
               <th>Seen</th>
             </tr>
+            </thead>
             {{range .Nodes }}
             {{if eq .State "changed" }}
             <tr class="info" data-href="/node/{{.Fqdn}}">
               <td>{{.Fqdn}}</td>
               <td>{{.State}}</td>
-              <td title="{{.At}}">{{.Ago}}</td>
+              <td data-sort-value="{{.At}}" title="{{.At}}">{{.Ago}}</td>
             </tr>
             {{end}}
             {{end}}
@@ -202,17 +215,19 @@
         <!-- Unchanged -->
         <div id="unchanged" class="tab-pane fade">
           <table id="unchanged_table" class="table table-bordered table-striped table-condensed table-hover">
+            <thead>
             <tr>
               <th>Node</th>
               <th>State</th>
               <th>Seen</th>
             </tr>
+            </thead>
             {{range .Nodes }}
             {{if eq .State "unchanged" }}
             <tr data-href="/node/{{.Fqdn}}">
               <td>{{.Fqdn}}</td>
               <td>{{.State}}</td>
-              <td title="{{.At}}">{{.Ago}}</td>
+              <td data-sort-value="{{.At}}" title="{{.At}}">{{.Ago}}</td>
             </tr>
             {{end}}
             {{end}}
@@ -222,17 +237,19 @@
         <!-- Orphaned -->
         <div id="orphaned" class="tab-pane fade">
           <table id="orphaned_table" class="table table-bordered table-striped table-condensed table-hover">
+            <thead>
             <tr>
               <th>Node</th>
               <th>State</th>
               <th>Seen</th>
             </tr>
+            </thead>
             {{range .Nodes }}
             {{if eq .State "orphaned" }}
             <tr class="warning" data-href="/node/{{.Fqdn}}">
               <td>{{.Fqdn}}</td>
               <td>{{.State}}</td>
-              <td title="{{.At}}">{{.Ago}}</td>
+              <td data-sort-value="{{.At}}" title="{{.At}}">{{.Ago}}</td>
             </tr>
             {{end}}
             {{end}}

@@ -835,6 +835,42 @@ func IconHandler(res http.ResponseWriter, req *http.Request) {
 }
 
 //
+// SorterHandler is the handler for the HTTP end-point
+//
+//     GET /jquery.tablesorter.min.js
+//
+// It will serve an embedded javascript resource.
+//
+func SorterHandler(res http.ResponseWriter, req *http.Request) {
+	var (
+		status int
+		err    error
+	)
+	defer func() {
+		if nil != err {
+			http.Error(res, err.Error(), status)
+
+			// Don't spam stdout when running test-cases.
+			if flag.Lookup("test.v") == nil {
+				fmt.Printf("Error: %s\n", err.Error())
+			}
+		}
+	}()
+
+	//
+	// Load the asset.
+	//
+	data, err := getResource("data/jquery.tablesorter.min.js")
+	if err != nil {
+		fmt.Fprintf(res, err.Error())
+		return
+	}
+
+	res.Header().Set("Content-Type", "application/javascript")
+	res.Write(data)
+}
+
+//
 // IndexHandler is the handler for the HTTP end-point
 //
 //     GET /
@@ -1015,10 +1051,10 @@ func serve(settings serveCmd) {
 	router.HandleFunc("/", IndexHandler).Methods("GET")
 
 	//
-	// FavIcon.
+	// Static-Files
 	//
 	router.HandleFunc("/favicon.ico", IconHandler).Methods("GET")
-
+	router.HandleFunc("/jquery.tablesorter.min.js", SorterHandler).Methods("GET")
 	//
 	// Bind the router.
 	//
