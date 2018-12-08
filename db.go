@@ -31,6 +31,7 @@ type PuppetRuns struct {
 	Fqdn    string
 	State   string
 	At      string
+	Epoch   string
 	Ago     string
 	Runtime string
 }
@@ -312,6 +313,7 @@ func getIndexNodes() ([]PuppetRuns, error) {
 		// contain the literal time, and also the relative
 		// time "Ago"
 		//
+		tmp.Epoch = at
 		tmp.Ago = timeRelative(at)
 
 		//
