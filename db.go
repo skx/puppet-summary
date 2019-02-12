@@ -84,7 +84,7 @@ func SetupDB(path string) error {
 	//
 	// Return if the database already exists.
 	//
-	db, err = sql.Open("sqlite3", path)
+	db, err = sql.Open("sqlite3", "file:"+path+"?_journal_mode=WAL")
 	if err != nil {
 		return err
 	}
