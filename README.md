@@ -4,6 +4,7 @@
 [![Release](https://img.shields.io/github/release/skx/puppet-summary.svg)](https://github.com/skx/puppet-summary/releases/latest)
 [![gocover store](http://gocover.io/_badge/github.com/skx/puppet-summary)](http://gocover.io/github.com/skx/puppet-summary)
 
+
 Puppet Summary
 ==============
 
