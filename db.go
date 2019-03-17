@@ -300,7 +300,7 @@ func getIndexNodes() ([]PuppetRuns, error) {
 	for rows.Next() {
 		var tmp PuppetRuns
 		var at string
-		err := rows.Scan(&tmp.Fqdn, &tmp.State, &tmp.Runtime, &at)
+		err = rows.Scan(&tmp.Fqdn, &tmp.State, &tmp.Runtime, &at)
 		if err != nil {
 			return nil, err
 		}
@@ -353,7 +353,7 @@ func getIndexNodes() ([]PuppetRuns, error) {
 	for rows2.Next() {
 		var tmp PuppetRuns
 		var at string
-		err := rows2.Scan(&tmp.Fqdn, &tmp.State, &tmp.Runtime, &at)
+		err = rows2.Scan(&tmp.Fqdn, &tmp.State, &tmp.Runtime, &at)
 		if err != nil {
 			return nil, err
 		}
@@ -508,7 +508,7 @@ func getReports(fqdn string) ([]PuppetReportSummary, error) {
 	for rows.Next() {
 		var tmp PuppetReportSummary
 		var at string
-		err := rows.Scan(&tmp.ID, &tmp.Fqdn, &tmp.State, &at, &tmp.Runtime, &tmp.Failed, &tmp.Changed, &tmp.Total, &tmp.YamlFile)
+		err = rows.Scan(&tmp.ID, &tmp.Fqdn, &tmp.State, &at, &tmp.Runtime, &tmp.Failed, &tmp.Changed, &tmp.Total, &tmp.YamlFile)
 		if err != nil {
 			return nil, err
 		}
@@ -583,7 +583,7 @@ func getHistory() ([]PuppetHistory, error) {
 	//
 	for rows.Next() {
 		var d string
-		err := rows.Scan(&d)
+		err = rows.Scan(&d)
 		if err != nil {
 			return nil, errors.New("Failed to scan SQL")
 		}
@@ -628,7 +628,7 @@ func getHistory() ([]PuppetHistory, error) {
 			var name string
 			var count string
 
-			err := rows.Scan(&name, &count)
+			err = rows.Scan(&name, &count)
 			if err != nil {
 				return nil, errors.New("Failed to scan SQL")
 			}
@@ -715,7 +715,7 @@ func pruneReports(prefix string, days int, verbose bool) error {
 		var id string
 		var path string
 
-		err := rows.Scan(&id, &path)
+		err = rows.Scan(&id, &path)
 		if err == nil {
 
 			//
@@ -805,7 +805,7 @@ func pruneUnchanged(prefix string, verbose bool) error {
 		var id string
 		var path string
 
-		err := rows.Scan(&id, &path)
+		err = rows.Scan(&id, &path)
 		if err == nil {
 
 			//
@@ -868,7 +868,7 @@ func pruneOrphaned(prefix string, verbose bool) error {
 
 			for rows.Next() {
 				var tmp string
-				err := rows.Scan(&tmp)
+				err = rows.Scan(&tmp)
 				if err != nil {
 					return err
 				}
