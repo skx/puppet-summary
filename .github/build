@@ -3,9 +3,6 @@
 # The basename of our binary
 BASE="puppet-summary"
 
-# Get the dependencies
-go mod init
-
 #
 # We could build on multiple platforms/archs
 #

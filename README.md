@@ -3,6 +3,21 @@
 [![Release](https://img.shields.io/github/release/skx/puppet-summary.svg)](https://github.com/skx/puppet-summary/releases/latest)
 [![gocover store](http://gocover.io/_badge/github.com/skx/puppet-summary)](http://gocover.io/github.com/skx/puppet-summary)
 
+Table of Contents
+=================
+
+* [Puppet Summary](#puppet-summary)
+* [Puppet Reporting](#puppet-reporting)
+* [Installation](#installation)
+  * [Source Installation go &lt;=  1.11](#source-installation-go---111)
+  * [Source installation go  &gt;= 1.12](#source-installation-go---112)
+* [Execution](#execution)
+* [Importing Puppet State](#importing-puppet-state)
+* [Maintenance](#maintenance)
+* [Metrics](#metrics)
+* [Notes On Deployment](#notes-on-deployment)
+* [Github Setup](#github-setup)
+
 Puppet Summary
 ==============
 
@@ -48,16 +63,24 @@ only contains a summary of the available data it will not grow excessively.
 
 ## Installation
 
-Providing you have a working go-installation you should be able to
-install this software by running:
+There are two ways to install this project from source, which depend on the version of the [go](https://golang.org/) version you're using.
 
-    go get -u github.com/skx/puppet-summary
+If you just need the binaries you can find them upon the [project release page](https://github.com/skx/puppet-summary/releases).
 
-> **NOTE**: If you've previously downloaded the code this will update your installation to the most recent available version.
 
-If you don't have a golang environment setup you should be able to download a binary for GNU/Linux from the github release page:
+### Source Installation go <=  1.11
 
-* [Binary Release for GNU/Linux - 64-bit](https://github.com/skx/puppet-summary/releases)
+If you're using `go` before 1.11 then the following command should fetch/update `overseer`, and install it upon your system:
+
+     $ go get -u github.com/skx/puppet-summary
+
+### Source installation go  >= 1.12
+
+If you're using a more recent version of `go` (which is _highly_ recommended), you need to clone to a directory which is not present upon your `GOPATH`:
+
+    git clone https://github.com/skx/puppet-summary
+    cd puppet-summary
+    go install
 
 
 ## Execution
@@ -180,4 +203,4 @@ and the [github-action-publish-binaries](https://github.com/skx/github-action-pu
 
 
 Steve
- --
+--

@@ -330,7 +330,7 @@ func ReportSubmissionHandler(res http.ResponseWriter, req *http.Request) {
 	//
 	dir := filepath.Join(ReportPrefix, report.Fqdn)
 	if !Exists(dir) {
-		err := os.MkdirAll(dir, 0755)
+		err = os.MkdirAll(dir, 0755)
 		if err != nil {
 			status = http.StatusInternalServerError
 			return
