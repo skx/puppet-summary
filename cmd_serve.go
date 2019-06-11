@@ -45,7 +45,7 @@ func Exists(name string) bool {
 //
 // APIState is the handler for the HTTP end-point
 //
-//     GET /api/state/$state
+//	 GET /api/state/$state
 //
 // This only will return plain-text by default, but JSON and XML are both
 // possible via the `Accept:` header or `?accept=XX` parameter.
@@ -54,7 +54,7 @@ func APIState(res http.ResponseWriter, req *http.Request) {
 
 	var (
 		status int
-		err    error
+		err	error
 	)
 	defer func() {
 		if nil != err {
@@ -162,7 +162,7 @@ func APIState(res http.ResponseWriter, req *http.Request) {
 //
 // RadiatorView is the handler for the HTTP end-point
 //
-//     GET /radiator/
+//	 GET /radiator/
 //
 // It will respond in either HTML, JSON, or XML depending on the
 // Accepts-header which is received.
@@ -171,13 +171,19 @@ func RadiatorView(res http.ResponseWriter, req *http.Request) {
 
 	var (
 		status int
-		err    error
+		err	error
 	)
 	defer func() {
 		if nil != err {
 			http.Error(res, err.Error(), status)
 		}
 	}()
+
+	// anonymous struct
+	type Pagedata struct {
+		States []PuppetState
+		Urlprefix string
+	}
 
 	//
 	// Get the state of the nodes.
@@ -204,6 +210,11 @@ func RadiatorView(res http.ResponseWriter, req *http.Request) {
 	tmp.Count = total
 	tmp.Percentage = 0
 	data = append(data, tmp)
+
+	// genereic template args
+	var x Pagedata
+	x.States = data
+	x.Urlprefix = templateArgs.urlprefix
 
 	//
 	// What kind of reply should we send?
@@ -256,7 +267,7 @@ func RadiatorView(res http.ResponseWriter, req *http.Request) {
 		// Execute the template into our buffer.
 		//
 		buf := &bytes.Buffer{}
-		err = t.Execute(buf, data)
+		err = t.Execute(buf, x)
 
 		//
 		// If there were errors, then show them.
@@ -275,7 +286,7 @@ func RadiatorView(res http.ResponseWriter, req *http.Request) {
 //
 // ReportSubmissionHandler is the handler for the HTTP end-point:
 //
-//    POST /upload
+//	POST /upload
 //
 // The input is read, and parsed as Yaml, and assuming that succeeds
 // then the data is written beneath ./reports/$hostname/$timestamp
@@ -285,7 +296,7 @@ func RadiatorView(res http.ResponseWriter, req *http.Request) {
 func ReportSubmissionHandler(res http.ResponseWriter, req *http.Request) {
 	var (
 		status int
-		err    error
+		err	error
 	)
 	defer func() {
 		if nil != err {
@@ -378,7 +389,7 @@ func ReportSubmissionHandler(res http.ResponseWriter, req *http.Request) {
 //
 // SearchHandler is the handler for the HTTP end-point:
 //
-//    POST /search
+//	POST /search
 //
 // We perform a search for nodes matching a given pattern.  The comparison
 // is a regular substring-match, rather than a regular expression.
@@ -386,7 +397,7 @@ func ReportSubmissionHandler(res http.ResponseWriter, req *http.Request) {
 func SearchHandler(res http.ResponseWriter, req *http.Request) {
 	var (
 		status int
-		err    error
+		err	error
 	)
 	defer func() {
 		if nil != err {
@@ -430,6 +441,7 @@ func SearchHandler(res http.ResponseWriter, req *http.Request) {
 	type Pagedata struct {
 		Nodes []PuppetRuns
 		Term  string
+		Urlprefix string
 	}
 
 	//
@@ -446,6 +458,7 @@ func SearchHandler(res http.ResponseWriter, req *http.Request) {
 	//
 	var x Pagedata
 	x.Term = term
+	x.Urlprefix = templateArgs.urlprefix
 
 	//
 	// Add in any nodes which match our term.
@@ -493,7 +506,7 @@ func SearchHandler(res http.ResponseWriter, req *http.Request) {
 //
 // ReportHandler is the handler for the HTTP end-point
 //
-//     GET /report/NN
+//	 GET /report/NN
 //
 // It will respond in either HTML, JSON, or XML depending on the
 // Accepts-header which is received.
@@ -501,7 +514,7 @@ func SearchHandler(res http.ResponseWriter, req *http.Request) {
 func ReportHandler(res http.ResponseWriter, req *http.Request) {
 	var (
 		status int
-		err    error
+		err	error
 	)
 	defer func() {
 		if nil != err {
@@ -548,6 +561,12 @@ func ReportHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	// need generic struct
+	type Pagedata struct {
+		Report PuppetReport
+		Urlprefix string
+	}
+
 	//
 	// Parse it
 	//
@@ -556,6 +575,10 @@ func ReportHandler(res http.ResponseWriter, req *http.Request) {
 		status = http.StatusInternalServerError
 		return
 	}
+
+	var x Pagedata
+	x.Report = report
+	x.Urlprefix = templateArgs.urlprefix
 
 	//
 	// Accept either a "?accept=XXX" URL-parameter, or
@@ -628,7 +651,7 @@ func ReportHandler(res http.ResponseWriter, req *http.Request) {
 		// Execute the template into our buffer.
 		//
 		buf := &bytes.Buffer{}
-		err = t.Execute(buf, report)
+		err = t.Execute(buf, x)
 
 		//
 		// If there were errors, then show them.
@@ -647,7 +670,7 @@ func ReportHandler(res http.ResponseWriter, req *http.Request) {
 //
 // NodeHandler is the handler for the HTTP end-point
 //
-//     GET /node/$FQDN
+//	 GET /node/$FQDN
 //
 // It will respond in either HTML, JSON, or XML depending on the
 // Accepts-header which is received.
@@ -655,7 +678,7 @@ func ReportHandler(res http.ResponseWriter, req *http.Request) {
 func NodeHandler(res http.ResponseWriter, req *http.Request) {
 	var (
 		status int
-		err    error
+		err	error
 	)
 	defer func() {
 		if nil != err {
@@ -711,6 +734,7 @@ func NodeHandler(res http.ResponseWriter, req *http.Request) {
 	type Pagedata struct {
 		Fqdn  string
 		Nodes []PuppetReportSummary
+		Urlprefix string
 	}
 
 	//
@@ -719,6 +743,7 @@ func NodeHandler(res http.ResponseWriter, req *http.Request) {
 	var x Pagedata
 	x.Nodes = reports
 	x.Fqdn = fqdn
+	x.Urlprefix = templateArgs.urlprefix
 
 	//
 	// Accept either a "?accept=XXX" URL-parameter, or
@@ -801,14 +826,14 @@ func NodeHandler(res http.ResponseWriter, req *http.Request) {
 //
 // IconHandler is the handler for the HTTP end-point
 //
-//     GET /favicon.ico
+//	 GET /favicon.ico
 //
 // It will server an embedded binary resource.
 //
 func IconHandler(res http.ResponseWriter, req *http.Request) {
 	var (
 		status int
-		err    error
+		err	error
 	)
 	defer func() {
 		if nil != err {
@@ -837,14 +862,14 @@ func IconHandler(res http.ResponseWriter, req *http.Request) {
 //
 // SorterHandler is the handler for the HTTP end-point
 //
-//     GET /jquery.tablesorter.min.js
+//	 GET /jquery.tablesorter.min.js
 //
 // It will serve an embedded javascript resource.
 //
 func SorterHandler(res http.ResponseWriter, req *http.Request) {
 	var (
 		status int
-		err    error
+		err	error
 	)
 	defer func() {
 		if nil != err {
@@ -873,7 +898,7 @@ func SorterHandler(res http.ResponseWriter, req *http.Request) {
 //
 // IndexHandler is the handler for the HTTP end-point
 //
-//     GET /
+//	 GET /
 //
 // It will respond in either HTML, JSON, or XML depending on the
 // Accepts-header which is received.
@@ -881,7 +906,7 @@ func SorterHandler(res http.ResponseWriter, req *http.Request) {
 func IndexHandler(res http.ResponseWriter, req *http.Request) {
 	var (
 		status int
-		err    error
+		err	error
 	)
 	defer func() {
 		if nil != err {
@@ -901,6 +926,7 @@ func IndexHandler(res http.ResponseWriter, req *http.Request) {
 	type Pagedata struct {
 		Graph []PuppetHistory
 		Nodes []PuppetRuns
+		Urlprefix string
 	}
 
 	//
@@ -927,6 +953,7 @@ func IndexHandler(res http.ResponseWriter, req *http.Request) {
 	var x Pagedata
 	x.Graph = graphs
 	x.Nodes = NodeList
+	x.Urlprefix = templateArgs.urlprefix
 
 	//
 	// Accept either a "?accept=XXX" URL-parameter, or
@@ -998,6 +1025,7 @@ func IndexHandler(res http.ResponseWriter, req *http.Request) {
 //  Entry-point.
 //
 func serve(settings serveCmd) {
+	templateArgs.urlprefix = settings.urlprefix
 
 	//
 	// Preserve our prefix
@@ -1076,8 +1104,8 @@ func serve(settings serveCmd) {
 	// a non-default http-server
 	//
 	srv := &http.Server{
-		Addr:         bind,
-		Handler:      loggedRouter,
+		Addr:		 bind,
+		Handler:	  loggedRouter,
 		ReadTimeout:  300 * time.Second,
 		WriteTimeout: 300 * time.Second,
 	}
@@ -1098,14 +1126,20 @@ type serveCmd struct {
 	autoPrune bool
 	bindHost  string
 	bindPort  int
-	dbFile    string
-	prefix    string
+	dbFile	string
+	prefix	string
+	urlprefix string
 }
+
+type templateOptions struct {
+	urlprefix string
+}
+var templateArgs templateOptions
 
 //
 // Glue
 //
-func (*serveCmd) Name() string     { return "serve" }
+func (*serveCmd) Name() string	 { return "serve" }
 func (*serveCmd) Synopsis() string { return "Launch the HTTP server." }
 func (*serveCmd) Usage() string {
 	return `serve [options]:
@@ -1122,6 +1156,7 @@ func (p *serveCmd) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&p.bindHost, "host", "127.0.0.1", "The IP to listen upon.")
 	f.StringVar(&p.dbFile, "db-file", "ps.db", "The SQLite database to use.")
 	f.StringVar(&p.prefix, "prefix", "./reports/", "The prefix to the local YAML hierarchy.")
+	f.StringVar(&p.urlprefix, "urlprefix", "", "The URL prefix for serving behind a proxy.")
 }
 
 //

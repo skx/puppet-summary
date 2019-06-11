@@ -8,6 +8,8 @@ import (
 	"context"
 	"flag"
 	"os"
+	"fmt"
+	"runtime/debug"
 
 	"github.com/google/subcommands"
 )
@@ -16,6 +18,12 @@ import (
 // Setup our sub-commands and use them.
 //
 func main() {
+	defer func() {
+		if r:= recover(); r != nil {
+			fmt.Println("Panic at the disco: \n" + string(debug.Stack()))
+		}
+	}()
+
 	subcommands.Register(subcommands.HelpCommand(), "")
 	subcommands.Register(subcommands.FlagsCommand(), "")
 	subcommands.Register(subcommands.CommandsCommand(), "")
