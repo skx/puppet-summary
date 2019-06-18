@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Puppet Report {{ .Fqdn }}</title>
+    <title>Puppet Report {{ .Report.Fqdn }}</title>
     <meta charset="utf-8">
-    <link href="/favicon.ico" rel="shortcut icon" />
+    <link href="{{.Urlprefix}}/favicon.ico" rel="shortcut icon" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ" crossorigin="anonymous"></script>
@@ -23,11 +23,11 @@
         <div id="navbar" class="collapse navbar-collapse">
           <div class="pull-left">
             <ul class="nav navbar-nav">
-              <li class="breadcrumb-item"><a href="/"><b>Puppet-Summary</b></a></li>
+              <li class="breadcrumb-item"><a href="{{.Urlprefix}}/"><b>Puppet-Summary</b></a></li>
             </ul>
           </div>
           <div class="pull-right">
-            <form class="navbar-form" action="/search" method="POST" role="search">
+            <form class="navbar-form" action="{{.Urlprefix}}/search" method="POST" role="search">
               <div class="input-group">
                 <input type="text" class="form-control" placeholder="Search" name="term">
                 <div class="input-group-btn">
@@ -46,14 +46,14 @@
           <div class="col-sm-1 col-md-1">
           </div>
           <div class="col-sm-11 col-md-11">
-            <p>Report of execution against {{ .Fqdn }}, at {{ .At }}:</p>
+            <p>Report of execution against {{ .Report.Fqdn }}, at {{ .Report.At }}:</p>
             <table class="table table-bordered table-striped table-condensed table-hover">
-              <tr><td>Changed </td><td>{{ .Changed }}</td></tr>
-              <tr><td>Skipped </td><td>{{ .Skipped }}</td></tr>
-              <tr><td>Failed </td><td>{{ .Failed }}</td></tr>
-              <tr><td>Total </td><td>{{ .Total }}</td></tr>
+              <tr><td>Changed </td><td>{{ .Report.Changed }}</td></tr>
+              <tr><td>Skipped </td><td>{{ .Report.Skipped }}</td></tr>
+              <tr><td>Failed </td><td>{{ .Report.Failed }}</td></tr>
+              <tr><td>Total </td><td>{{ .Report.Total }}</td></tr>
             </table>
-            <p>This run took {{truncate .Runtime }} seconds to complete.</p>
+            <p>This run took {{truncate .Report.Runtime }} seconds to complete.</p>
 
           </div>
         </div>
@@ -65,7 +65,7 @@
           <div class="col-sm-1 col-md-1">
           </div>
           <div class="col-sm-11 col-md-11">
-            {{range .LogMessages}}
+            {{range .Report.LogMessages}}
             <pre style="padding: 5px 9px;"><p style="margin: 0;">{{.}}</p></pre>
             {{else}}
             <p>Nothing reported.</p>
@@ -74,7 +74,7 @@
         </div>
       </div>
 
-      {{if .ResourcesFailed }}
+      {{if .Report.ResourcesFailed }}
       <h3 style="border-bottom: 1px solid #d3d3d3; width:100%">Failed</h3>
       <div class="container-fluid">
         <div class="row">
@@ -82,7 +82,7 @@
           </div>
           <div class="col-sm-11 col-md-11">
             <ul style="list-style:none">
-              {{range .ResourcesFailed}}
+              {{range .Report.ResourcesFailed}}
               <li>{{.Type}}: {{.Name}}
                 <ul>
                   <li><small><code>{{.File}}:{{.Line}}</code></small></li>
@@ -94,7 +94,7 @@
       </div>
       {{end}}
 
-      {{if .ResourcesChanged }}
+      {{if .Report.ResourcesChanged }}
       <h3 style="border-bottom: 1px solid #d3d3d3; width:100%">Changed</h3>
       <div class="container-fluid">
         <div class="row">
@@ -102,7 +102,7 @@
           </div>
           <div class="col-sm-11 col-md-11">
             <ul style="list-style:none">
-              {{range .ResourcesChanged}}
+              {{range .Report.ResourcesChanged}}
               <li>{{.Type}}: {{.Name}}
                 <ul>
                   <li><small><code>{{.File}}:{{.Line}}</code></small></li>
@@ -114,7 +114,7 @@
       </div>
       {{end}}
 
-      {{if .ResourcesSkipped}}
+      {{if .Report.ResourcesSkipped}}
       <h3 style="border-bottom: 1px solid #d3d3d3; width:100%">Skipped</h3>
       <div class="container-fluid">
         <div class="row">
@@ -122,7 +122,7 @@
           </div>
           <div class="col-sm-11 col-md-11">
             <ul style="list-style:none">
-              {{range .ResourcesSkipped}}
+              {{range .Report.ResourcesSkipped}}
               <li>{{.Type}}: {{.Name}}
                 <ul>
                   <li><small><code>{{.File}}:{{.Line}}</code></small></li>
@@ -135,7 +135,7 @@
       {{end}}
 
 
-      {{if .ResourcesOK }}
+      {{if .Report.ResourcesOK }}
       <h3 style="border-bottom: 1px solid #d3d3d3; width:100%">Unchanged</h3>
       <div class="container-fluid" style="display:none;">
         <div class="row">
@@ -143,7 +143,7 @@
           </div>
           <div class="col-sm-11 col-md-11">
             <ul style="list-style:none">
-              {{range .ResourcesOK}}
+              {{range .Report.ResourcesOK}}
               <li>{{.Type}}: {{.Name}}
                 <ul>
                   <li><small><code>{{.File}}:{{.Line}}</code></small></li>
@@ -163,7 +163,7 @@
         <div class="container">
           <div class="col-md-4">
             <ul class="nav">
-              <li><a href="/radiator/">Radiator View</a></li>
+              <li><a href="{{.Urlprefix}}/radiator/">Radiator View</a></li>
             </ul>
           </div>
           <div class="col-md-4">
