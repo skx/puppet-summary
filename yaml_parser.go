@@ -299,7 +299,7 @@ func parseLogs(y *simpleyaml.Yaml, out *PuppetReport) error {
 		}
 
 		if len(m["message"]) > 0 {
-			logged = append(logged, m["source"] + " : " + m["message"])
+			logged = append(logged, m["source"]+" : "+m["message"])
 		}
 	}
 

@@ -7,8 +7,8 @@ package main
 import (
 	"context"
 	"flag"
-	"os"
 	"fmt"
+	"os"
 	"runtime/debug"
 
 	"github.com/google/subcommands"
@@ -19,7 +19,7 @@ import (
 //
 func main() {
 	defer func() {
-		if r:= recover(); r != nil {
+		if r := recover(); r != nil {
 			fmt.Println("Panic at the disco: \n" + string(debug.Stack()))
 		}
 	}()

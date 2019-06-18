@@ -54,7 +54,7 @@ func APIState(res http.ResponseWriter, req *http.Request) {
 
 	var (
 		status int
-		err	error
+		err    error
 	)
 	defer func() {
 		if nil != err {
@@ -171,7 +171,7 @@ func RadiatorView(res http.ResponseWriter, req *http.Request) {
 
 	var (
 		status int
-		err	error
+		err    error
 	)
 	defer func() {
 		if nil != err {
@@ -181,7 +181,7 @@ func RadiatorView(res http.ResponseWriter, req *http.Request) {
 
 	// anonymous struct
 	type Pagedata struct {
-		States []PuppetState
+		States    []PuppetState
 		Urlprefix string
 	}
 
@@ -296,7 +296,7 @@ func RadiatorView(res http.ResponseWriter, req *http.Request) {
 func ReportSubmissionHandler(res http.ResponseWriter, req *http.Request) {
 	var (
 		status int
-		err	error
+		err    error
 	)
 	defer func() {
 		if nil != err {
@@ -397,7 +397,7 @@ func ReportSubmissionHandler(res http.ResponseWriter, req *http.Request) {
 func SearchHandler(res http.ResponseWriter, req *http.Request) {
 	var (
 		status int
-		err	error
+		err    error
 	)
 	defer func() {
 		if nil != err {
@@ -439,8 +439,8 @@ func SearchHandler(res http.ResponseWriter, req *http.Request) {
 	// with both the matching nodes, and the term used for the search
 	//
 	type Pagedata struct {
-		Nodes []PuppetRuns
-		Term  string
+		Nodes     []PuppetRuns
+		Term      string
 		Urlprefix string
 	}
 
@@ -514,7 +514,7 @@ func SearchHandler(res http.ResponseWriter, req *http.Request) {
 func ReportHandler(res http.ResponseWriter, req *http.Request) {
 	var (
 		status int
-		err	error
+		err    error
 	)
 	defer func() {
 		if nil != err {
@@ -563,7 +563,7 @@ func ReportHandler(res http.ResponseWriter, req *http.Request) {
 
 	// need generic struct
 	type Pagedata struct {
-		Report PuppetReport
+		Report    PuppetReport
 		Urlprefix string
 	}
 
@@ -678,7 +678,7 @@ func ReportHandler(res http.ResponseWriter, req *http.Request) {
 func NodeHandler(res http.ResponseWriter, req *http.Request) {
 	var (
 		status int
-		err	error
+		err    error
 	)
 	defer func() {
 		if nil != err {
@@ -732,8 +732,8 @@ func NodeHandler(res http.ResponseWriter, req *http.Request) {
 	// with both the reports and the fqdn of the host.
 	//
 	type Pagedata struct {
-		Fqdn  string
-		Nodes []PuppetReportSummary
+		Fqdn      string
+		Nodes     []PuppetReportSummary
 		Urlprefix string
 	}
 
@@ -833,7 +833,7 @@ func NodeHandler(res http.ResponseWriter, req *http.Request) {
 func IconHandler(res http.ResponseWriter, req *http.Request) {
 	var (
 		status int
-		err	error
+		err    error
 	)
 	defer func() {
 		if nil != err {
@@ -869,7 +869,7 @@ func IconHandler(res http.ResponseWriter, req *http.Request) {
 func SorterHandler(res http.ResponseWriter, req *http.Request) {
 	var (
 		status int
-		err	error
+		err    error
 	)
 	defer func() {
 		if nil != err {
@@ -906,7 +906,7 @@ func SorterHandler(res http.ResponseWriter, req *http.Request) {
 func IndexHandler(res http.ResponseWriter, req *http.Request) {
 	var (
 		status int
-		err	error
+		err    error
 	)
 	defer func() {
 		if nil != err {
@@ -924,8 +924,8 @@ func IndexHandler(res http.ResponseWriter, req *http.Request) {
 	// with both the nodes in the list, and the graph-data
 	//
 	type Pagedata struct {
-		Graph []PuppetHistory
-		Nodes []PuppetRuns
+		Graph     []PuppetHistory
+		Nodes     []PuppetRuns
 		Urlprefix string
 	}
 
@@ -1104,8 +1104,8 @@ func serve(settings serveCmd) {
 	// a non-default http-server
 	//
 	srv := &http.Server{
-		Addr:		 bind,
-		Handler:	  loggedRouter,
+		Addr:         bind,
+		Handler:      loggedRouter,
 		ReadTimeout:  300 * time.Second,
 		WriteTimeout: 300 * time.Second,
 	}
@@ -1126,20 +1126,21 @@ type serveCmd struct {
 	autoPrune bool
 	bindHost  string
 	bindPort  int
-	dbFile	string
-	prefix	string
+	dbFile    string
+	prefix    string
 	urlprefix string
 }
 
 type templateOptions struct {
 	urlprefix string
 }
+
 var templateArgs templateOptions
 
 //
 // Glue
 //
-func (*serveCmd) Name() string	 { return "serve" }
+func (*serveCmd) Name() string     { return "serve" }
 func (*serveCmd) Synopsis() string { return "Launch the HTTP server." }
 func (*serveCmd) Usage() string {
 	return `serve [options]:
