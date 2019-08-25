@@ -73,7 +73,7 @@ func APIState(res http.ResponseWriter, req *http.Request) {
 	//
 	if len(state) < 1 {
 		status = http.StatusNotFound
-		err = errors.New("Missing 'state' parameter")
+		err = errors.New("missing 'state' parameter")
 		return
 	}
 
@@ -86,7 +86,7 @@ func APIState(res http.ResponseWriter, req *http.Request) {
 	case "failed":
 	case "orphaned":
 	default:
-		err = errors.New("Invalid state")
+		err = errors.New("invalid state supplied")
 		status = http.StatusInternalServerError
 		return
 	}
@@ -253,7 +253,7 @@ func RadiatorView(res http.ResponseWriter, req *http.Request) {
 		//
 		tmpl, err := getResource("data/radiator.template")
 		if err != nil {
-			fmt.Fprintf(res, err.Error())
+			fmt.Fprint(res, err.Error())
 			return
 		}
 
@@ -272,7 +272,7 @@ func RadiatorView(res http.ResponseWriter, req *http.Request) {
 		//
 		// If there were errors, then show them.
 		if err != nil {
-			fmt.Fprintf(res, err.Error())
+			fmt.Fprint(res, err.Error())
 			return
 		}
 
@@ -313,7 +313,7 @@ func ReportSubmissionHandler(res http.ResponseWriter, req *http.Request) {
 	// Ensure this was a POST-request
 	//
 	if req.Method != "POST" {
-		err = errors.New("Must be called via HTTP-POST")
+		err = errors.New("must be called via HTTP-POST")
 		status = http.StatusInternalServerError
 		return
 	}
@@ -355,7 +355,7 @@ func ReportSubmissionHandler(res http.ResponseWriter, req *http.Request) {
 	//
 	// (Which is something you might do when testing the dashboard.)
 	//
-	path := filepath.Join(dir, fmt.Sprintf("%s", report.Hash))
+	path := filepath.Join(dir, report.Hash)
 
 	if Exists(path) {
 		fmt.Fprintf(res, "Ignoring duplicate submission")
@@ -374,7 +374,7 @@ func ReportSubmissionHandler(res http.ResponseWriter, req *http.Request) {
 	//
 	// Record that report in our SQLite database
 	//
-	relativePath := filepath.Join(report.Fqdn, fmt.Sprintf("%s", report.Hash))
+	relativePath := filepath.Join(report.Fqdn, report.Hash)
 
 	addDB(report, relativePath)
 
@@ -382,7 +382,7 @@ func ReportSubmissionHandler(res http.ResponseWriter, req *http.Request) {
 	// Show something to the caller.
 	//
 	out := fmt.Sprintf("{\"host\":\"%s\"}", report.Fqdn)
-	fmt.Fprintf(res, string(out))
+	fmt.Fprint(res, string(out))
 
 }
 
@@ -414,7 +414,7 @@ func SearchHandler(res http.ResponseWriter, req *http.Request) {
 	// Ensure this was a POST-request
 	//
 	if req.Method != "POST" {
-		err = errors.New("Must be called via HTTP-POST")
+		err = errors.New("must be called via HTTP-POST")
 		status = http.StatusInternalServerError
 		return
 	}
@@ -429,7 +429,7 @@ func SearchHandler(res http.ResponseWriter, req *http.Request) {
 	// Ensure we have a term.
 	//
 	if len(term) < 1 {
-		err = errors.New("Missing search term")
+		err = errors.New("missing search term")
 		status = http.StatusInternalServerError
 		return
 	}
@@ -474,7 +474,7 @@ func SearchHandler(res http.ResponseWriter, req *http.Request) {
 	//
 	tmpl, err := getResource("data/results.template")
 	if err != nil {
-		fmt.Fprintf(res, err.Error())
+		fmt.Fprint(res, err.Error())
 		return
 	}
 
@@ -493,7 +493,7 @@ func SearchHandler(res http.ResponseWriter, req *http.Request) {
 	//
 	// If there were errors, then show them.
 	if err != nil {
-		fmt.Fprintf(res, err.Error())
+		fmt.Fprint(res, err.Error())
 		return
 	}
 
@@ -538,7 +538,7 @@ func ReportHandler(res http.ResponseWriter, req *http.Request) {
 	//
 	if len(id) < 1 {
 		status = http.StatusNotFound
-		err = errors.New("Missing 'id' parameter")
+		err = errors.New("missing 'id' parameter")
 		return
 	}
 
@@ -548,7 +548,7 @@ func ReportHandler(res http.ResponseWriter, req *http.Request) {
 	reg, _ := regexp.Compile("^([0-9]+)$")
 	if !reg.MatchString(id) {
 		status = http.StatusInternalServerError
-		err = errors.New("The report ID must be numeric")
+		err = errors.New("the report ID must be numeric")
 		return
 	}
 
@@ -616,7 +616,7 @@ func ReportHandler(res http.ResponseWriter, req *http.Request) {
 		//
 		tmpl, err := getResource("data/report.template")
 		if err != nil {
-			fmt.Fprintf(res, err.Error())
+			fmt.Fprint(res, err.Error())
 			return
 		}
 
@@ -656,7 +656,7 @@ func ReportHandler(res http.ResponseWriter, req *http.Request) {
 		//
 		// If there were errors, then show them.
 		if err != nil {
-			fmt.Fprintf(res, err.Error())
+			fmt.Fprint(res, err.Error())
 			return
 		}
 
@@ -702,7 +702,7 @@ func NodeHandler(res http.ResponseWriter, req *http.Request) {
 	//
 	if len(fqdn) < 1 {
 		status = http.StatusNotFound
-		err = errors.New("Missing 'fqdn' parameter")
+		err = errors.New("missing 'fqdn' parameter")
 		return
 	}
 
@@ -781,7 +781,7 @@ func NodeHandler(res http.ResponseWriter, req *http.Request) {
 		//
 		tmpl, err := getResource("data/node.template")
 		if err != nil {
-			fmt.Fprintf(res, err.Error())
+			fmt.Fprint(res, err.Error())
 			return
 		}
 
@@ -812,7 +812,7 @@ func NodeHandler(res http.ResponseWriter, req *http.Request) {
 		//
 		// If there were errors, then show them.
 		if err != nil {
-			fmt.Fprintf(res, err.Error())
+			fmt.Fprint(res, err.Error())
 			return
 		}
 
@@ -851,7 +851,7 @@ func IconHandler(res http.ResponseWriter, req *http.Request) {
 	//
 	data, err := getResource("data/favicon.ico")
 	if err != nil {
-		fmt.Fprintf(res, err.Error())
+		fmt.Fprint(res, err.Error())
 		return
 	}
 
@@ -887,7 +887,7 @@ func SorterHandler(res http.ResponseWriter, req *http.Request) {
 	//
 	data, err := getResource("data/jquery.tablesorter.min.js")
 	if err != nil {
-		fmt.Fprintf(res, err.Error())
+		fmt.Fprint(res, err.Error())
 		return
 	}
 
@@ -991,7 +991,7 @@ func IndexHandler(res http.ResponseWriter, req *http.Request) {
 		//
 		tmpl, err := getResource("data/index.template")
 		if err != nil {
-			fmt.Fprintf(res, err.Error())
+			fmt.Fprint(res, err.Error())
 			return
 		}
 
@@ -1010,7 +1010,7 @@ func IndexHandler(res http.ResponseWriter, req *http.Request) {
 		//
 		// If there were errors, then show them.
 		if err != nil {
-			fmt.Fprintf(res, err.Error())
+			fmt.Fprint(res, err.Error())
 			return
 		}
 
