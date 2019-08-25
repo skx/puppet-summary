@@ -91,7 +91,7 @@ func TestMissingResource(t *testing.T) {
 	if err == nil {
 		t.Errorf("We expected an error loading a missing resource, but got none.")
 	}
-	if !strings.Contains(err.Error(), "Failed to find resource") {
+	if !strings.Contains(err.Error(), "failed to find resource") {
 		t.Errorf("Error message differed from expectations.")
 	}
 }
