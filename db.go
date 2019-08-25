@@ -244,7 +244,7 @@ func getYAML(prefix string, id string) ([]byte, error) {
 		content, err := ioutil.ReadFile(path)
 		return content, err
 	}
-	return nil, errors.New("Failed to find report with specified ID")
+	return nil, errors.New("failed to find report with specified ID")
 }
 
 //
@@ -459,8 +459,7 @@ func getStates() ([]PuppetState, error) {
 
 		// Percentage has to be capped :)
 		if total != 0 {
-			var c float64
-			c = float64(states[name])
+			c := float64(states[name])
 			tmp.Percentage = (c / float64(total)) * 100
 		}
 		data = append(data, tmp)
@@ -585,7 +584,7 @@ func getHistory() ([]PuppetHistory, error) {
 		var d string
 		err = rows.Scan(&d)
 		if err != nil {
-			return nil, errors.New("Failed to scan SQL")
+			return nil, errors.New("failed to scan SQL")
 		}
 
 		dates = append(dates, d)
@@ -630,7 +629,7 @@ func getHistory() ([]PuppetHistory, error) {
 
 			err = rows.Scan(&name, &count)
 			if err != nil {
-				return nil, errors.New("Failed to scan SQL")
+				return nil, errors.New("failed to scan SQL")
 			}
 			if name == "changed" {
 				x.Changed = count

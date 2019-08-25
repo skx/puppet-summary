@@ -47,7 +47,7 @@ func TestNonNumericReport(t *testing.T) {
 		}
 
 		// Check the response body is what we expect.
-		expected := "The report ID must be numeric\n"
+		expected := "the report ID must be numeric\n"
 		if rr.Body.String() != expected {
 			t.Errorf("handler returned unexpected body: got '%v' want '%v'",
 				rr.Body.String(), expected)
@@ -95,7 +95,7 @@ func TestUknownAPIState(t *testing.T) {
 		if status := resp.StatusCode; status != http.StatusInternalServerError {
 			t.Errorf("Unexpected status-code: %v", status)
 		}
-		if content != "Invalid state\n" {
+		if content != "invalid state supplied\n" {
 			t.Fatalf("Unexpected body: '%s'", body)
 		}
 	}
@@ -371,7 +371,7 @@ func TestSearchMethod(t *testing.T) {
 	}
 
 	// Check the response body is what we expect.
-	expected := "Must be called via HTTP-POST\n"
+	expected := "must be called via HTTP-POST\n"
 	if rr.Body.String() != expected {
 		t.Errorf("handler returned unexpected body: got '%v' want '%v'",
 			rr.Body.String(), expected)
@@ -403,7 +403,7 @@ func TestSearchEmpty(t *testing.T) {
 	}
 
 	// Check the response body is what we expect.
-	expected := "Missing search term\n"
+	expected := "missing search term\n"
 	if rr.Body.String() != expected {
 		t.Errorf("handler returned unexpected body: got '%v' want '%v'",
 			rr.Body.String(), expected)
@@ -485,7 +485,7 @@ func TestUploadReportMethod(t *testing.T) {
 	}
 
 	// Check the response body is what we expect.
-	expected := "Must be called via HTTP-POST\n"
+	expected := "must be called via HTTP-POST\n"
 	if rr.Body.String() != expected {
 		t.Errorf("handler returned unexpected body: got '%v' want '%v'",
 			rr.Body.String(), expected)
@@ -603,7 +603,7 @@ func TestUploadBogusReport(t *testing.T) {
 	}
 
 	// Check the response body is what we expect.
-	expected := "Failed to get 'host' from YAML\n"
+	expected := "failed to get 'host' from YAML\n"
 	if rr.Body.String() != expected {
 		t.Errorf("handler returned unexpected body: got '%v' want '%v'",
 			rr.Body.String(), expected)

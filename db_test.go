@@ -386,7 +386,7 @@ func TestMissiongReport(t *testing.T) {
 
 	_, err := getYAML("", "")
 
-	reg, _ := regexp.Compile("Failed to find report with specified ID")
+	reg, _ := regexp.Compile("failed to find report with specified ID")
 	if !reg.MatchString(err.Error()) {
 		t.Errorf("Got wrong error: %v", err)
 	}
