@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"os"
 	"strings"
 	"testing"
@@ -68,7 +69,7 @@ func TestMetricNop(t *testing.T) {
 	// Dump our metrics to STDOUT, due to `nop`, which will end up
 	// in our faux buffer.
 	s := metricsCmd{nop: true}
-	s.Execute(nil, nil)
+	s.Execute(context.TODO(), nil)
 
 	//
 	// Now see what we got.
