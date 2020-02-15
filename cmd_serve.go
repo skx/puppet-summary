@@ -831,68 +831,74 @@ func NodeHandler(res http.ResponseWriter, req *http.Request) {
 // It will server an embedded binary resource.
 //
 func IconHandler(res http.ResponseWriter, req *http.Request) {
-	var (
-		status int
-		err    error
-	)
-	defer func() {
-		if nil != err {
-			http.Error(res, err.Error(), status)
 
-			// Don't spam stdout when running test-cases.
-			if flag.Lookup("test.v") == nil {
-				fmt.Printf("Error: %s\n", err.Error())
-			}
-		}
-	}()
+	serveStatic(res, req, "data/favicon.ico", "image/vnd.microsoft.icon")
+}
+
+// CSSPath is the handler for all the CSS files beneath /css.
+func CSSPath(res http.ResponseWriter, req *http.Request) {
 
 	//
-	// Load the binary-asset.
+	// Get the path we're going to serve.
 	//
-	data, err := getResource("data/favicon.ico")
-	if err != nil {
-		fmt.Fprint(res, err.Error())
+	vars := mux.Vars(req)
+	path := vars["path"]
+
+	//
+	// Ensure we received a path.
+	//
+	if len(path) < 1 {
+		res.WriteHeader(http.StatusNotFound)
+		fmt.Fprint(res, "The request you made pointed to a missing resource")
 		return
 	}
 
-	res.Header().Set("Content-Type", "image/vnd.microsoft.icon")
+	//
+	// Serve it
+	//
+	serveStatic(res, req, "data/css/"+path, "text/css")
+}
+
+// serveStatic serves a static path, with the given MIME type.
+func serveStatic(res http.ResponseWriter, req *http.Request, path string, mime string) {
+
+	// Load the asset.
+	data, err := getResource(path)
+	if err != nil {
+		res.WriteHeader(http.StatusNotFound)
+		fmt.Fprintf(res, "Error loading the resource you requested: %s", err.Error())
+		return
+	}
+
+	res.Header().Set("Content-Type", mime)
 	res.Write(data)
 }
 
 //
-// SorterHandler is the handler for the HTTP end-point
-//
-//	 GET /jquery.tablesorter.min.js
-//
+// JavascriptPath is the handler for all the javascript files beneath /js.
 // It will serve an embedded javascript resource.
 //
-func SorterHandler(res http.ResponseWriter, req *http.Request) {
-	var (
-		status int
-		err    error
-	)
-	defer func() {
-		if nil != err {
-			http.Error(res, err.Error(), status)
-
-			// Don't spam stdout when running test-cases.
-			if flag.Lookup("test.v") == nil {
-				fmt.Printf("Error: %s\n", err.Error())
-			}
-		}
-	}()
+func JavascriptPath(res http.ResponseWriter, req *http.Request) {
 
 	//
-	// Load the asset.
+	// Get the path we're going to serve.
 	//
-	data, err := getResource("data/jquery.tablesorter.min.js")
-	if err != nil {
-		fmt.Fprint(res, err.Error())
+	vars := mux.Vars(req)
+	path := vars["path"]
+
+	//
+	// Ensure we received a path.
+	//
+	if len(path) < 1 {
+		res.WriteHeader(http.StatusNotFound)
+		fmt.Fprint(res, "The request you made pointed to a missing resource")
 		return
 	}
 
-	res.Header().Set("Content-Type", "application/javascript")
-	res.Write(data)
+	//
+	// Serve it
+	//
+	serveStatic(res, req, "data/js/"+path, "application/javascript")
 }
 
 //
@@ -1082,7 +1088,9 @@ func serve(settings serveCmd) {
 	// Static-Files
 	//
 	router.HandleFunc("/favicon.ico", IconHandler).Methods("GET")
-	router.HandleFunc("/jquery.tablesorter.min.js", SorterHandler).Methods("GET")
+	router.HandleFunc("/js/{path}", JavascriptPath).Methods("GET")
+	router.HandleFunc("/css/{path}", CSSPath).Methods("GET")
+
 	//
 	// Bind the router.
 	//
