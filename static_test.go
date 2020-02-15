@@ -15,8 +15,8 @@ import (
 //
 func TestResourceCount(t *testing.T) {
 	out := getResources()
-	if len(out) != 8 {
-		t.Errorf("We expected seven resources but found %d.", len(out))
+	if len(out) != 12 {
+		t.Errorf("We expected 12 resources but found %d.", len(out))
 	}
 }
 
@@ -54,17 +54,6 @@ func TestResourceMatches(t *testing.T) {
 		//
 		if len(master) != len(data) {
 			t.Errorf("Embedded and real resources have different sizes.")
-		}
-
-		//
-		// Now test the length is the same as generated in the file.
-		//
-		for i, o := range all {
-			if o.Filename == entry.Filename {
-				if len(master) != getResources()[i].Length {
-					t.Errorf("Data length didn't match the generated size")
-				}
-			}
 		}
 
 		//
