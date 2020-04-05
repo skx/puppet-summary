@@ -3,10 +3,10 @@
   <head>
     <title>Radiator View</title>
     <meta charset="utf-8">
-    <link href="/favicon.ico" rel="shortcut icon" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ" crossorigin="anonymous"></script>
-    <meta http-equiv="refresh" content="30; url=/radiator/">
+    <link href="{{.Urlprefix}}/favicon.ico" rel="shortcut icon" />
+    <script src="{{.Urlprefix }}/js/jquery-1.12.4.min.js"></script>
+    <meta http-equiv="refresh" content="30; url={{.Urlprefix}}/radiator/">
     <style>
      html,
      body,
@@ -179,8 +179,8 @@
       <tr style="text-color: white;">
         <td colspan="2">Puppet Summary <span id="status">✓</span></td>
       </tr>
-      {{range . }}
-      <tr class="{{.State}}" data-href="/#{{.State}}">
+      {{range .States }}
+      <tr class="{{.State}}" data-href="{{$.Urlprefix}}/#{{.State}}">
         <td class="count_column"><p class="count"><span>{{.Count}}</span></p></td>
         <td>
           <div>

@@ -45,7 +45,7 @@ func Exists(name string) bool {
 //
 // APIState is the handler for the HTTP end-point
 //
-//     GET /api/state/$state
+//	 GET /api/state/$state
 //
 // This only will return plain-text by default, but JSON and XML are both
 // possible via the `Accept:` header or `?accept=XX` parameter.
@@ -73,7 +73,7 @@ func APIState(res http.ResponseWriter, req *http.Request) {
 	//
 	if len(state) < 1 {
 		status = http.StatusNotFound
-		err = errors.New("Missing 'state' parameter")
+		err = errors.New("missing 'state' parameter")
 		return
 	}
 
@@ -86,7 +86,7 @@ func APIState(res http.ResponseWriter, req *http.Request) {
 	case "failed":
 	case "orphaned":
 	default:
-		err = errors.New("Invalid state")
+		err = errors.New("invalid state supplied")
 		status = http.StatusInternalServerError
 		return
 	}
@@ -162,7 +162,7 @@ func APIState(res http.ResponseWriter, req *http.Request) {
 //
 // RadiatorView is the handler for the HTTP end-point
 //
-//     GET /radiator/
+//	 GET /radiator/
 //
 // It will respond in either HTML, JSON, or XML depending on the
 // Accepts-header which is received.
@@ -178,6 +178,12 @@ func RadiatorView(res http.ResponseWriter, req *http.Request) {
 			http.Error(res, err.Error(), status)
 		}
 	}()
+
+	// anonymous struct
+	type Pagedata struct {
+		States    []PuppetState
+		Urlprefix string
+	}
 
 	//
 	// Get the state of the nodes.
@@ -204,6 +210,11 @@ func RadiatorView(res http.ResponseWriter, req *http.Request) {
 	tmp.Count = total
 	tmp.Percentage = 0
 	data = append(data, tmp)
+
+	// genereic template args
+	var x Pagedata
+	x.States = data
+	x.Urlprefix = templateArgs.urlprefix
 
 	//
 	// What kind of reply should we send?
@@ -242,7 +253,7 @@ func RadiatorView(res http.ResponseWriter, req *http.Request) {
 		//
 		tmpl, err := getResource("data/radiator.template")
 		if err != nil {
-			fmt.Fprintf(res, err.Error())
+			fmt.Fprint(res, err.Error())
 			return
 		}
 
@@ -256,12 +267,12 @@ func RadiatorView(res http.ResponseWriter, req *http.Request) {
 		// Execute the template into our buffer.
 		//
 		buf := &bytes.Buffer{}
-		err = t.Execute(buf, data)
+		err = t.Execute(buf, x)
 
 		//
 		// If there were errors, then show them.
 		if err != nil {
-			fmt.Fprintf(res, err.Error())
+			fmt.Fprint(res, err.Error())
 			return
 		}
 
@@ -275,7 +286,7 @@ func RadiatorView(res http.ResponseWriter, req *http.Request) {
 //
 // ReportSubmissionHandler is the handler for the HTTP end-point:
 //
-//    POST /upload
+//	POST /upload
 //
 // The input is read, and parsed as Yaml, and assuming that succeeds
 // then the data is written beneath ./reports/$hostname/$timestamp
@@ -302,7 +313,7 @@ func ReportSubmissionHandler(res http.ResponseWriter, req *http.Request) {
 	// Ensure this was a POST-request
 	//
 	if req.Method != "POST" {
-		err = errors.New("Must be called via HTTP-POST")
+		err = errors.New("must be called via HTTP-POST")
 		status = http.StatusInternalServerError
 		return
 	}
@@ -330,7 +341,7 @@ func ReportSubmissionHandler(res http.ResponseWriter, req *http.Request) {
 	//
 	dir := filepath.Join(ReportPrefix, report.Fqdn)
 	if !Exists(dir) {
-		err := os.MkdirAll(dir, 0755)
+		err = os.MkdirAll(dir, 0755)
 		if err != nil {
 			status = http.StatusInternalServerError
 			return
@@ -344,7 +355,7 @@ func ReportSubmissionHandler(res http.ResponseWriter, req *http.Request) {
 	//
 	// (Which is something you might do when testing the dashboard.)
 	//
-	path := filepath.Join(dir, fmt.Sprintf("%s", report.Hash))
+	path := filepath.Join(dir, report.Hash)
 
 	if Exists(path) {
 		fmt.Fprintf(res, "Ignoring duplicate submission")
@@ -363,7 +374,7 @@ func ReportSubmissionHandler(res http.ResponseWriter, req *http.Request) {
 	//
 	// Record that report in our SQLite database
 	//
-	relativePath := filepath.Join(report.Fqdn, fmt.Sprintf("%s", report.Hash))
+	relativePath := filepath.Join(report.Fqdn, report.Hash)
 
 	addDB(report, relativePath)
 
@@ -371,14 +382,14 @@ func ReportSubmissionHandler(res http.ResponseWriter, req *http.Request) {
 	// Show something to the caller.
 	//
 	out := fmt.Sprintf("{\"host\":\"%s\"}", report.Fqdn)
-	fmt.Fprintf(res, string(out))
+	fmt.Fprint(res, string(out))
 
 }
 
 //
 // SearchHandler is the handler for the HTTP end-point:
 //
-//    POST /search
+//	POST /search
 //
 // We perform a search for nodes matching a given pattern.  The comparison
 // is a regular substring-match, rather than a regular expression.
@@ -403,7 +414,7 @@ func SearchHandler(res http.ResponseWriter, req *http.Request) {
 	// Ensure this was a POST-request
 	//
 	if req.Method != "POST" {
-		err = errors.New("Must be called via HTTP-POST")
+		err = errors.New("must be called via HTTP-POST")
 		status = http.StatusInternalServerError
 		return
 	}
@@ -418,7 +429,7 @@ func SearchHandler(res http.ResponseWriter, req *http.Request) {
 	// Ensure we have a term.
 	//
 	if len(term) < 1 {
-		err = errors.New("Missing search term")
+		err = errors.New("missing search term")
 		status = http.StatusInternalServerError
 		return
 	}
@@ -428,8 +439,9 @@ func SearchHandler(res http.ResponseWriter, req *http.Request) {
 	// with both the matching nodes, and the term used for the search
 	//
 	type Pagedata struct {
-		Nodes []PuppetRuns
-		Term  string
+		Nodes     []PuppetRuns
+		Term      string
+		Urlprefix string
 	}
 
 	//
@@ -446,6 +458,7 @@ func SearchHandler(res http.ResponseWriter, req *http.Request) {
 	//
 	var x Pagedata
 	x.Term = term
+	x.Urlprefix = templateArgs.urlprefix
 
 	//
 	// Add in any nodes which match our term.
@@ -461,7 +474,7 @@ func SearchHandler(res http.ResponseWriter, req *http.Request) {
 	//
 	tmpl, err := getResource("data/results.template")
 	if err != nil {
-		fmt.Fprintf(res, err.Error())
+		fmt.Fprint(res, err.Error())
 		return
 	}
 
@@ -480,7 +493,7 @@ func SearchHandler(res http.ResponseWriter, req *http.Request) {
 	//
 	// If there were errors, then show them.
 	if err != nil {
-		fmt.Fprintf(res, err.Error())
+		fmt.Fprint(res, err.Error())
 		return
 	}
 
@@ -493,7 +506,7 @@ func SearchHandler(res http.ResponseWriter, req *http.Request) {
 //
 // ReportHandler is the handler for the HTTP end-point
 //
-//     GET /report/NN
+//	 GET /report/NN
 //
 // It will respond in either HTML, JSON, or XML depending on the
 // Accepts-header which is received.
@@ -525,7 +538,7 @@ func ReportHandler(res http.ResponseWriter, req *http.Request) {
 	//
 	if len(id) < 1 {
 		status = http.StatusNotFound
-		err = errors.New("Missing 'id' parameter")
+		err = errors.New("missing 'id' parameter")
 		return
 	}
 
@@ -535,7 +548,7 @@ func ReportHandler(res http.ResponseWriter, req *http.Request) {
 	reg, _ := regexp.Compile("^([0-9]+)$")
 	if !reg.MatchString(id) {
 		status = http.StatusInternalServerError
-		err = errors.New("The report ID must be numeric")
+		err = errors.New("the report ID must be numeric")
 		return
 	}
 
@@ -548,6 +561,12 @@ func ReportHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	// need generic struct
+	type Pagedata struct {
+		Report    PuppetReport
+		Urlprefix string
+	}
+
 	//
 	// Parse it
 	//
@@ -556,6 +575,10 @@ func ReportHandler(res http.ResponseWriter, req *http.Request) {
 		status = http.StatusInternalServerError
 		return
 	}
+
+	var x Pagedata
+	x.Report = report
+	x.Urlprefix = templateArgs.urlprefix
 
 	//
 	// Accept either a "?accept=XXX" URL-parameter, or
@@ -593,7 +616,7 @@ func ReportHandler(res http.ResponseWriter, req *http.Request) {
 		//
 		tmpl, err := getResource("data/report.template")
 		if err != nil {
-			fmt.Fprintf(res, err.Error())
+			fmt.Fprint(res, err.Error())
 			return
 		}
 
@@ -628,12 +651,12 @@ func ReportHandler(res http.ResponseWriter, req *http.Request) {
 		// Execute the template into our buffer.
 		//
 		buf := &bytes.Buffer{}
-		err = t.Execute(buf, report)
+		err = t.Execute(buf, x)
 
 		//
 		// If there were errors, then show them.
 		if err != nil {
-			fmt.Fprintf(res, err.Error())
+			fmt.Fprint(res, err.Error())
 			return
 		}
 
@@ -647,7 +670,7 @@ func ReportHandler(res http.ResponseWriter, req *http.Request) {
 //
 // NodeHandler is the handler for the HTTP end-point
 //
-//     GET /node/$FQDN
+//	 GET /node/$FQDN
 //
 // It will respond in either HTML, JSON, or XML depending on the
 // Accepts-header which is received.
@@ -679,7 +702,7 @@ func NodeHandler(res http.ResponseWriter, req *http.Request) {
 	//
 	if len(fqdn) < 1 {
 		status = http.StatusNotFound
-		err = errors.New("Missing 'fqdn' parameter")
+		err = errors.New("missing 'fqdn' parameter")
 		return
 	}
 
@@ -709,8 +732,9 @@ func NodeHandler(res http.ResponseWriter, req *http.Request) {
 	// with both the reports and the fqdn of the host.
 	//
 	type Pagedata struct {
-		Fqdn  string
-		Nodes []PuppetReportSummary
+		Fqdn      string
+		Nodes     []PuppetReportSummary
+		Urlprefix string
 	}
 
 	//
@@ -719,6 +743,7 @@ func NodeHandler(res http.ResponseWriter, req *http.Request) {
 	var x Pagedata
 	x.Nodes = reports
 	x.Fqdn = fqdn
+	x.Urlprefix = templateArgs.urlprefix
 
 	//
 	// Accept either a "?accept=XXX" URL-parameter, or
@@ -756,7 +781,7 @@ func NodeHandler(res http.ResponseWriter, req *http.Request) {
 		//
 		tmpl, err := getResource("data/node.template")
 		if err != nil {
-			fmt.Fprintf(res, err.Error())
+			fmt.Fprint(res, err.Error())
 			return
 		}
 
@@ -787,7 +812,7 @@ func NodeHandler(res http.ResponseWriter, req *http.Request) {
 		//
 		// If there were errors, then show them.
 		if err != nil {
-			fmt.Fprintf(res, err.Error())
+			fmt.Fprint(res, err.Error())
 			return
 		}
 
@@ -801,43 +826,85 @@ func NodeHandler(res http.ResponseWriter, req *http.Request) {
 //
 // IconHandler is the handler for the HTTP end-point
 //
-//     GET /favicon.ico
+//	 GET /favicon.ico
 //
 // It will server an embedded binary resource.
 //
 func IconHandler(res http.ResponseWriter, req *http.Request) {
-	var (
-		status int
-		err    error
-	)
-	defer func() {
-		if nil != err {
-			http.Error(res, err.Error(), status)
 
-			// Don't spam stdout when running test-cases.
-			if flag.Lookup("test.v") == nil {
-				fmt.Printf("Error: %s\n", err.Error())
-			}
-		}
-	}()
+	serveStatic(res, req, "data/favicon.ico", "image/vnd.microsoft.icon")
+}
+
+// CSSPath is the handler for all the CSS files beneath /css.
+func CSSPath(res http.ResponseWriter, req *http.Request) {
 
 	//
-	// Load the binary-asset.
+	// Get the path we're going to serve.
 	//
-	data, err := getResource("data/favicon.ico")
-	if err != nil {
-		fmt.Fprintf(res, err.Error())
+	vars := mux.Vars(req)
+	path := vars["path"]
+
+	//
+	// Ensure we received a path.
+	//
+	if len(path) < 1 {
+		res.WriteHeader(http.StatusNotFound)
+		fmt.Fprint(res, "The request you made pointed to a missing resource")
 		return
 	}
 
-	res.Header().Set("Content-Type", "image/vnd.microsoft.icon")
+	//
+	// Serve it
+	//
+	serveStatic(res, req, "data/css/"+path, "text/css")
+}
+
+// serveStatic serves a static path, with the given MIME type.
+func serveStatic(res http.ResponseWriter, req *http.Request, path string, mime string) {
+
+	// Load the asset.
+	data, err := getResource(path)
+	if err != nil {
+		res.WriteHeader(http.StatusNotFound)
+		fmt.Fprintf(res, "Error loading the resource you requested: %s", err.Error())
+		return
+	}
+
+	res.Header().Set("Content-Type", mime)
 	res.Write(data)
+}
+
+//
+// JavascriptPath is the handler for all the javascript files beneath /js.
+// It will serve an embedded javascript resource.
+//
+func JavascriptPath(res http.ResponseWriter, req *http.Request) {
+
+	//
+	// Get the path we're going to serve.
+	//
+	vars := mux.Vars(req)
+	path := vars["path"]
+
+	//
+	// Ensure we received a path.
+	//
+	if len(path) < 1 {
+		res.WriteHeader(http.StatusNotFound)
+		fmt.Fprint(res, "The request you made pointed to a missing resource")
+		return
+	}
+
+	//
+	// Serve it
+	//
+	serveStatic(res, req, "data/js/"+path, "application/javascript")
 }
 
 //
 // IndexHandler is the handler for the HTTP end-point
 //
-//     GET /
+//	 GET /
 //
 // It will respond in either HTML, JSON, or XML depending on the
 // Accepts-header which is received.
@@ -863,8 +930,9 @@ func IndexHandler(res http.ResponseWriter, req *http.Request) {
 	// with both the nodes in the list, and the graph-data
 	//
 	type Pagedata struct {
-		Graph []PuppetHistory
-		Nodes []PuppetRuns
+		Graph     []PuppetHistory
+		Nodes     []PuppetRuns
+		Urlprefix string
 	}
 
 	//
@@ -891,6 +959,7 @@ func IndexHandler(res http.ResponseWriter, req *http.Request) {
 	var x Pagedata
 	x.Graph = graphs
 	x.Nodes = NodeList
+	x.Urlprefix = templateArgs.urlprefix
 
 	//
 	// Accept either a "?accept=XXX" URL-parameter, or
@@ -928,7 +997,7 @@ func IndexHandler(res http.ResponseWriter, req *http.Request) {
 		//
 		tmpl, err := getResource("data/index.template")
 		if err != nil {
-			fmt.Fprintf(res, err.Error())
+			fmt.Fprint(res, err.Error())
 			return
 		}
 
@@ -947,7 +1016,7 @@ func IndexHandler(res http.ResponseWriter, req *http.Request) {
 		//
 		// If there were errors, then show them.
 		if err != nil {
-			fmt.Fprintf(res, err.Error())
+			fmt.Fprint(res, err.Error())
 			return
 		}
 
@@ -962,6 +1031,7 @@ func IndexHandler(res http.ResponseWriter, req *http.Request) {
 //  Entry-point.
 //
 func serve(settings serveCmd) {
+	templateArgs.urlprefix = settings.urlprefix
 
 	//
 	// Preserve our prefix
@@ -1015,9 +1085,11 @@ func serve(settings serveCmd) {
 	router.HandleFunc("/", IndexHandler).Methods("GET")
 
 	//
-	// FavIcon.
+	// Static-Files
 	//
 	router.HandleFunc("/favicon.ico", IconHandler).Methods("GET")
+	router.HandleFunc("/js/{path}", JavascriptPath).Methods("GET")
+	router.HandleFunc("/css/{path}", CSSPath).Methods("GET")
 
 	//
 	// Bind the router.
@@ -1065,9 +1137,16 @@ type serveCmd struct {
 	readTimeout  int
 	writeTimeout int
 	dbFile       string
-	dbType    string
+	dbType       string
 	prefix       string
+	urlprefix    string
 }
+
+type templateOptions struct {
+	urlprefix string
+}
+
+var templateArgs templateOptions
 
 //
 // Glue
@@ -1092,6 +1171,7 @@ func (p *serveCmd) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&p.dbType, "db-type", "sqlite3", "The SQLite database to use.")
 	f.StringVar(&p.dbFile, "db-file", "ps.db", "The SQLite database to use or DSN for mysql (`db_user:db_password@tcp(db_hostname:db_port)/db_name`)")
 	f.StringVar(&p.prefix, "prefix", "./reports/", "The prefix to the local YAML hierarchy.")
+	f.StringVar(&p.urlprefix, "urlprefix", "", "The URL prefix for serving behind a proxy.")
 }
 
 //

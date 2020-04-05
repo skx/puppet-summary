@@ -3,12 +3,13 @@
   <head>
     <title>{{.Fqdn}}</title>
     <meta charset="utf-8">
-    <link href="/favicon.ico" rel="shortcut icon" />
+    <link href="{{.Urlprefix }}/favicon.ico" rel="shortcut icon" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.bundle.min.js"></script>
+    <link href="{{.Urlprefix }}/css/bootstrap.min.css" rel="stylesheet">
+    <script src="{{.Urlprefix }}/js/jquery-1.12.4.min.js"></script>
+    <script src="{{.Urlprefix }}/js/bootstrap.min.js"></script>
+    <script src="{{.Urlprefix }}/js/Chart.bundle.min.js"></script>
+    <script src="{{.Urlprefix }}/js/jquery.tablesorter.min.js"></script>
     <script type="text/javascript">
 
      window.onload = function () {
@@ -80,11 +81,11 @@
         <div id="navbar" class="collapse navbar-collapse">
           <div class="pull-left">
             <ul class="nav navbar-nav">
-              <li class="breadcrumb-item"><a href="/"><b>Puppet-Summary</b></a></li>
+              <li class="breadcrumb-item"><a href="{{.Urlprefix }}/"><b>Puppet-Summary</b></a></li>
             </ul>
           </div>
           <div class="pull-right">
-            <form class="navbar-form" action="/search" method="POST" role="search">
+            <form class="navbar-form" action="{{.Urlprefix}}/search" method="POST" role="search">
               <div class="input-group">
                 <input type="text" class="form-control" placeholder="Search" name="term">
                 <div class="input-group-btn">
@@ -114,7 +115,7 @@
         <tr
             {{if eq .State "failed" }} class="danger" {{ end }}
             {{if eq .State "changed" }} class="info"  {{ end }}
-           {{if ne .YamlFile "pruned" }} data-href="/report/{{.ID}}" {{ end }}>
+           {{if ne .YamlFile "pruned" }} data-href="{{$.Urlprefix }}/report/{{.ID}}" {{ end }}>
           <td id="data_{{incr $i}}">{{incr $i}}</td>
           <td>{{.Fqdn}}</td>
           <td>{{.State}}</td>
@@ -133,7 +134,7 @@
         <div class="container">
           <div class="col-md-4">
             <ul class="nav">
-              <li><a href="/radiator/">Radiator View</a></li>
+              <li><a href="{{.Urlprefix }}/radiator/">Radiator View</a></li>
             </ul>
           </div>
           <div class="col-md-4">
@@ -143,7 +144,7 @@
           </div>
           <div class="col-md-4">
             <ul class="nav">
-              <li><a href="https://steve.kemp.fi/">© 2017-2018 - Steve Kemp</a></li>
+              <li><a href="https://steve.kemp.fi/">© 2017-2019 - Steve Kemp</a></li>
             </ul>
           </div>
         </div>

@@ -3,9 +3,6 @@
 # The basename of our binary
 BASE="puppet-summary"
 
-# Get the dependencies
-go get -t -v -d $(go list ./...)
-
 #
 # We could build on multiple platforms/archs
 #

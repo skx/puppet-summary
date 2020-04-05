@@ -34,6 +34,7 @@ type PuppetRuns struct {
 	Fqdn    string
 	State   string
 	At      string
+	Epoch   string
 	Ago     string
 	Runtime string
 }
@@ -166,7 +167,7 @@ func SetupDB(db_type_in string, path string) error {
 //
 // The entry contains most of the interesting data from the parsed YAML.
 //
-// But note that it odesn't contain changed resources, etc.
+// But note that it doesn't contain changed resources, etc.
 //
 //
 func addDB(data PuppetReport, path string) error {
@@ -275,7 +276,7 @@ func getYAML(prefix string, id string) ([]byte, error) {
 		content, err := ioutil.ReadFile(path)
 		return content, err
 	}
-	return nil, errors.New("Failed to find report with specified ID")
+	return nil, errors.New("failed to find report with specified ID")
 }
 
 //
@@ -338,7 +339,7 @@ func getIndexNodes() ([]PuppetRuns, error) {
 	for rows.Next() {
 		var tmp PuppetRuns
 		var at string
-		err := rows.Scan(&tmp.Fqdn, &tmp.State, &tmp.Runtime, &at)
+		err = rows.Scan(&tmp.Fqdn, &tmp.State, &tmp.Runtime, &at)
 		if err != nil {
 			return nil, err
 		}
@@ -351,6 +352,7 @@ func getIndexNodes() ([]PuppetRuns, error) {
 		// contain the literal time, and also the relative
 		// time "Ago"
 		//
+		tmp.Epoch = at
 		tmp.Ago = timeRelative(at)
 
 		//
@@ -396,7 +398,7 @@ func getIndexNodes() ([]PuppetRuns, error) {
 	for rows2.Next() {
 		var tmp PuppetRuns
 		var at string
-		err := rows2.Scan(&tmp.Fqdn, &tmp.State, &tmp.Runtime, &at)
+		err = rows2.Scan(&tmp.Fqdn, &tmp.State, &tmp.Runtime, &at)
 		if err != nil {
 			return nil, err
 		}
@@ -502,8 +504,7 @@ func getStates() ([]PuppetState, error) {
 
 		// Percentage has to be capped :)
 		if total != 0 {
-			var c float64
-			c = float64(states[name])
+			c := float64(states[name])
 			tmp.Percentage = (c / float64(total)) * 100
 		}
 		data = append(data, tmp)
@@ -551,7 +552,7 @@ func getReports(fqdn string) ([]PuppetReportSummary, error) {
 	for rows.Next() {
 		var tmp PuppetReportSummary
 		var at string
-		err := rows.Scan(&tmp.ID, &tmp.Fqdn, &tmp.State, &at, &tmp.Runtime, &tmp.Failed, &tmp.Changed, &tmp.Total, &tmp.YamlFile)
+		err = rows.Scan(&tmp.ID, &tmp.Fqdn, &tmp.State, &at, &tmp.Runtime, &tmp.Failed, &tmp.Changed, &tmp.Total, &tmp.YamlFile)
 		if err != nil {
 			return nil, err
 		}
@@ -633,9 +634,9 @@ func getHistory() ([]PuppetHistory, error) {
 	//
 	for rows.Next() {
 		var d string
-		err := rows.Scan(&d)
+		err = rows.Scan(&d)
 		if err != nil {
-			return nil, errors.New("Failed to scan SQL")
+			return nil, errors.New("failed to scan SQL")
 		}
 
 		dates = append(dates, d)
@@ -686,9 +687,9 @@ func getHistory() ([]PuppetHistory, error) {
 			var name string
 			var count string
 
-			err := rows.Scan(&name, &count)
+			err = rows.Scan(&name, &count)
 			if err != nil {
-				return nil, errors.New("Failed to scan SQL")
+				return nil, errors.New("failed to scan SQL")
 			}
 			if name == "changed" {
 				x.Changed = count
@@ -785,7 +786,7 @@ func pruneReports(prefix string, days int, verbose bool) error {
 		var id string
 		var path string
 
-		err := rows.Scan(&id, &path)
+		err = rows.Scan(&id, &path)
 		if err == nil {
 
 			//
@@ -875,7 +876,7 @@ func pruneUnchanged(prefix string, verbose bool) error {
 		var id string
 		var path string
 
-		err := rows.Scan(&id, &path)
+		err = rows.Scan(&id, &path)
 		if err == nil {
 
 			//
@@ -938,7 +939,7 @@ func pruneOrphaned(prefix string, verbose bool) error {
 
 			for rows.Next() {
 				var tmp string
-				err := rows.Scan(&tmp)
+				err = rows.Scan(&tmp)
 				if err != nil {
 					return err
 				}

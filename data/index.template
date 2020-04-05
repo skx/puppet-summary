@@ -3,12 +3,13 @@
   <head>
     <title>Node List</title>
     <meta charset="utf-8">
-    <link href="/favicon.ico" rel="shortcut icon" />
+    <link href="{{.Urlprefix }}/favicon.ico" rel="shortcut icon" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.bundle.min.js"></script>
+    <link href="{{.Urlprefix }}/css/bootstrap.min.css" rel="stylesheet">
+    <script src="{{.Urlprefix }}/js/jquery-1.12.4.min.js"></script>
+    <script src="{{.Urlprefix }}/js/bootstrap.min.js"></script>
+    <script src="{{.Urlprefix }}/js/Chart.bundle.min.js"></script>
+    <script src="{{.Urlprefix }}/js/jquery.tablesorter.min.js"></script>
     <script type="text/javascript">
      window.onload = function () {
        //
@@ -86,6 +87,12 @@
          }
        });
 
+     $('#all_table').tablesorter();
+     $('#failed_table').tablesorter();
+     $('#changed_table').tablesorter();
+     $('#unchanged_table').tablesorter();
+     $('#orphaned_table').tablesorter();
+
      };
 
     </script>
@@ -104,11 +111,11 @@
         <div id="navbar" class="collapse navbar-collapse">
           <div class="pull-left">
             <ul class="nav navbar-nav">
-              <li class="breadcrumb-item"><a href="/"><b>Puppet-Summary</b></a></li>
+              <li class="breadcrumb-item"><a href="{{.Urlprefix }}/"><b>Puppet-Summary</b></a></li>
             </ul>
           </div>
           <div class="pull-right">
-            <form class="navbar-form" action="/search" method="POST" role="search">
+            <form class="navbar-form" action="{{.Urlprefix }}/search" method="POST" role="search">
               <div class="input-group">
                 <input type="text" class="form-control" placeholder="Search" name="term">
                 <div class="input-group-btn">
@@ -140,20 +147,22 @@
         <!-- All -->
         <div id="all" class="tab-pane fade in active">
           <table id="all_table" class="table table-bordered table-striped table-condensed table-hover">
+            <thead>
             <tr>
               <th>Node</th>
               <th>State</th>
               <th>Seen</th>
             </tr>
+            </thead>
             {{range .Nodes }}
             <tr
                 {{if eq .State "failed" }} class="danger" {{ end }}
                 {{if eq .State "changed" }} class="info"  {{ end }}
                 {{if eq .State "orphaned" }} class="warning"  {{ end }}
-                data-href="/node/{{.Fqdn}}">
+                data-href="{{$.Urlprefix }}/node/{{.Fqdn}}">
               <td>{{.Fqdn}}</td>
               <td>{{.State}}</td>
-              <td title="{{.At}}">{{.Ago}}</td>
+              <td data-text="{{.Epoch}}" data-sort-value="{{.Epoch}}" title="{{.At}}">{{.Ago}}</td>
             </tr>
             {{end}}
           </table>
@@ -162,17 +171,19 @@
         <!-- Failed -->
         <div id="failed" class="tab-pane fade">
           <table id="failed_table" class="table table-bordered table-striped table-condensed table-hover">
+            <thead>
             <tr>
               <th>Node</th>
               <th>State</th>
               <th>Seen</th>
             </tr>
+            </thead>
             {{range .Nodes }}
             {{if eq .State "failed" }}
-            <tr class="danger" data-href="/node/{{.Fqdn}}">
+            <tr class="danger" data-href="{{$.Urlprefix }}/node/{{.Fqdn}}">
               <td>{{.Fqdn}}</td>
               <td>{{.State}}</td>
-              <td title="{{.At}}">{{.Ago}}</td>
+              <td data-text="{{.Epoch}}" data-sort-value="{{.Epoch}}" title="{{.At}}">{{.Ago}}</td>
             </tr>
             {{end}}
             {{end}}
@@ -182,17 +193,19 @@
         <!-- Changed -->
         <div id="changed" class="tab-pane fade">
           <table id="changed_table" class="table table-bordered table-striped table-condensed table-hover">
+            <thead>
             <tr>
               <th>Node</th>
               <th>State</th>
               <th>Seen</th>
             </tr>
+            </thead>
             {{range .Nodes }}
             {{if eq .State "changed" }}
-            <tr class="info" data-href="/node/{{.Fqdn}}">
+            <tr class="info" data-href="{{$.Urlprefix }}/node/{{.Fqdn}}">
               <td>{{.Fqdn}}</td>
               <td>{{.State}}</td>
-              <td title="{{.At}}">{{.Ago}}</td>
+              <td data-text="{{.Epoch}}" data-sort-value="{{.Epoch}}" title="{{.At}}">{{.Ago}}</td>
             </tr>
             {{end}}
             {{end}}
@@ -202,17 +215,19 @@
         <!-- Unchanged -->
         <div id="unchanged" class="tab-pane fade">
           <table id="unchanged_table" class="table table-bordered table-striped table-condensed table-hover">
+            <thead>
             <tr>
               <th>Node</th>
               <th>State</th>
               <th>Seen</th>
             </tr>
+            </thead>
             {{range .Nodes }}
             {{if eq .State "unchanged" }}
-            <tr data-href="/node/{{.Fqdn}}">
+            <tr data-href="{{$.Urlprefix }}/node/{{.Fqdn}}">
               <td>{{.Fqdn}}</td>
               <td>{{.State}}</td>
-              <td title="{{.At}}">{{.Ago}}</td>
+              <td data-text="{{.Epoch}}" data-sort-value="{{.Epoch}}" title="{{.At}}">{{.Ago}}</td>
             </tr>
             {{end}}
             {{end}}
@@ -222,17 +237,19 @@
         <!-- Orphaned -->
         <div id="orphaned" class="tab-pane fade">
           <table id="orphaned_table" class="table table-bordered table-striped table-condensed table-hover">
+            <thead>
             <tr>
               <th>Node</th>
               <th>State</th>
               <th>Seen</th>
             </tr>
+            </thead>
             {{range .Nodes }}
             {{if eq .State "orphaned" }}
-            <tr class="warning" data-href="/node/{{.Fqdn}}">
+            <tr class="warning" data-href="{{$.Urlprefix }}/node/{{.Fqdn}}">
               <td>{{.Fqdn}}</td>
               <td>{{.State}}</td>
-              <td title="{{.At}}">{{.Ago}}</td>
+              <td data-text="{{.Epoch}}" data-sort-value="{{.Epoch}}" title="{{.At}}">{{.Ago}}</td>
             </tr>
             {{end}}
             {{end}}
@@ -250,7 +267,7 @@
       <div class="container">
         <div class="col-md-4">
           <ul class="nav">
-            <li><a href="/radiator/">Radiator View</a></li>
+            <li><a href="{{.Urlprefix }}/radiator/">Radiator View</a></li>
           </ul>
         </div>
         <div class="col-md-4">
@@ -260,7 +277,7 @@
         </div>
         <div class="col-md-4">
           <ul class="nav">
-            <li><a href="https://steve.kemp.fi/">© 2017-2018 - Steve Kemp</a></li>
+            <li><a href="https://steve.kemp.fi/">© 2017-2019 - Steve Kemp</a></li>
           </ul>
         </div>
       </div>

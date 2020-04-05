@@ -115,7 +115,7 @@ func parseHost(y *simpleyaml.Yaml, out *PuppetReport) error {
 	//
 	host, err := y.Get("host").String()
 	if err != nil {
-		return errors.New("Failed to get 'host' from YAML")
+		return errors.New("failed to get 'host' from YAML")
 	}
 
 	//
@@ -123,7 +123,7 @@ func parseHost(y *simpleyaml.Yaml, out *PuppetReport) error {
 	//
 	reg, _ := regexp.Compile("^([a-z0-9._-]+)$")
 	if !reg.MatchString(host) {
-		return errors.New("The submitted 'host' field failed our security check")
+		return errors.New("the submitted 'host' field failed our security check")
 	}
 
 	out.Fqdn = host
@@ -141,7 +141,7 @@ func parseTime(y *simpleyaml.Yaml, out *PuppetReport) error {
 	//
 	at, err := y.Get("time").String()
 	if err != nil {
-		return errors.New("Failed to get 'time' from YAML")
+		return errors.New("failed to get 'time' from YAML")
 	}
 
 	// Strip any quotes that might surround the time.
@@ -170,7 +170,7 @@ func parseStatus(y *simpleyaml.Yaml, out *PuppetReport) error {
 	//
 	state, err := y.Get("status").String()
 	if err != nil {
-		return errors.New("Failed to get 'status' from YAML")
+		return errors.New("failed to get 'status' from YAML")
 	}
 
 	switch state {
@@ -178,7 +178,7 @@ func parseStatus(y *simpleyaml.Yaml, out *PuppetReport) error {
 	case "unchanged":
 	case "failed":
 	default:
-		return errors.New("Unexpected 'status' - " + state)
+		return errors.New("unexpected 'status' - " + state)
 	}
 
 	out.State = state
@@ -277,7 +277,7 @@ func parseResources(y *simpleyaml.Yaml, out *PuppetReport) error {
 func parseLogs(y *simpleyaml.Yaml, out *PuppetReport) error {
 	logs, err := y.Get("logs").Array()
 	if err != nil {
-		return errors.New("Failed to get 'logs' from YAML")
+		return errors.New("failed to get 'logs' from YAML")
 	}
 
 	var logged []string
@@ -299,7 +299,7 @@ func parseLogs(y *simpleyaml.Yaml, out *PuppetReport) error {
 		}
 
 		if len(m["message"]) > 0 {
-			logged = append(logged, m["source"] + " : " + m["message"])
+			logged = append(logged, m["source"]+" : "+m["message"])
 		}
 	}
 
@@ -314,7 +314,7 @@ func parseLogs(y *simpleyaml.Yaml, out *PuppetReport) error {
 func parseResults(y *simpleyaml.Yaml, out *PuppetReport) error {
 	rs, err := y.Get("resource_statuses").Map()
 	if err != nil {
-		return errors.New("Failed to get 'resource_statuses' from YAML")
+		return errors.New("failed to get 'resource_statuses' from YAML")
 	}
 
 	var failed []Resource
@@ -405,7 +405,7 @@ func ParsePuppetReport(content []byte) (PuppetReport, error) {
 	//
 	yaml, err := simpleyaml.NewYaml(content)
 	if err != nil {
-		return x, errors.New("Failed to parse YAML")
+		return x, errors.New("failed to parse YAML")
 	}
 
 	//

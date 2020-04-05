@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"runtime"
 	"testing"
 )
@@ -17,7 +18,7 @@ func TestVersion(t *testing.T) {
 	expected := "unreleased\n"
 
 	s := versionCmd{}
-	s.Execute(nil, nil)
+	s.Execute(context.TODO(), nil)
 	if out.(*bytes.Buffer).String() != expected {
 		t.Errorf("Expected '%s' received '%s'", expected, out)
 	}
@@ -34,7 +35,7 @@ func TestVersionVerbose(t *testing.T) {
 	expected := "unreleased\nBuilt with " + runtime.Version() + "\n"
 
 	s := versionCmd{verbose: true}
-	s.Execute(nil, nil)
+	s.Execute(context.TODO(), nil)
 	if out.(*bytes.Buffer).String() != expected {
 		t.Errorf("Expected '%s' received '%s'", expected, out)
 	}

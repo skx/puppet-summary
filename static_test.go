@@ -15,8 +15,8 @@ import (
 //
 func TestResourceCount(t *testing.T) {
 	out := getResources()
-	if len(out) != 7 {
-		t.Errorf("We expected seven resources but found %d.", len(out))
+	if len(out) != 12 {
+		t.Errorf("We expected 12 resources but found %d.", len(out))
 	}
 }
 
@@ -57,17 +57,6 @@ func TestResourceMatches(t *testing.T) {
 		}
 
 		//
-		// Now test the length is the same as generated in the file.
-		//
-		for i, o := range all {
-			if o.Filename == entry.Filename {
-				if len(master) != getResources()[i].Length {
-					t.Errorf("Data length didn't match the generated size")
-				}
-			}
-		}
-
-		//
 		// Test the data-matches
 		//
 		if string(master) != string(data) {
@@ -91,7 +80,7 @@ func TestMissingResource(t *testing.T) {
 	if err == nil {
 		t.Errorf("We expected an error loading a missing resource, but got none.")
 	}
-	if !strings.Contains(err.Error(), "Failed to find resource") {
+	if !strings.Contains(err.Error(), "failed to find resource") {
 		t.Errorf("Error message differed from expectations.")
 	}
 }

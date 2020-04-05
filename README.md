@@ -1,8 +1,22 @@
-[![Travis CI](https://img.shields.io/travis/skx/puppet-summary/master.svg?style=flat-square)](https://travis-ci.org/skx/puppet-summary)
 [![Go Report Card](https://goreportcard.com/badge/github.com/skx/puppet-summary)](https://goreportcard.com/report/github.com/skx/puppet-summary)
 [![license](https://img.shields.io/github/license/skx/puppet-summary.svg)](https://github.com/skx/puppet-summary/blob/master/LICENSE)
 [![Release](https://img.shields.io/github/release/skx/puppet-summary.svg)](https://github.com/skx/puppet-summary/releases/latest)
 [![gocover store](http://gocover.io/_badge/github.com/skx/puppet-summary)](http://gocover.io/github.com/skx/puppet-summary)
+
+Table of Contents
+=================
+
+* [Puppet Summary](#puppet-summary)
+* [Puppet Reporting](#puppet-reporting)
+* [Installation](#installation)
+  * [Source Installation go &lt;=  1.11](#source-installation-go---111)
+  * [Source installation go  &gt;= 1.12](#source-installation-go---112)
+* [Execution](#execution)
+* [Importing Puppet State](#importing-puppet-state)
+* [Maintenance](#maintenance)
+* [Metrics](#metrics)
+* [Notes On Deployment](#notes-on-deployment)
+* [Github Setup](#github-setup)
 
 Puppet Summary
 ==============
@@ -24,9 +38,15 @@ This project is directly inspired by the [puppet-dashboard](https://github.com/s
 * The output can be used for scripting, and automation.
    * All output is available as [JSON/XML](API.md) in addition to human-viewable HTML.
 
-You can get a good idea of what the project does by looking at the online demo, which is available here:
+You can get a good idea of what the project does by looking at the screens:
 
-* [https://master.steve.org.uk/](https://master.steve.org.uk/)
+* [SCREENSHOTS.md](SCREENSHOTS.md)
+
+You can also consult the API documentation:
+
+* [API.md](API.md)
+
+
 
 
 ## Puppet Reporting
@@ -49,16 +69,24 @@ only contains a summary of the available data it will not grow excessively.
 
 ## Installation
 
-Providing you have a working go-installation you should be able to
-install this software by running:
+There are two ways to install this project from source, which depend on the version of the [go](https://golang.org/) version you're using.
 
-    go get -u github.com/skx/puppet-summary
+If you just need the binaries you can find them upon the [project release page](https://github.com/skx/puppet-summary/releases).
 
-> **NOTE**: If you've previously downloaded the code this will update your installation to the most recent available version.
 
-If you don't have a golang environment setup you should be able to download a binary for GNU/Linux from the github release page:
+### Source Installation go <=  1.11
 
-* [Binary Release for GNU/Linux - 64-bit](https://github.com/skx/puppet-summary/releases)
+If you're using `go` before 1.11 then the following command should fetch/update the project and install it upon your system:
+
+     $ go get -u github.com/skx/puppet-summary
+
+### Source installation go  >= 1.12
+
+If you're using a more recent version of `go` (which is _highly_ recommended), you need to clone to a directory which is not present upon your `GOPATH`:
+
+    git clone https://github.com/skx/puppet-summary
+    cd puppet-summary
+    go install
 
 
 ## Execution
@@ -169,5 +197,16 @@ The appeal of allowing submissions from the loopback is that your reverse-proxy 
       * For example "`puppet-summary serve -db-file ./new.db`",  "`puppet-summary metrics -db-file ./new.db`", and "`puppet-summary prune -db-file ./new.db`".
 
 
+## Github Setup
+
+This repository is configured to run tests upon every commit, and when
+pull-requests are created/updated.  The testing is carried out via
+[.github/run-tests.sh](.github/run-tests.sh) which is used by the
+[github-action-tester](https://github.com/skx/github-action-tester) action.
+
+Releases are automated in a similar fashion via [.github/build](.github/build),
+and the [github-action-publish-binaries](https://github.com/skx/github-action-publish-binaries) action.
+
+
 Steve
- --
+--
