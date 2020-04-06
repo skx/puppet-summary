@@ -179,10 +179,12 @@ func populateEnvironment(prefix string) error {
 	rows.Close()
 	for id, yamlfile := range ids {
 		if len(yamlfile) > 0 {
+			var content []byte
 			path := filepath.Join(prefix, yamlfile)
-			content, err := ioutil.ReadFile(path)
+			content, err = ioutil.ReadFile(path)
 			if err == nil {
-				report, err := ParsePuppetReport(content)
+				var report PuppetReport
+				report, err = ParsePuppetReport(content)
 				if err == nil {
 					fmt.Println("Updating id:", id, "with environment:", report.Environment)
 					_, _ = db.Exec("UPDATE reports SET environment = ? WHERE id = ?", report.Environment, id)
