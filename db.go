@@ -162,31 +162,30 @@ func populateEnvironment(prefix string) error {
 		return errors.New("SetupDB not called")
 	}
 
-	var ids map[int]string
-	ids = make(map[int]string)
+	var ids map[int]string = make(map[int]string)
 	rows, err := db.Query("SELECT id,yaml_file FROM reports WHERE environment IS NULL")
 	if err != nil {
 		return err
 	}
 	for rows.Next() {
 		var id int
-		var yaml_file string
-		err = rows.Scan(&id, &yaml_file)
+		var yamlfile string
+		err = rows.Scan(&id, &yamlfile)
 		if err != nil {
 			return err
 		}
-		ids[id] = yaml_file
+		ids[id] = yamlfile
 	}
 	rows.Close()
-	for id, yaml_file := range ids {
-		if len(yaml_file) > 0 {
-			path := filepath.Join(prefix, yaml_file)
+	for id, yamlfile := range ids {
+		if len(yamlfile) > 0 {
+			path := filepath.Join(prefix, yamlfile)
 			content, err := ioutil.ReadFile(path)
 			if err == nil {
 				report, err := ParsePuppetReport(content)
 				if err == nil {
 					fmt.Println("Updating id:", id, "with environment:", report.Environment)
-					_, err = db.Exec("UPDATE reports SET environment = ? WHERE id = ?", report.Environment, id)
+					_, _ = db.Exec("UPDATE reports SET environment = ? WHERE id = ?", report.Environment, id)
 				}
 			}
 		}
