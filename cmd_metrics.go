@@ -23,7 +23,7 @@ func getMetrics() map[string]string {
 	metrics := make(map[string]string)
 
 	// Get the node-states.
-	data, err := getStates()
+	data, err := getStates("")
 	if err != nil {
 		fmt.Printf("Error getting node states: %s\n", err.Error())
 		os.Exit(1)

@@ -38,8 +38,8 @@ func TestBogusYaml(t *testing.T) {
 //
 func TestYamlDates(t *testing.T) {
 
-	tests := []string{"---\ntime: '2017-03-10T10:22:33.659245699+00:00'\nhost: bart\n",
-		"---\ntime: 2017-03-10 10:22:33.493526494 +00:00\nhost: foo\n"}
+	tests := []string{"---\ntime: '2017-03-10T10:22:33.659245699+00:00'\nhost: bart\nenvironment: production\n",
+		"---\ntime: 2017-03-10 10:22:33.493526494 +00:00\nhost: foo\nenvironment: production\n"}
 
 	for _, input := range tests {
 
@@ -162,6 +162,7 @@ func TestNodeStatus(t *testing.T) {
 		//
 		tmp := "---\n" +
 			"host: foo.example.com\n" +
+			"environment: production\n" +
 			"time: '2017-08-07T16:37:42.659245699+00:00'\n" +
 			"status: " + input.state
 
