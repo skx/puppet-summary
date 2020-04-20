@@ -45,6 +45,11 @@ type PuppetReport struct {
 	Fqdn string
 
 	//
+	// Environment of the node.
+	//
+	Environment string
+
+	//
 	// State of the run: changed unchanged, etc.
 	//
 	State string
@@ -127,6 +132,31 @@ func parseHost(y *simpleyaml.Yaml, out *PuppetReport) error {
 	}
 
 	out.Fqdn = host
+	return nil
+}
+
+//
+// parseEnvironment reads the `environment` parameter from the YAML and populates
+// the given report-structure with suitable values.
+//
+func parseEnvironment(y *simpleyaml.Yaml, out *PuppetReport) error {
+	//
+	// Get the hostname.
+	//
+	env, err := y.Get("environment").String()
+	if err != nil {
+		return errors.New("failed to get 'environment' from YAML")
+	}
+
+	//
+	// Ensure the hostname passes a simple regexp
+	//
+	reg, _ := regexp.Compile("^([A-Za-z0-9_]+)$")
+	if !reg.MatchString(env) {
+		return errors.New("the submitted 'environment' field failed our security check")
+	}
+
+	out.Environment = env
 	return nil
 }
 
@@ -421,6 +451,14 @@ func ParsePuppetReport(content []byte) (PuppetReport, error) {
 	hostError := parseHost(yaml, &x)
 	if hostError != nil {
 		return x, hostError
+	}
+
+	//
+	// Parse the environment
+	//
+	envError := parseEnvironment(yaml, &x)
+	if envError != nil {
+		return x, envError
 	}
 
 	//

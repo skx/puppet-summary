@@ -94,7 +94,7 @@ func APIState(res http.ResponseWriter, req *http.Request) {
 	//
 	// Get the nodes.
 	//
-	NodeList, err := getIndexNodes()
+	NodeList, err := getIndexNodes("")
 	if err != nil {
 		status = http.StatusInternalServerError
 		return
@@ -188,7 +188,7 @@ func RadiatorView(res http.ResponseWriter, req *http.Request) {
 	//
 	// Get the state of the nodes.
 	//
-	data, err := getStates()
+	data, err := getStates("")
 	if err != nil {
 		status = http.StatusInternalServerError
 		return
@@ -447,7 +447,7 @@ func SearchHandler(res http.ResponseWriter, req *http.Request) {
 	//
 	// Get all known nodes.
 	//
-	NodeList, err := getIndexNodes()
+	NodeList, err := getIndexNodes("")
 	if err != nil {
 		status = http.StatusInternalServerError
 		return
@@ -926,19 +926,27 @@ func IndexHandler(res http.ResponseWriter, req *http.Request) {
 	}()
 
 	//
+	// Check if we are filtering by environment
+	//
+	vars := mux.Vars(req)
+	environment := vars["environment"]
+
+	//
 	// Annoying struct to allow us to populate our template
 	// with both the nodes in the list, and the graph-data
 	//
 	type Pagedata struct {
-		Graph     []PuppetHistory
-		Nodes     []PuppetRuns
-		Urlprefix string
+		Graph        []PuppetHistory
+		Nodes        []PuppetRuns
+		Environment  string
+		Environments []string
+		Urlprefix    string
 	}
 
 	//
 	// Get the nodes to show on our front-page
 	//
-	NodeList, err := getIndexNodes()
+	NodeList, err := getIndexNodes(environment)
 	if err != nil {
 		status = http.StatusInternalServerError
 		return
@@ -947,11 +955,15 @@ func IndexHandler(res http.ResponseWriter, req *http.Request) {
 	//
 	// Get the graph-data
 	//
-	graphs, err := getHistory()
+	graphs, err := getHistory(environment)
 	if err != nil {
 		status = http.StatusInternalServerError
 		return
 	}
+
+	//
+	// Get all environments
+	environments, err := getEnvironments()
 
 	//
 	// Populate this structure.
@@ -959,6 +971,8 @@ func IndexHandler(res http.ResponseWriter, req *http.Request) {
 	var x Pagedata
 	x.Graph = graphs
 	x.Nodes = NodeList
+	x.Environment = environment
+	x.Environments = environments
 	x.Urlprefix = templateArgs.urlprefix
 
 	//
@@ -1083,6 +1097,9 @@ func serve(settings serveCmd) {
 	// Handle a display of all known nodes, and their last state.
 	//
 	router.HandleFunc("/", IndexHandler).Methods("GET")
+	// also do it for environments
+	router.HandleFunc("/environment/{environment}/", IndexHandler).Methods("GET")
+	router.HandleFunc("/environment/{environment}", IndexHandler).Methods("GET")
 
 	//
 	// Static-Files
@@ -1178,6 +1195,11 @@ func (p *serveCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{})
 	// missing.
 	//
 	SetupDB(p.dbFile)
+
+	//
+	// Check for entries with no environment
+	//
+	populateEnvironment(p.prefix)
 
 	//
 	// If autoprune

@@ -36,7 +36,7 @@ func runPrune(x pruneCmd) error {
 		if x.verbose {
 			fmt.Printf("Pruning 'orphaned' reports from beneath %s\n", ReportPrefix)
 		}
-		return (pruneOrphaned(x.prefix, x.verbose))
+		return (pruneOrphaned("", x.prefix, x.verbose))
 	}
 
 	//

@@ -46,7 +46,7 @@ func addFakeReports() {
 
 	//
 	// Add some records
-	stmt, err := tx.Prepare("INSERT INTO reports(fqdn,yaml_file,executed_at) values(?,?,?)")
+	stmt, err := tx.Prepare("INSERT INTO reports(fqdn,environment,yaml_file,executed_at) values(?,'production',?,?)")
 	if err != nil {
 		panic(err)
 	}
@@ -169,7 +169,7 @@ func TestMissingInit(t *testing.T) {
 		t.Errorf("Got wrong error: %v", err)
 	}
 
-	_, err = getIndexNodes()
+	_, err = getIndexNodes("")
 	if !reg.MatchString(err.Error()) {
 		t.Errorf("Got wrong error: %v", err)
 	}
@@ -179,7 +179,7 @@ func TestMissingInit(t *testing.T) {
 		t.Errorf("Got wrong error: %v", err)
 	}
 
-	_, err = getHistory()
+	_, err = getHistory("")
 	if !reg.MatchString(err.Error()) {
 		t.Errorf("Got wrong error: %v", err)
 	}
@@ -345,7 +345,7 @@ func TestIndex(t *testing.T) {
 	// We have three fake nodes now, two of which have the
 	// same hostname.
 	//
-	runs, err := getIndexNodes()
+	runs, err := getIndexNodes("")
 	if err != nil {
 		t.Errorf("getIndexNodes failed: %v", err)
 	}
@@ -450,7 +450,7 @@ func TestHistory(t *testing.T) {
 	//
 	// We have three fake nodes now, two of which have the same hostname.
 	//
-	runs, err := getHistory()
+	runs, err := getHistory("")
 	if err != nil {
 		t.Errorf("getHistory failed: %v", err)
 	}

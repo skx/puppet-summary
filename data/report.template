@@ -46,7 +46,7 @@
           <div class="col-sm-1 col-md-1">
           </div>
           <div class="col-sm-11 col-md-11">
-            <p>Report of execution against {{ .Report.Fqdn }}, at {{ .Report.At }}:</p>
+            <p>Report of execution against {{ .Report.Fqdn }} in {{ .Report.Environment }}, at {{ .Report.At }}:</p>
             <table class="table table-bordered table-striped table-condensed table-hover">
               <tr><td>Changed </td><td>{{ .Report.Changed }}</td></tr>
               <tr><td>Skipped </td><td>{{ .Report.Skipped }}</td></tr>

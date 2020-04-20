@@ -105,6 +105,7 @@
         <tr>
           <th>ID</th>
           <th>Node</th>
+          <th>Environment</th>
           <th>Status</th>
           <th>Seen</th>
           <th>Failed</th>
@@ -118,6 +119,7 @@
            {{if ne .YamlFile "pruned" }} data-href="{{$.Urlprefix }}/report/{{.ID}}" {{ end }}>
           <td id="data_{{incr $i}}">{{incr $i}}</td>
           <td>{{.Fqdn}}</td>
+          <td>{{.Environment}}</td>
           <td>{{.State}}</td>
           <td title="{{.At}}">{{.Ago}}</td>
           <td>{{.Failed}}</td>
