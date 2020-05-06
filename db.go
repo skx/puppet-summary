@@ -167,6 +167,7 @@ func populateEnvironment(prefix string) error {
 	if err != nil {
 		return err
 	}
+	defer rows.Close()
 	for rows.Next() {
 		var id int
 		var yamlfile string
@@ -176,7 +177,7 @@ func populateEnvironment(prefix string) error {
 		}
 		ids[id] = yamlfile
 	}
-	rows.Close()
+
 	for id, yamlfile := range ids {
 		if len(yamlfile) > 0 {
 			var content []byte
