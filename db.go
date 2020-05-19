@@ -785,9 +785,9 @@ func pruneReports(environment string, prefix string, days int, verbose bool) err
 	//
 	// Select appropriate environment, if specified
 	//
-	env_condition := ""
+	envCondition := ""
 	if len(environment) > 0 {
-		env_condition = " AND environment = '" + environment + "'"
+		envCondition = " AND environment = '" + environment + "'"
 	}
 
 	//
@@ -798,7 +798,7 @@ func pruneReports(environment string, prefix string, days int, verbose bool) err
 	//
 	// Find things that are old.
 	//
-	find, err := db.Prepare("SELECT id,yaml_file FROM reports WHERE ( ( strftime('%s','now') - executed_at ) > ? )" + env_condition)
+	find, err := db.Prepare("SELECT id,yaml_file FROM reports WHERE ( ( strftime('%s','now') - executed_at ) > ? )" + envCondition)
 	if err != nil {
 		return err
 	}
@@ -806,7 +806,7 @@ func pruneReports(environment string, prefix string, days int, verbose bool) err
 	//
 	// Remove old reports, en mass.
 	//
-	clean, err := db.Prepare("DELETE FROM reports WHERE ( ( strftime('%s','now') - executed_at ) > ? )" + env_condition)
+	clean, err := db.Prepare("DELETE FROM reports WHERE ( ( strftime('%s','now') - executed_at ) > ? )" + envCondition)
 	if err != nil {
 		return err
 	}
@@ -888,15 +888,15 @@ func pruneUnchanged(environment string, prefix string, verbose bool) error {
 	//
 	// Select appropriate environment, if specified
 	//
-	env_condition := ""
+	envCondition := ""
 	if len(environment) > 0 {
-		env_condition = " AND environment = '" + environment + "'"
+		envCondition = " AND environment = '" + environment + "'"
 	}
 
 	//
 	// Find unchanged reports.
 	//
-	find, err := db.Prepare("SELECT id,yaml_file FROM reports WHERE state='unchanged'" + env_condition)
+	find, err := db.Prepare("SELECT id,yaml_file FROM reports WHERE state='unchanged'" + envCondition)
 	if err != nil {
 		return err
 	}
@@ -904,7 +904,7 @@ func pruneUnchanged(environment string, prefix string, verbose bool) error {
 	//
 	// Prepare to update them all.
 	//
-	clean, err := db.Prepare("UPDATE reports SET yaml_file='pruned' WHERE state='unchanged'" + env_condition)
+	clean, err := db.Prepare("UPDATE reports SET yaml_file='pruned' WHERE state='unchanged'" + envCondition)
 	if err != nil {
 		return err
 	}

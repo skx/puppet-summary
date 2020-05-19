@@ -268,6 +268,9 @@ func TestPrune(t *testing.T) {
 	//
 	fnl, err := countReports()
 
+	if err != nil {
+		t.Errorf("Error counting reports")
+	}
 	if fnl != 3 {
 		t.Errorf("We have %d production environment reports, not 3", fnl)
 	}
