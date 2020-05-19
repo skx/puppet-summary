@@ -16,12 +16,13 @@ import (
 // The options set by our command-line flags.
 //
 type pruneCmd struct {
-	dbFile    string
-	days      int
-	unchanged bool
-	orphaned  bool
-	prefix    string
-	verbose   bool
+	dbFile      string
+	days        int
+	environment string
+	unchanged   bool
+	orphaned    bool
+	prefix      string
+	verbose     bool
 }
 
 //
@@ -36,7 +37,7 @@ func runPrune(x pruneCmd) error {
 		if x.verbose {
 			fmt.Printf("Pruning 'orphaned' reports from beneath %s\n", ReportPrefix)
 		}
-		return (pruneOrphaned("", x.prefix, x.verbose))
+		return (pruneOrphaned(x.environment, x.prefix, x.verbose))
 	}
 
 	//
@@ -46,7 +47,7 @@ func runPrune(x pruneCmd) error {
 		if x.verbose {
 			fmt.Printf("Pruning 'unchanged' reports from beneath %s\n", ReportPrefix)
 		}
-		return (pruneUnchanged(x.prefix, x.verbose))
+		return (pruneUnchanged(x.environment, x.prefix, x.verbose))
 	}
 
 	//
@@ -57,7 +58,7 @@ func runPrune(x pruneCmd) error {
 		fmt.Printf("Pruning reports older than %d days from beneath %s\n", x.days, ReportPrefix)
 	}
 
-	err := pruneReports(x.prefix, x.days, x.verbose)
+	err := pruneReports(x.environment, x.prefix, x.days, x.verbose)
 	return err
 }
 
@@ -82,6 +83,7 @@ func (p *pruneCmd) SetFlags(f *flag.FlagSet) {
 	f.BoolVar(&p.orphaned, "orphaned", false, "Remove reports from hosts which are orphaned.")
 	f.StringVar(&p.dbFile, "db-file", "ps.db", "The SQLite database to use.")
 	f.StringVar(&p.prefix, "prefix", "./reports/", "The prefix to the local YAML hierarchy.")
+	f.StringVar(&p.environment, "environment", "", "If specified only prune this environment.")
 }
 
 //
