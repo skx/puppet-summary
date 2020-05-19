@@ -11,6 +11,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strconv"
 	"time"
@@ -764,6 +765,90 @@ func getHistory(environment string) ([]PuppetHistory, error) {
 
 	return res, err
 
+}
+
+//
+// Prune dangling reports
+//
+// Walk the reports directory and remove all files that are not referenced
+// in the database.
+//
+func pruneDangling(prefix string, noop bool, verbose bool) error {
+
+	//
+	// Ensure we have a DB-handle
+	//
+	if db == nil {
+		return errors.New("SetupDB not called")
+	}
+
+	//
+	// Find all yaml files
+	//
+	find, err := db.Query("SELECT yaml_file FROM reports")
+	if err != nil {
+		return err
+	}
+
+	//
+	// Copy them for easy access
+	//
+	reports := make(map[string]int)
+	for find.Next() {
+		var fname string
+		find.Scan(&fname)
+		reports[fname] = 1
+	}
+
+	//
+	// We have to be real careful so we will match filenames to this regexp
+	//
+	r, _ := regexp.Compile("^[0-9a-f]{40}$")
+
+	//
+	// Walk reports directory
+	//
+	err = filepath.Walk(prefix, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			fmt.Printf("Error accessing path %q: %v\n", path, err)
+			return err
+		}
+		if !info.IsDir() {
+			rel, lerr := filepath.Rel(prefix, path)
+			if r.MatchString(info.Name()) && lerr == nil {
+				_, found := reports[rel]
+				if found {
+					// can be used to find db entries with no file reports
+					reports[rel] = 2
+				} else {
+					if noop {
+						fmt.Printf("Would remove file %q\n", path)
+					} else {
+						if verbose {
+							fmt.Printf("Removing file %q\n", path)
+						}
+						os.Remove(path)
+					}
+				}
+			} else {
+				fmt.Printf("Warning - unexpected file or error parsing: %q\n", path)
+			}
+		}
+		return nil
+	})
+
+	//
+	// Check for database entries with missing yaml file reports
+	//
+	if verbose {
+		for k, v := range reports {
+			if v != 2 {
+				fmt.Printf("Missing file: %q\n", k)
+			}
+		}
+	}
+
+	return nil
 }
 
 //

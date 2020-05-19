@@ -22,6 +22,8 @@ type pruneCmd struct {
 	unchanged   bool
 	orphaned    bool
 	prefix      string
+	dangling    bool
+	noop        bool
 	verbose     bool
 }
 
@@ -29,6 +31,16 @@ type pruneCmd struct {
 // Run a prune
 //
 func runPrune(x pruneCmd) error {
+
+	//
+	// Remove yaml files that are not referenced in the database
+	//
+	if x.dangling {
+		if x.verbose {
+			fmt.Printf("Pruning yaml report files that are not referenced in the database from beneath %s\n", ReportPrefix)
+		}
+		return (pruneDangling(x.prefix, x.noop, x.verbose))
+	}
 
 	//
 	// Removing orphaned nodes?
@@ -83,6 +95,8 @@ func (p *pruneCmd) SetFlags(f *flag.FlagSet) {
 	f.BoolVar(&p.orphaned, "orphaned", false, "Remove reports from hosts which are orphaned.")
 	f.StringVar(&p.dbFile, "db-file", "ps.db", "The SQLite database to use.")
 	f.StringVar(&p.prefix, "prefix", "./reports/", "The prefix to the local YAML hierarchy.")
+	f.BoolVar(&p.dangling, "dangling", false, "Remove yaml reports that are not referenced in the database.")
+	f.BoolVar(&p.noop, "noop", false, "Do not remove dangling yaml files, just pretend.")
 	f.StringVar(&p.environment, "environment", "", "If specified only prune this environment.")
 }
 
