@@ -375,9 +375,21 @@ func getIndexNodes(environment string) ([]PuppetRuns, error) {
 	}
 
 	//
+	// Shared query piece
+	//
+	queryStart := "SELECT fqdn, state, runtime, max(executed_at) FROM reports WHERE "
+
+	//
+	// If environment is specified add a filter
+	//
+	if len(environment) > 0 {
+		queryStart += " environment = '" + environment + "' AND "
+	}
+
+	//
 	// Select the status - for nodes seen in the past 24 hours.
 	//
-	rows, err := db.Query("SELECT fqdn, environment, state, runtime, max(executed_at) FROM reports WHERE  ( ( strftime('%s','now') - executed_at ) < ? ) GROUP by fqdn;", threshold)
+	rows, err := db.Query(queryStart+" ( ( strftime('%s','now') - executed_at ) < ? ) GROUP by fqdn;", threshold)
 	if err != nil {
 		return nil, err
 	}
@@ -396,14 +408,9 @@ func getIndexNodes(environment string) ([]PuppetRuns, error) {
 	for rows.Next() {
 		var tmp PuppetRuns
 		var at string
-		err = rows.Scan(&tmp.Fqdn, &tmp.Environment, &tmp.State, &tmp.Runtime, &at)
+		err = rows.Scan(&tmp.Fqdn, &tmp.State, &tmp.Runtime, &at)
 		if err != nil {
 			return nil, err
-		}
-
-		// if showing a specific environment skip nodes that are not in it
-		if len(environment) > 0 && environment != tmp.Environment {
-			continue
 		}
 
 		//
@@ -440,7 +447,7 @@ func getIndexNodes(environment string) ([]PuppetRuns, error) {
 	//
 	// Now look for orphaned nodes.
 	//
-	rows2, err2 := db.Query("SELECT fqdn, environment, state, runtime, max(executed_at) FROM reports WHERE ( ( strftime('%s','now') - executed_at ) > ? ) GROUP by fqdn;", threshold)
+	rows2, err2 := db.Query(queryStart+" ( ( strftime('%s','now') - executed_at ) > ? ) GROUP by fqdn;", threshold)
 	if err2 != nil {
 		return nil, err
 	}
@@ -454,14 +461,9 @@ func getIndexNodes(environment string) ([]PuppetRuns, error) {
 	for rows2.Next() {
 		var tmp PuppetRuns
 		var at string
-		err = rows2.Scan(&tmp.Fqdn, &tmp.Environment, &tmp.State, &tmp.Runtime, &at)
+		err = rows2.Scan(&tmp.Fqdn, &tmp.State, &tmp.Runtime, &at)
 		if err != nil {
 			return nil, err
-		}
-
-		// if showing a specific environment skip nodes that are not in it
-		if len(environment) > 0 && environment != tmp.Environment {
-			continue
 		}
 
 		//
@@ -718,7 +720,12 @@ func getHistory(environment string) ([]PuppetHistory, error) {
 		x.Failed = "0"
 		x.Date = known
 
-		stmt, err = db.Prepare("SELECT distinct state, COUNT(state) AS CountOf FROM reports WHERE strftime('%d/%m/%Y', DATE(executed_at, 'unixepoch'))=? GROUP by state")
+		query := "SELECT distinct state, COUNT(state) AS CountOf FROM reports WHERE strftime('%d/%m/%Y', DATE(executed_at, 'unixepoch'))=? "
+		if len(environment) > 0 {
+			query += " AND environment = '" + environment + "' "
+		}
+		query += " GROUP by state"
+		stmt, err = db.Prepare(query)
 		if err != nil {
 			return nil, err
 		}
