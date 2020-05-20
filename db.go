@@ -855,7 +855,7 @@ func pruneDangling(prefix string, noop bool, verbose bool) error {
 		}
 	}
 
-	return nil
+	return err
 }
 
 //
