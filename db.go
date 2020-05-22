@@ -592,7 +592,7 @@ func getReports(fqdn string) ([]PuppetReportSummary, error) {
 	//
 	// Select the status.
 	//
-	stmt, err := db.Prepare("SELECT id, fqdn, environment, state, executed_at, runtime, failed, changed, total, yaml_file FROM reports WHERE fqdn=? ORDER by executed_at DESC LIMIT 50")
+	stmt, err := db.Prepare("SELECT id, fqdn, environment, state, executed_at, runtime, failed, changed, total, yaml_file FROM reports WHERE fqdn=? ORDER by executed_at DESC")
 	if err != nil {
 		return nil, err
 	}
