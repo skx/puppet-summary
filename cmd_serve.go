@@ -824,6 +824,12 @@ func NodeHandler(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
+// StaticHandler is responsible for returning the contents of
+// all our embedded resources to HTTP-clients.
+//
+// It is configured as 404-handler, and can look for resources,
+// serving those that are present, and returning genuine 404
+// responses for requests that are entirely unknown.
 func StaticHandler(res http.ResponseWriter, req *http.Request) {
 
 	//
