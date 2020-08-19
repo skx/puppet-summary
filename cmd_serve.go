@@ -14,6 +14,7 @@ import (
 	"fmt"
 	"html/template"
 	"io/ioutil"
+	"mime"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -823,108 +824,34 @@ func NodeHandler(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-//
-// IconHandler is the handler for the HTTP end-point
-//
-//	 GET /favicon.ico
-//
-// It will server an embedded binary resource.
-//
-func IconHandler(res http.ResponseWriter, req *http.Request) {
-
-	serveStatic(res, req, "data/favicon.ico", "image/vnd.microsoft.icon")
-}
-
-// CSSPath is the handler for all the CSS files beneath /css.
-func CSSPath(res http.ResponseWriter, req *http.Request) {
+func StaticHandler(res http.ResponseWriter, req *http.Request) {
 
 	//
 	// Get the path we're going to serve.
 	//
-	vars := mux.Vars(req)
-	path := vars["path"]
+	path := req.URL.Path
 
 	//
-	// Ensure we received a path.
+	// Is this a static-resource we know about?
 	//
-	if len(path) < 1 {
-		res.WriteHeader(http.StatusNotFound)
-		fmt.Fprint(res, "The request you made pointed to a missing resource")
-		return
-	}
-
-	//
-	// Serve it
-	//
-	serveStatic(res, req, "data/css/"+path, "text/css")
-}
-
-// serveStatic serves a static path, with the given MIME type.
-func serveStatic(res http.ResponseWriter, req *http.Request, path string, mime string) {
-
-	// Load the asset.
-	data, err := getResource(path)
+	data, err := getResource("data" + path)
 	if err != nil {
 		res.WriteHeader(http.StatusNotFound)
-		fmt.Fprintf(res, "Error loading the resource you requested: %s", err.Error())
+		fmt.Fprintf(res, "Error loading the resource you requested: %s : %s", path, err.Error())
 		return
 	}
 
-	res.Header().Set("Content-Type", mime)
+	//
+	// OK at this point we're handling a valid static-resource,
+	// so we just need to get the content-type setup appropriately.
+	//
+	suffix := filepath.Ext(path)
+	mType := mime.TypeByExtension(suffix)
+	if mType != "" {
+		res.Header().Set("Content-Type", mType)
+	}
 	res.Write(data)
-}
 
-//
-// JavascriptPath is the handler for all the javascript files beneath /js.
-// It will serve an embedded javascript resource.
-//
-func JavascriptPath(res http.ResponseWriter, req *http.Request) {
-
-	//
-	// Get the path we're going to serve.
-	//
-	vars := mux.Vars(req)
-	path := vars["path"]
-
-	//
-	// Ensure we received a path.
-	//
-	if len(path) < 1 {
-		res.WriteHeader(http.StatusNotFound)
-		fmt.Fprint(res, "The request you made pointed to a missing resource")
-		return
-	}
-
-	//
-	// Serve it
-	//
-	serveStatic(res, req, "data/js/"+path, "application/javascript")
-}
-
-//
-// FontsPath is the handler for all the font files beneath /fonts.
-//
-func FontsPath(res http.ResponseWriter, req *http.Request) {
-
-	//
-	// Get the path we're going to serve.
-	//
-	vars := mux.Vars(req)
-	path := vars["path"]
-
-	//
-	// Ensure we received a path.
-	//
-	if len(path) < 1 {
-		res.WriteHeader(http.StatusNotFound)
-		fmt.Fprint(res, "The request you made pointed to a missing resource")
-		return
-	}
-
-	//
-	// Serve it
-	//
-	serveStatic(res, req, "data/fonts/"+path, "font/woff2")
 }
 
 //
@@ -1084,6 +1011,12 @@ func serve(settings serveCmd) {
 	router := mux.NewRouter()
 
 	//
+	// Static-Files are handled via the 404-handler,
+	// as that is invoked when other routes don't match.
+	//
+	router.NotFoundHandler = http.HandlerFunc(StaticHandler)
+
+	//
 	// API end-points
 	//
 	router.HandleFunc("/api/state/{state}/", APIState).Methods("GET")
@@ -1126,14 +1059,6 @@ func serve(settings serveCmd) {
 	// also do it for environments
 	router.HandleFunc("/environment/{environment}/", IndexHandler).Methods("GET")
 	router.HandleFunc("/environment/{environment}", IndexHandler).Methods("GET")
-
-	//
-	// Static-Files
-	//
-	router.HandleFunc("/favicon.ico", IconHandler).Methods("GET")
-	router.HandleFunc("/js/{path}", JavascriptPath).Methods("GET")
-	router.HandleFunc("/fonts/{path}", FontsPath).Methods("GET")
-	router.HandleFunc("/css/{path}", CSSPath).Methods("GET")
 
 	//
 	// Bind the router.
