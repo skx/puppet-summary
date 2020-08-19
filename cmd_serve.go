@@ -902,6 +902,32 @@ func JavascriptPath(res http.ResponseWriter, req *http.Request) {
 }
 
 //
+// FontsPath is the handler for all the font files beneath /fonts.
+//
+func FontsPath(res http.ResponseWriter, req *http.Request) {
+
+	//
+	// Get the path we're going to serve.
+	//
+	vars := mux.Vars(req)
+	path := vars["path"]
+
+	//
+	// Ensure we received a path.
+	//
+	if len(path) < 1 {
+		res.WriteHeader(http.StatusNotFound)
+		fmt.Fprint(res, "The request you made pointed to a missing resource")
+		return
+	}
+
+	//
+	// Serve it
+	//
+	serveStatic(res, req, "data/fonts/"+path, "font/woff2")
+}
+
+//
 // IndexHandler is the handler for the HTTP end-point
 //
 //	 GET /
@@ -1106,6 +1132,7 @@ func serve(settings serveCmd) {
 	//
 	router.HandleFunc("/favicon.ico", IconHandler).Methods("GET")
 	router.HandleFunc("/js/{path}", JavascriptPath).Methods("GET")
+	router.HandleFunc("/fonts/{path}", FontsPath).Methods("GET")
 	router.HandleFunc("/css/{path}", CSSPath).Methods("GET")
 
 	//
