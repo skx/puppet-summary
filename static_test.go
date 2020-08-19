@@ -14,9 +14,11 @@ import (
 // Test that we have one embedded resource.
 //
 func TestResourceCount(t *testing.T) {
+    expected := 13
 	out := getResources()
-	if len(out) != 12 {
-		t.Errorf("We expected 12 resources but found %d.", len(out))
+     
+	if len(out) != expected {
+		t.Errorf("We expected %d resources but found %d.", expected, len(out))
 	}
 }
 
