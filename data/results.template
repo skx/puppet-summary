@@ -8,6 +8,7 @@
     <link href="{{.Urlprefix }}/css/bootstrap.min.css" rel="stylesheet">
     <script src="{{.Urlprefix }}/js/jquery-1.12.4.min.js"></script>
     <script src="{{.Urlprefix }}/js/bootstrap.min.js"></script>
+    <script src="{{.Urlprefix }}/js/jquery.tablesorter.min.js"></script>
   </head>
   <body>
     <nav class="navbar navbar-default">
@@ -53,11 +54,13 @@
         <!-- Results -->
         <div id="all" class="tab-pane fade in active">
           <table id="all_table" class="table table-bordered table-striped table-condensed table-hover">
+            <thead>
             <tr>
               <th>Node</th>
               <th>State</th>
               <th>Seen</th>
             </tr>
+            </thead>
             {{range .Nodes }}
             <tr
                 {{if eq .State "failed" }} class="danger" {{ end }}
@@ -66,7 +69,7 @@
                 data-href="{{$.Urlprefix}}/node/{{.Fqdn}}">
               <td>{{.Fqdn}}</td>
               <td>{{.State}}</td>
-              <td title="{{.At}}">{{.Ago}}</td>
+              <td data-text="{{.Epoch}}" data-sort-value="{{.Epoch}}" title="{{.At}}">{{.Ago}}</td>
             </tr>
             {{end}}
           </table>
@@ -100,6 +103,9 @@
     </footer>
     <script type="text/javascript">
      $(function(){
+       // Allow the table to be sorted
+       $('#all_table').tablesorter();
+
        $('.table tr[data-href]').each(function(){
          $(this).css('cursor','pointer').hover(
            function(){
