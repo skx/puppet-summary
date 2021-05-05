@@ -475,6 +475,7 @@ func getIndexNodes(environment string) ([]PuppetRuns, error) {
 		// string so we first convert to an integer, then
 		// parse as a Unix-timestamp
 		//
+		tmp.Epoch = at
 		tmp.Ago = timeRelative(at)
 
 		//
