@@ -91,7 +91,7 @@ func TestUknownAPIState(t *testing.T) {
 			t.Errorf("Failed to read response-body %v\n", err)
 		}
 
-		content := fmt.Sprintf("%s", body)
+		content := string(body)
 		if status := resp.StatusCode; status != http.StatusInternalServerError {
 			t.Errorf("Unexpected status-code: %v", status)
 		}
@@ -250,7 +250,7 @@ func TestKnownAPIState(t *testing.T) {
 			t.Errorf("Failed to read response-body %v\n", err)
 		}
 
-		content := fmt.Sprintf("%s", body)
+		content := string(body)
 
 		if status := resp.StatusCode; status != http.StatusOK {
 			t.Errorf("Unexpected status-code: %v", status)
@@ -330,7 +330,7 @@ func TestAPITypes(t *testing.T) {
 			t.Errorf("Failed to read response-body %v\n", err)
 		}
 
-		content := fmt.Sprintf("%s", body)
+		content := string(body)
 
 		if status := resp.StatusCode; status != http.StatusOK {
 			t.Errorf("Unexpected status-code: %v", status)
@@ -657,7 +657,7 @@ func TestUnknownNode(t *testing.T) {
 		t.Errorf("Failed to read response-body %v\n", err)
 	}
 
-	content := fmt.Sprintf("%s", body)
+	content := string(body)
 
 	if status := resp.StatusCode; status != http.StatusNotFound {
 		t.Errorf("Unexpected status-code: %v", status)

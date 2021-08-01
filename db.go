@@ -163,7 +163,7 @@ func populateEnvironment(prefix string) error {
 		return errors.New("SetupDB not called")
 	}
 
-	var ids map[int]string = make(map[int]string)
+	ids := make(map[int]string)
 	rows, err := db.Query("SELECT id,yaml_file FROM reports WHERE environment IS NULL")
 	if err != nil {
 		return err
@@ -711,7 +711,7 @@ func getHistory(environment string) ([]PuppetHistory, error) {
 	//
 	// Now we have all the unique dates in `dates`.
 	//
-	loc,_ := time.LoadLocation("Local")
+	loc, _ := time.LoadLocation("Local")
 	for _, known := range dates {
 
 		//
@@ -722,7 +722,7 @@ func getHistory(environment string) ([]PuppetHistory, error) {
 		x.Unchanged = "0"
 		x.Failed = "0"
 		x.Date = known
-		formatTime,_:=time.ParseInLocation("02/01/2006 15:04:05", known + " 00:00:00", loc)
+		formatTime, _ := time.ParseInLocation("02/01/2006 15:04:05", known+" 00:00:00", loc)
 		ts1 := formatTime.Unix()
 		ts2 := ts1 + 3600*24 - 1
 
