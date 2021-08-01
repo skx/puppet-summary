@@ -711,6 +711,7 @@ func getHistory(environment string) ([]PuppetHistory, error) {
 	//
 	// Now we have all the unique dates in `dates`.
 	//
+	loc,_ := time.LoadLocation("Local")
 	for _, known := range dates {
 
 		//
@@ -721,8 +722,11 @@ func getHistory(environment string) ([]PuppetHistory, error) {
 		x.Unchanged = "0"
 		x.Failed = "0"
 		x.Date = known
+		formatTime,_:=time.ParseInLocation("02/01/2006 15:04:05", known + " 00:00:00", loc)
+		ts1 := formatTime.Unix()
+		ts2 := ts1 + 3600*24 - 1
 
-		query := "SELECT distinct state, COUNT(state) AS CountOf FROM reports WHERE strftime('%d/%m/%Y', DATE(executed_at, 'unixepoch'))=? "
+		query := "SELECT distinct state, COUNT(state) AS CountOf FROM reports WHERE executed_at between ? and ?"
 		if len(environment) > 0 {
 			query += " AND environment = '" + environment + "' "
 		}
@@ -732,7 +736,7 @@ func getHistory(environment string) ([]PuppetHistory, error) {
 			return nil, err
 		}
 
-		rows, err = stmt.Query(known)
+		rows, err = stmt.Query(ts1, ts2)
 		if err != nil {
 			return nil, err
 		}
