@@ -653,7 +653,7 @@ func getReports(fqdn string) ([]PuppetReportSummary, error) {
 //
 // Get data for our stacked bar-graph
 //
-func getHistory(environment string) ([]PuppetHistory, error) {
+func getHistory(environment string, limit int) ([]PuppetHistory, error) {
 
 	//
 	// Ensure we have a DB-handle
@@ -667,6 +667,9 @@ func getHistory(environment string) ([]PuppetHistory, error) {
 	//
 	var res []PuppetHistory
 
+	if limit < 2  {
+		limit = 60
+	}
 	//
 	// An array to hold the unique dates we've seen.
 	//
@@ -676,6 +679,7 @@ func getHistory(environment string) ([]PuppetHistory, error) {
 	if len(environment) > 0 {
 		sel = sel + " WHERE environment = '" + environment + "'"
 	}
+	sel = sel + " ORDER BY executed_at DESC"
 	//
 	// Get all the distinct dates we have data for.
 	//
@@ -712,7 +716,7 @@ func getHistory(environment string) ([]PuppetHistory, error) {
 	// Now we have all the unique dates in `dates`.
 	//
 	loc, _ := time.LoadLocation("Local")
-	for _, known := range dates {
+	for _, known := range dates[:limit] { // but we only get the first limit days PuppetHistory.
 
 		//
 		// The result for this date.
