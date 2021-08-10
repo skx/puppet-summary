@@ -711,6 +711,9 @@ func getHistory(environment string, limit int) ([]PuppetHistory, error) {
 	if err != nil {
 		return nil, err
 	}
+	if ( len(dates) < limit ){
+		limit = len(dates)
+	}
 
 	//
 	// Now we have all the unique dates in `dates`.
