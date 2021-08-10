@@ -675,7 +675,7 @@ func getHistory(environment string, limit int) ([]PuppetHistory, error) {
 	//
 	var dates []string
 
-	sel := "SELECT DISTINCT(strftime('%d/%m/%Y', DATE(executed_at, 'unixepoch'))) FROM reports"
+	sel := "SELECT DISTINCT(strftime('%d/%m/%Y', DATE(executed_at, 'unixepoch', 'localtime'))) FROM reports"
 	if len(environment) > 0 {
 		sel = sel + " WHERE environment = '" + environment + "'"
 	}
