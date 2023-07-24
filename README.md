@@ -197,6 +197,11 @@ The appeal of allowing submissions from the loopback is that your reverse-proxy 
       * For example "`puppet-summary serve -db-file ./new.db`",  "`puppet-summary metrics -db-file ./new.db`", and "`puppet-summary prune -db-file ./new.db`".
 
 
+## Service file for systemd
+
+You can find instructions on how to create a service file for systemd in the "samples" directory.
+
+
 ## Github Setup
 
 This repository is configured to run tests upon every commit, and when
