@@ -101,10 +101,10 @@ If you wish to change the host/port you can do so like this:
     $ puppet-summary serve -host 10.10.10.10 -port 4321
     Launching the server on http://10.10.10.10:4321
 
-To have it listen on any available IP address, specify an empty string:
+To have it listen on any available IP address, use one of these examples:
 
     $ puppet-summary serve -host "" -port 4321
-    Launching the server on http://:4321
+    $ puppet-summary serve -host 0.0.0.0 -port 4321
 
 Other sub-commands are described later, or can be viewed via:
 
