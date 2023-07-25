@@ -9,13 +9,13 @@ Table of Contents
 * [Puppet Summary](#puppet-summary)
 * [Puppet Reporting](#puppet-reporting)
 * [Installation](#installation)
-  * [Source Installation go &lt;=  1.11](#source-installation-go---111)
-  * [Source installation go  &gt;= 1.12](#source-installation-go---112)
+  * [Source Installation](#source-installation)
 * [Execution](#execution)
 * [Importing Puppet State](#importing-puppet-state)
 * [Maintenance](#maintenance)
 * [Metrics](#metrics)
 * [Notes On Deployment](#notes-on-deployment)
+  * [Service file for systemd](#service-file-for-systemd)
 * [Github Setup](#github-setup)
 
 Puppet Summary
@@ -48,7 +48,6 @@ You can also consult the API documentation:
 
 
 
-
 ## Puppet Reporting
 
 The puppet-server has integrated support for submitting reports to
@@ -67,26 +66,33 @@ only contains a summary of the available data it will not grow excessively.
 > The software has [been reported](https://github.com/skx/puppet-summary/issues/42) to cope with 16k reports per day, archive approximately 27Gb of data over 14 days!
 
 
+
 ## Installation
 
-There are two ways to install this project from source, which depend on the version of the [go](https://golang.org/) version you're using.
+Installing the service can be done in one of two ways, depending on whether you have the [go](https://golang.org/) toolchain available:
 
-If you just need the binaries you can find them upon the [project release page](https://github.com/skx/puppet-summary/releases).
+* Download the appropriate binary from our [project release page](https://github.com/skx/puppet-summary/releases).
+* Install from source, as documented below.
 
 
-### Source Installation go <=  1.11
+### Source Installation
 
-If you're using `go` before 1.11 then the following command should fetch/update the project and install it upon your system:
-
-     $ go get -u github.com/skx/puppet-summary
-
-### Source installation go  >= 1.12
-
-If you're using a more recent version of `go` (which is _highly_ recommended), you need to clone to a directory which is not present upon your `GOPATH`:
+If you're planning to make changes to the code, or examine it, then the obvious approach to installing from source is to clone the code, then build and install it from that local clone:
 
     git clone https://github.com/skx/puppet-summary
     cd puppet-summary
-    go install
+    go install .
+
+You could install directly from source, without cloning the repository as an interim step, by running:
+
+    go install github.com/skx/puppet-summary@master
+
+In either case you'll find a binary named `puppet-summary` placed inside a directory named `bin` beneath the golang GOPATH directory.  To see exactly where this is please run:
+
+    echo $(go env GOPATH)/bin
+
+(Typically you'd find binaries deployed to the directory `~/go/bin`, however this might vary.)
+
 
 
 ## Execution
@@ -109,6 +115,7 @@ To have it listen on any available IP address, use one of these examples:
 Other sub-commands are described later, or can be viewed via:
 
     $ puppet-summary help
+
 
 
 ## Importing Puppet State
@@ -136,6 +143,7 @@ puppet-master.  Something like this should do the job:
 * That assumes that your reports are located beneath `/var/lib/puppet/reports`,
 but that is a reasonable default.
 * It also assumes you're running the `puppet-summary` instance upon the puppet-master, if you're on a different host remember to change the URI.
+
 
 
 ## Maintenance
@@ -171,6 +179,7 @@ to it :
 The metrics include the count of nodes in each state, `changed`, `unchanged`, `failed`, and `orphaned` and can be used to raise alerts when things fail.  When running with `-nop` the metrics will be dumped to the console instead of submitted.
 
 
+
 ## Notes On Deployment
 
 If you can run this software upon your puppet-master then that's the ideal, that way your puppet-master would be configured to uploaded your reports to `127.0.0.1:3001/upload`, and the dashboard itself may be viewed via a reverse-proxy.
@@ -202,9 +211,10 @@ The appeal of allowing submissions from the loopback is that your reverse-proxy 
       * For example "`puppet-summary serve -db-file ./new.db`",  "`puppet-summary metrics -db-file ./new.db`", and "`puppet-summary prune -db-file ./new.db`".
 
 
-## Service file for systemd
+### Service file for systemd
 
-You can find instructions on how to create a service file for systemd in the "samples" directory.
+You can find instructions on how to create a service file for systemd in the [samples](samples) directory.
+
 
 
 ## Github Setup
