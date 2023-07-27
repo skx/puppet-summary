@@ -1,0 +1,12 @@
+# Check Puppet-Summary
+define command {
+	command_name	check_puppet_summary
+	command_line 	/usr/lib/nagios/plugins/check_puppet_summary.pl -H '$HOSTADDRESS$' -p '$ARG1$' -w '$ARG2$' -c '$ARG3$'
+}
+
+define service {
+	use						dailycheck-service
+	host_name				insert_your_host_here
+	service_description		Puppet-Summary - Nodes
+	check_command			check_puppet_summary!3001!1,10,999,1!2,20,1000,2
+}

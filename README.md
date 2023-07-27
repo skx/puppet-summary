@@ -16,6 +16,7 @@ Table of Contents
 * [Metrics](#metrics)
 * [Notes On Deployment](#notes-on-deployment)
   * [Service file for systemd](#service-file-for-systemd)
+  * [Nagios-Check](#nagios-check)
 * [Github Setup](#github-setup)
 
 Puppet Summary
@@ -214,6 +215,11 @@ The appeal of allowing submissions from the loopback is that your reverse-proxy 
 ### Service file for systemd
 
 You can find instructions on how to create a service file for systemd in the [samples](samples) directory.
+
+
+### Nagios-Check
+
+If you want to monitor the number of nodes with a certain state, add the check from the [samples](samples) directory into your Nagios configuration. Not only useful when nodes are failing, but also when nodes are changed with every single Puppet run.
 
 
 
