@@ -914,7 +914,7 @@ func IndexHandler(res http.ResponseWriter, req *http.Request) {
 	//
 	// Get the graph-data
 	//
-	graphs, err := getHistory(environment)
+	graphs, err := getHistory(environment, 30)
 	if err != nil {
 		status = http.StatusInternalServerError
 		return

@@ -183,7 +183,7 @@ func TestMissingInit(t *testing.T) {
 		t.Errorf("Got wrong error: %v", err)
 	}
 
-	_, err = getHistory("")
+	_, err = getHistory("", 60)
 	if !reg.MatchString(err.Error()) {
 		t.Errorf("Got wrong error: %v", err)
 	}
@@ -471,7 +471,7 @@ func TestHistory(t *testing.T) {
 	//
 	// We have three fake nodes now, two of which have the same hostname.
 	//
-	runs, err := getHistory("")
+	runs, err := getHistory("", 60)
 	if err != nil {
 		t.Errorf("getHistory failed: %v", err)
 	}
