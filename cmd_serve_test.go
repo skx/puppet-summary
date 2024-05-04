@@ -1,7 +1,4 @@
-//
 // Simple testing of the HTTP-server
-//
-//
 package main
 
 import (
@@ -20,10 +17,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
-//
 // Report IDs must be numeric.  Submit some bogus requests to
 // ensure they fail with a suitable error-message.
-//
 func TestNonNumericReport(t *testing.T) {
 	router := mux.NewRouter()
 	router.HandleFunc("/report/{id}/", ReportHandler).Methods("GET")
@@ -55,10 +50,8 @@ func TestNonNumericReport(t *testing.T) {
 	}
 }
 
-//
 // API-state must use known values.  Submit some bogus values to ensure
 // a suitable error is returned.
-//
 func TestUknownAPIState(t *testing.T) {
 
 	// Wire up the route
@@ -102,14 +95,12 @@ func TestUknownAPIState(t *testing.T) {
 
 }
 
-//
 // Test that our report-view returns content that seems reasonable,
 // in all three cases:
 //
-//   * text/html
-//   * application/json
-//   * application/xml
-//
+//   - text/html
+//   - application/json
+//   - application/xml
 func TestReportView(t *testing.T) {
 
 	// Create a fake database
@@ -191,9 +182,7 @@ func TestReportView(t *testing.T) {
 	os.RemoveAll(path)
 }
 
-//
 // API state must be known.
-//
 func TestKnownAPIState(t *testing.T) {
 
 	// Create a fake database
@@ -270,9 +259,7 @@ func TestKnownAPIState(t *testing.T) {
 
 }
 
-//
 // API state should accept XML, JSON, and plain-text
-//
 func TestAPITypes(t *testing.T) {
 
 	// Create a fake database
@@ -350,9 +337,7 @@ func TestAPITypes(t *testing.T) {
 
 }
 
-//
 // Searching must be done via a POST.
-//
 func TestSearchMethod(t *testing.T) {
 
 	req, err := http.NewRequest("GET", "/search", nil)
@@ -379,9 +364,7 @@ func TestSearchMethod(t *testing.T) {
 
 }
 
-//
 // The search handler must have a term-parameter.
-//
 func TestSearchEmpty(t *testing.T) {
 
 	req, err := http.NewRequest("POST", "/search", bytes.NewReader(nil))
@@ -410,9 +393,7 @@ func TestSearchEmpty(t *testing.T) {
 	}
 }
 
-//
 // The search handler should run a search
-//
 func TestSearch(t *testing.T) {
 
 	// Create a fake database
@@ -464,9 +445,7 @@ func TestSearch(t *testing.T) {
 	os.RemoveAll(path)
 }
 
-//
 // Submitting reports must be done via a POST.
-//
 func TestUploadReportMethod(t *testing.T) {
 
 	req, err := http.NewRequest("GET", "/upload", nil)
@@ -493,9 +472,7 @@ func TestUploadReportMethod(t *testing.T) {
 
 }
 
-//
 // Submitting a pre-cooked report should succeed.
-//
 func TestUploadReport(t *testing.T) {
 
 	// Create a fake database
@@ -558,9 +535,7 @@ func TestUploadReport(t *testing.T) {
 	os.RemoveAll(path)
 }
 
-//
 // Submitting a pre-cooked report which is bogus should fail.
-//
 func TestUploadBogusReport(t *testing.T) {
 
 	// Create a fake database
@@ -618,9 +593,7 @@ func TestUploadBogusReport(t *testing.T) {
 	os.RemoveAll(path)
 }
 
-//
 // Unknown-nodes are handled.
-//
 func TestUnknownNode(t *testing.T) {
 
 	// Create a fake database
@@ -676,15 +649,12 @@ func TestUnknownNode(t *testing.T) {
 
 }
 
-//
 // Test that our node-view returns content that seems reasonable,
 // in all three cases:
 //
-//   * text/html
-//   * application/json
-//   * application/xml
-//
-//
+//   - text/html
+//   - application/json
+//   - application/xml
 func TestKnownNode(t *testing.T) {
 
 	// Create a fake database
@@ -761,14 +731,12 @@ func TestKnownNode(t *testing.T) {
 
 }
 
-//
 // Test that our index-view returns content that seems reasonable,
 // in all three cases:
 //
-//   * text/html
-//   * application/json
-//   * application/xml
-//
+//   - text/html
+//   - application/json
+//   - application/xml
 func TestIndexView(t *testing.T) {
 
 	// Create a fake database
@@ -839,12 +807,10 @@ func TestIndexView(t *testing.T) {
 
 }
 
-//
 // Test that static-resources work:
 //
-//  1.  They produce content
-//  2.  They have sensible MIME-types
-//
+//  1. They produce content
+//  2. They have sensible MIME-types
 func TestStaticResources(t *testing.T) {
 
 	// Test-cases
@@ -856,7 +822,7 @@ func TestStaticResources(t *testing.T) {
 	tests := []TestCase{
 		TestCase{path: "/favicon.ico", mime: "image/vnd.microsoft.icon"},
 		TestCase{path: "/robots.txt", mime: "text/plain"},
-		TestCase{path: "/js/jquery.tablesorter.min.js", mime: "application/javascript"},
+		TestCase{path: "/js/jquery.tablesorter.min.js", mime: "text/javascript"},
 		TestCase{path: "/css/bootstrap.min.css", mime: "text/css"},
 		TestCase{path: "/fonts/glyphicons-halflings-regular.woff2", mime: "font/woff2"},
 	}
@@ -914,14 +880,12 @@ func TestStaticResources(t *testing.T) {
 	}
 }
 
-//
 // Test that our radiator-view returns content that seems reasonable,
 // in all three cases:
 //
-//   * text/html
-//   * application/json
-//   * application/xml
-//
+//   - text/html
+//   - application/json
+//   - application/xml
 func TestRadiatorView(t *testing.T) {
 
 	// Create a fake database
